@@ -1,0 +1,100 @@
+generated: '2026-07-19'
+method: searched
+source: openapi/knak-send-openapi-original.yml, openapi/knak-custom-validator-openapi-original.yml
+docs: https://developer.knak.com/api/
+summary:
+  types:
+  - http
+  - oauth2
+  - apiKey
+  api_key_in:
+  - header
+  oauth2_flows:
+  - authorizationCode
+  primary: Bearer token in the Authorization header, obtained either as a non-expiring
+    API key or through the OAuth 2.0 authorization code flow.
+schemes:
+- name: Enterprise Bearer token
+  type: http
+  scheme: bearer
+  applies_to: knak:enterprise
+  header: Authorization
+  format: 'Authorization: Bearer <token>'
+  description: All Knak Enterprise API requests are authenticated with a Bearer token.
+  sources:
+  - https://developer.knak.com/api/
+  token_acquisition:
+  - method: api_key
+    description: A user generates a non-expiring token through the Enterprise UI. Knak
+      documents this as generally recommended only for testing and development, or where
+      the OAuth2 flow is not applicable.
+    url: https://enterprise.knak.io/account/api-access
+    expires: false
+    setup_docs: https://developer.knak.com/api-essentials/api-user-setup/
+    setup_notes: Requires an API role with the "Can Manage API Tokens" permission, assigned
+      to a dedicated API user.
+  - method: oauth2
+    description: The method Knak recommends for allowing an application access to a
+      customer's Knak data.
+    url: https://enterprise.knak.io/account/oauth-applications
+- name: Knak Enterprise OAuth2
+  type: oauth2
+  applies_to: knak:enterprise
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://enterprise.knak.io/oauth/authorize
+    tokenUrl: https://enterprise.knak.io/oauth/token
+    response_types:
+    - code
+    csrf: state parameter supported
+    refresh: refresh_token issued alongside access_token
+  sources:
+  - https://developer.knak.com/api/
+- name: Knak MCP OAuth 2.1
+  type: oauth2
+  applies_to: mcp
+  flows:
+  - flow: authorizationCode
+    pkce: S256
+    dynamic_client_registration: true
+    authorizationUrl: https://enterprise.knak.io/oauth/authorize
+    tokenUrl: https://enterprise.knak.io/oauth/token
+    registrationUrl: https://enterprise.knak.io/oauth/register
+    scopes:
+    - mcp:use
+  sources:
+  - https://enterprise.knak.io/.well-known/oauth-authorization-server
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  applies_to: knak:send
+  description: A bearer token generated through the Enterprise API Access menu.
+  sources:
+  - openapi/knak-send-openapi-original.yml
+- name: SCIM Bearer token
+  type: http
+  scheme: bearer
+  applies_to: knak:scim
+  description: SCIM 2.0 provisioning requests from the customer's identity provider are
+    authenticated with a bearer token issued in Knak Enterprise.
+  sources:
+  - https://developer.knak.com/api/scim/
+- name: customSecurityHeader
+  type: apiKey
+  in: header
+  parameter: <security-header-name>
+  applies_to: customer-implemented integration contracts
+  description: The security header name and value is specified in the Integration
+    Configuration stage in Knak. Used when Knak calls a customer-implemented Custom
+    Validator, Custom DAM or Custom Sync Location endpoint.
+  sources:
+  - openapi/knak-custom-validator-openapi-original.yml
+webhook_authentication:
+  method: hmac-sha256
+  header: knak-signature
+  description: Webhook payloads are signed with a SHA-256 HMAC using a secret generated in
+    Knak. Verify by computing the HMAC of the raw request body and comparing it to the
+    knak-signature header.
+  secret_source: https://enterprise.knak.io/account/webhooks
+  source: openapi/knak-enterprise-openapi-original.yml
