@@ -1,0 +1,332 @@
+openapi: 3.1.0
+info:
+  description: '## Overview
+
+    An API specification to provide a Custom Sync Location in Knak.
+
+
+    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
+
+
+    ## Authentication
+
+    Knak provides two options for authentication:
+
+    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+
+    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+
+
+    Knak will use the tokens generated to make requests from your service.
+
+
+    ## Custom Sync Location
+
+    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+
+    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+
+
+    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+
+    '
+  version: V1
+  title: Custom Sync Location API Reference Asset Custom Fieldsets DAM Assets API
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+- url: https://yourService.com/your-sync-location-api
+tags:
+- name: DAM Assets
+  description: Endpoints to retrieve DAM Assets
+paths:
+  /v1/dam-assets:
+    get:
+      tags:
+      - DAM Assets
+      summary: Retrieve DAM Assets
+      description: Retrieve all DAM Assets in the folder specified. If no path is given, the app should return the contents of the base folder available to the authorized user. Results are paginated, with a default page size of 10
+      parameters:
+      - in: query
+        name: path
+        required: false
+        description: The path of to the folder to retrieve
+        schema:
+          type: string
+        example: folder1/folder2
+      - name: offset
+        in: query
+        required: false
+        description: (pagination) The offset of the first result to return. Default is 0.
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: (pagination) The Number of items to return per page. Default is 10.
+        schema:
+          type: integer
+      - name: Authorization
+        in: header
+        required: false
+        description: Oauth2 bearer token
+        example: Bearer xxxxxxxxx
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DamAssetsIndexResponse'
+              examples:
+                folder_example:
+                  summary: Folder listing
+                  description: Listing contents of folder1 containing images and sub-folders
+                  value:
+                    data:
+                    - id: 24fa00d8-211a-4a5f-aa53-f1e30dca86b9
+                      name: folder2
+                      type: folder
+                      path: /folder1/folder2
+                    - id: c9ccdf9f-a876-47db-bdc7-1ce828d60d86
+                      name: image1.png
+                      type: image
+                      path: /folder1/image1.png
+                      url: https://my.cdn.com/images/c9ccdf9f-a876-47db-bdc7-1ce828d60d86.png
+                      thumbnail_url: https://my.cdn.com/previews/c9ccdf9f-a876-47db-bdc7-1ce828d60d86.png\
+                      metadata:
+                        width: 1920
+                        height: 1080
+                        size: 1024
+                        mime_type: image/png
+                    - id: b9f22f78-be85-47f8-bff4-8d0b0152669c
+                      name: image2.png
+                      type: image
+                      path: /folder1/image2.png
+                      url: https://my.cdn.com/images/b9f22f78-be85-47f8-bff4-8d0b0152669c.png
+                      thumbnail_url: https://my.cdn.com/previews/b9f22f78-be85-47f8-bff4-8d0b0152669c.png
+                      metadata:
+                        width: 1920
+                        height: 1080
+                        size: 1024
+                        mime_type: image/png
+                    messages:
+                    - message: Search for asset by their name or ID
+                      type: search
+                      level: info
+                    - message: No results found for the search, verify the name or ID used
+                      type: empty
+                      level: error
+                    meta:
+                      offset: 0
+                      per_page: 3
+                      total: 40
+        401:
+          description: Unauthenticated
+        403:
+          description: Unauthorized
+  /v1/search:
+    get:
+      tags:
+      - DAM Assets
+      summary: Search DAM Assets
+      description: Retrieve all DAM Assets matching the search criteria. Results should be paginated with per_page items per page. The most relevant results should be provided first
+      parameters:
+      - in: query
+        name: path
+        required: false
+        description: Restrict the search to Assets in the specified folder and all child folders. If no path is given, the app should search globally
+        example: folderX/folderY
+        schema:
+          type: string
+      - name: term
+        in: query
+        required: true
+        description: Search query term or phrase.
+        schema:
+          type: string
+        example: my_product*
+      - name: offset
+        in: query
+        required: false
+        description: (pagination) The offset of the first result to return. Default is 0.
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: (pagination) The Number of items to return per page. Default is 10.
+        schema:
+          type: integer
+      - name: Authorization
+        in: header
+        required: false
+        description: Oauth2 bearer token
+        example: Bearer xxxxxxxxx
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DamAssetsSearchResponse'
+        401:
+          description: Unauthenticated
+        403:
+          description: Unauthorized
+components:
+  schemas:
+    DamMessage:
+      type: object
+      required:
+      - message
+      - type
+      - level
+      properties:
+        message:
+          type: string
+          description: Message text to display
+          example: Search for asset by their name or ID
+        type:
+          $ref: '#/components/schemas/MessageType'
+        level:
+          $ref: '#/components/schemas/MessageLevel'
+    MessageLevel:
+      type: string
+      enum:
+      - info
+      - warning
+      - error
+    AssetMetaData:
+      type: object
+      properties:
+        width:
+          type: number
+          description: The width of the asset in pixels
+          example: 1920
+        height:
+          type: number
+          description: The height of the asset in pixels
+          example: 1080
+        size:
+          type: number
+          description: The size of the asset in bytes
+          example: 1024
+        mime_type:
+          type: string
+          description: The mime type of the asset
+          example: image/jpeg
+    DamAssetsIndexResponse:
+      type: object
+      required:
+      - data
+      - metadata
+      properties:
+        data:
+          type: array
+          description: The DAM Asset results
+          items:
+            $ref: '#/components/schemas/DamAsset'
+        messages:
+          type: array
+          description: Custom messages to display on DAM file viewer
+          items:
+            $ref: '#/components/schemas/DamMessage'
+        meta:
+          type: object
+          description: response metadata
+          required:
+          - offset
+          - total
+          properties:
+            offset:
+              type: number
+              description: The current offset of fetched results
+              example: 0
+            per_page:
+              type: number
+              description: The number of items requested per page
+              example: 1
+            total:
+              type: number
+              description: The total number of search results
+              example: 40
+    AssetType:
+      type: string
+      enum:
+      - image
+      - video
+      - folder
+    MessageType:
+      type: string
+      enum:
+      - search
+      - empty
+    DamAssetsSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          description: The DAM Asset results
+          items:
+            $ref: '#/components/schemas/DamAsset'
+        messages:
+          type: array
+          description: Custom messages to display on DAM file viewer
+          items:
+            $ref: '#/components/schemas/DamMessage'
+        meta:
+          type: object
+          description: response metadata
+          required:
+          - offset
+          - total
+          properties:
+            offset:
+              type: number
+              description: The current offset of fetched results
+              example: 0
+            per_page:
+              type: number
+              description: The number of items requested per page
+              example: 1
+            total:
+              type: number
+              description: The total number of search results
+              example: 40
+    DamAsset:
+      type: object
+      required:
+      - id
+      - name
+      - type
+      - path
+      properties:
+        id:
+          type: string
+          description: Resource ID
+          example: 99816c53-62b1-484d-89b9-35d4453ef770
+        name:
+          type: string
+          description: Resource filename.
+          example: myImage.jpg
+        type:
+          $ref: '#/components/schemas/AssetType'
+        path:
+          type: string
+          description: Full path to resource file
+          example: path/to/myimage/folder/myImage.jpg
+        url:
+          type: string
+          description: Resource url as used for content delivery
+          example: https://my.cdn.com/images/99816c53-62b1-484d-89b9-35d4453ef770.jpg
+        thumbnail_url:
+          type: string
+          description: Resource thumbnail url for previewing.
+          example: https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg
+        metadata:
+          $ref: '#/components/schemas/AssetMetaData'

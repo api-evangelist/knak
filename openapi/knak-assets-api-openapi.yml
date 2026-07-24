@@ -1,0 +1,1315 @@
+openapi: 3.1.0
+info:
+  description: '## Overview
+
+    An API specification to provide a Custom Sync Location in Knak.
+
+
+    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
+
+
+    ## Authentication
+
+    Knak provides two options for authentication:
+
+    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+
+    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+
+
+    Knak will use the tokens generated to make requests from your service.
+
+
+    ## Custom Sync Location
+
+    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+
+    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+
+
+    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+
+    '
+  version: V1
+  title: Custom Sync Location API Reference Asset Custom Fieldsets Assets API
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+- url: https://yourService.com/your-sync-location-api
+tags:
+- name: Assets
+paths:
+  /assets:
+    get:
+      description: Retrieve all [assets](#tag/asset_model)  in organization.
+      summary: List all assets
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        example: 1
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Number of items per page
+        example: 10
+        schema:
+          type: integer
+      - name: filter[parent_asset_id]
+        in: query
+        required: false
+        description: Filter assets by parent asset ID. Exact match filter.
+        example: 609ca344d1b1b
+        schema:
+          type: string
+      tags:
+      - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+    post:
+      description: Create an [asset](#tag/asset_model). Can either be a email or landing page, and must be associated with a campaign.
+      summary: Create an asset
+      tags:
+      - Assets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - name
+              - type
+              - campaign_id
+              properties:
+                name:
+                  type: string
+                  example: test
+                type:
+                  type: string
+                  enum:
+                  - email
+                  - landing
+                  maxLength: 13
+                  example: email
+                campaign_id:
+                  type: string
+                  maxLength: 13
+                  example: 609d7ce223411
+                from_name:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  example: Sender
+                from_email:
+                  type: string
+                  format: email
+                  nullable: true
+                  maxLength: 191
+                  example: email@knak.com
+                reply_email:
+                  type: string
+                  format: email
+                  nullable: true
+                  maxLength: 191
+                  example: reply_email@knak.com
+                subject:
+                  type: string
+                  nullable: true
+                  maxLength: 500
+                  example: Email Subject
+                preview_text:
+                  type: string
+                  nullable: true
+                  maxLength: 500
+                  example: This is the preview text.
+                theme_id:
+                  type: string
+                  nullable: true
+                  maxLength: 13
+                  example: 609d7ce223411
+                custom_fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: custom_field_key_1
+                      value:
+                        type: string
+                        example: field value 1
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    example: tag 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetItem'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Validation error for name.
+                  detail: The name field is required.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /assets/generate:
+    post:
+      description: 'Generate an AI-powered email [asset](#tag/asset_model) from a text prompt. The asset is created immediately and returned in the response with `ai_generation_status: started`. AI content generation runs asynchronously in the background. Poll `GET /assets/{asset_id}` to check when `ai_generation_status` changes to `completed` or `failed`.
+
+
+        The asset must be associated with a campaign (asset folder). The brand is automatically resolved from the campaign.'
+      summary: Generate an AI email asset
+      tags:
+      - Assets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - prompt
+              - type
+              - campaign_id
+              properties:
+                prompt:
+                  type: string
+                  description: Text instructions describing the email to generate. This is the main input for the AI generation.
+                  example: Create a promotional email for our spring sale with 20% off all items
+                type:
+                  type: string
+                  enum:
+                  - email
+                  description: The type of asset to generate. Currently only `email` is supported.
+                  example: email
+                campaign_id:
+                  type: string
+                  maxLength: 13
+                  description: The ID of the campaign (asset folder) where the asset will be created. The brand is automatically resolved from the campaign.
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  nullable: true
+                  maxLength: 512
+                  description: Optional name for the asset. If not provided, a name may be auto-generated.
+                  example: Spring Sale Promo
+                theme_id:
+                  type: string
+                  nullable: true
+                  maxLength: 13
+                  description: Optional theme ID to base the generated email on. Must belong to your company.
+                  example: 609d7ce223411
+                subject:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  description: Optional subject line for the email. If not provided, the AI will generate a subject line automatically.
+                  example: Spring Sale - 20% Off Everything
+                from_name:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  description: Sender name for the email.
+                  example: Marketing Team
+                from_email:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  description: Sender email address.
+                  example: marketing@example.com
+                reply_email:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  description: Reply-to email address.
+                  example: replies@example.com
+                tags:
+                  type: array
+                  nullable: true
+                  items:
+                    type: string
+                  description: Tags to apply to the generated asset.
+                  example:
+                  - spring-sale
+                  - promo
+                images:
+                  type: array
+                  nullable: true
+                  maxItems: 10
+                  description: Images to provide as context for AI generation. Maximum 10 images.
+                  items:
+                    type: object
+                    required:
+                    - url
+                    - filename
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                        description: Publicly accessible URL of the image.
+                        example: https://example.com/images/hero.png
+                      filename:
+                        type: string
+                        description: Filename for the image.
+                        example: hero.png
+                files:
+                  type: array
+                  nullable: true
+                  maxItems: 2
+                  description: Files (e.g. PDFs) to provide as context for AI generation. Maximum 2 files.
+                  items:
+                    type: object
+                    required:
+                    - url
+                    - filename
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                        description: Publicly accessible URL of the file.
+                        example: https://example.com/files/brand-guide.pdf
+                      filename:
+                        type: string
+                        description: Filename for the file.
+                        example: brand-guide.pdf
+                asset_id:
+                  type: string
+                  nullable: true
+                  maxLength: 13
+                  description: Optional. When provided, overwrites the target email asset's content with a new version instead of creating a new asset. Must reference an email asset in your company, and you must have save permission on that asset. `campaign_id` is still required and its brand is used for the regenerated content.
+                  example: 609d7ce223411
+                module_ids:
+                  type: array
+                  nullable: true
+                  maxItems: 10
+                  description: Optional module IDs to use as building blocks for the generated email. Each module must belong to your company. Only the latest published version of each module is used; modules without a published version are ignored. Maximum 10 modules.
+                  items:
+                    type: string
+                    maxLength: 13
+                  example:
+                  - 63eff78889f21
+      responses:
+        '200':
+          description: Asset created successfully. AI content generation is running asynchronously. Poll GET /assets/{asset_id} to check generation status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetItem'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Validation error for prompt.
+                  detail: A prompt is required.
+                - title: Validation error for asset_id.
+                  detail: The specified asset does not exist or is not an email asset in your company.
+                - title: Validation error for module_ids.
+                  detail: One or more of the specified modules do not exist in your company.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Forbidden - AI generation is not enabled for this account, or (when `asset_id` is provided) the caller does not have save permission on the target asset.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '429':
+          description: Too Many Requests - Rate limit exceeded (5 requests per minute)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Too Many Requests.
+                  detail: You have exceeded the rate limit. Please try again later.
+  /assets/{asset_id}:
+    get:
+      description: Retrieve a specific [asset](#tag/asset_model)'s information, given their asset ID.
+      summary: Retrieve specific asset
+      parameters:
+      - in: path
+        required: true
+        name: asset_id
+        description: ID of asset
+        example: 609d7ce223411
+        schema:
+          type: string
+      tags:
+      - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetItem'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Resource Not Found.
+                  detail: Could not find the email you were looking for.
+  /assets/{asset_id}/content:
+    get:
+      description: Retrieve a specific asset's html content. Returns a similar response to the /assets/ GET endpoint, but includes field 'html' in the response.
+      summary: Retrieve specific asset content
+      parameters:
+      - name: asset_id
+        in: path
+        required: true
+        description: ID of asset
+        example: 609d7ce223411
+        schema:
+          type: string
+      - name: platform
+        in: query
+        required: false
+        description: name of platform
+        example: marketo
+        schema:
+          type: string
+      tags:
+      - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetContent'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Resource not found.
+  /assets/{asset_id}/preview:
+    get:
+      description: 'Retrieve a rendered preview of a specific asset. The returned `url` is publicly accessible without authentication. A 202 response with `url` set to null means the preview is still being generated; the client should poll this endpoint again until a 200 is returned.
+
+
+        Use the `client` and `details` query parameters to control how the preview is rendered. `client` applies to both the `png` and `pdf` formats. `details` only takes effect for `format=pdf` with `client=desktop`; it is ignored for `png` and for `pdf` with `client=mobile`.'
+      summary: Retrieve specific asset preview
+      parameters:
+      - name: asset_id
+        in: path
+        required: true
+        description: ID of asset
+        example: 609d7ce223411
+        schema:
+          type: string
+      - name: format
+        in: query
+        required: false
+        description: Preview format
+        example: png
+        schema:
+          type: string
+          enum:
+          - png
+          - pdf
+          default: png
+      - name: client
+        in: query
+        required: false
+        description: The client to render the preview for. Applies to both `png` and `pdf` formats.
+        example: desktop
+        schema:
+          type: string
+          enum:
+          - desktop
+          - mobile
+          default: desktop
+      - name: details
+        in: query
+        required: false
+        description: Whether to include the email details header in the preview. Only takes effect for `format=pdf` with `client=desktop`, where `false` omits the details header. Ignored for `png` (any client) and for `pdf` with `client=mobile`, where the details header is always included. Defaults to `true`.
+        example: true
+        schema:
+          type: boolean
+          default: true
+      tags:
+      - Assets
+      responses:
+        '200':
+          description: Preview is ready. The `url` is populated and publicly accessible.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetPreview'
+        '202':
+          description: Preview is still being generated. The `url` is null; poll again until a 200 is returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetPreview'
+              example:
+                data:
+                  id: 609d7ce223411
+                  format: png
+                  client: desktop
+                  details: true
+                  url: null
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Validation error for format.
+                  detail: The format must be either png or pdf.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Not Found.
+                  detail: Could not find the email you were looking for.
+  /assets/{asset_id}/custom-fields:
+    get:
+      description: Retrieve the custom fields that are defined on a specific asset.
+      summary: Retrieve custom fields of an asset
+      parameters:
+      - name: asset_id
+        in: path
+        required: true
+        description: ID of asset
+        example: 609d7ce223411
+        schema:
+          type: string
+      tags:
+      - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetCustomFields'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Resource not found.
+    patch:
+      description: Edit the custom field values of a specific asset.
+      summary: Edit custom fields of an asset
+      parameters:
+      - name: asset_id
+        in: path
+        required: true
+        description: ID of asset
+        example: 609d7ce223411
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                asset_custom_fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        example: custom_field_key_1
+                      value:
+                        type: string
+                        example: field value 1
+      tags:
+      - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetCustomFields'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            example:
+              message: Invalid asset custom field key
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+                example:
+                  message: Resource not found.
+  /assets/{asset_id}/marketing-platform-syncs:
+    post:
+      description: 'Trigger a sync of an asset to a marketing platform. Returns 202 Accepted with a [marketing platform sync](#tag/marketing_platform_sync) record whose `id` can be polled via `GET /marketing-platform-syncs/{id}`.
+
+
+        **Platform support:** only integrations with platform `marketing_cloud` (Salesforce Marketing Cloud) are currently supported. Requests targeting other platforms return `422 Unprocessable Entity` with a validation error on `integration_id`. Additional platforms will be enabled in future releases.
+
+
+        Returns `409 Conflict` when another sync is already pending or in progress for the same asset + integration pair. The conflict response includes `meta.existing_sync_id` so the caller can poll that sync instead.
+
+
+        Returns `422 Unprocessable Entity` when `sync_type` is `resync` but the asset has never been successfully synced to the target integration.
+
+
+        ## Pre-sync Audit Validation
+
+
+        Before queuing a sync, Knak runs a pre-sync audit against the asset. When the audit finds blocking errors, the request returns `422 Unprocessable Entity` with a `meta.pre_sync_validation` block. When the audit passes (with or without non-blocking warnings), the request returns `202 Accepted` and the same `meta.pre_sync_validation` block is included with details. Privileged callers can opt out of audit enforcement by setting `skip_optimize_validation: true` (requires the `emails_bypass_optimize_sync` permission).
+
+
+        **Note:** "pre-sync audit" refers to Knak''s structural and content checks on the asset (image alt text, email size, expired modules, etc.). It is *not* the LLM-based brand-voice "Optimize Checks" feature, which shares a name in the product UI but does not run on the Sync API today.
+
+
+        ### Audit Result Shape
+
+
+        Each entry in `errors[]`, `warnings[]`, and `asset_exceptions[]` has the shape `{ id, message, assets }`:
+
+
+        - `id` — stable string identifier for the audit rule that fired (for example, `alt-text`). Treat the set as open; Knak may add new IDs over time. Callers that want to filter on specific rules should match against `id`; everyone else should ignore it.
+
+
+        - `message` — human-readable description of the violation. Surface this directly to your end users.
+
+
+        - `assets` — array of asset IDs the violation applies to.
+
+
+        See the response examples below for concrete payloads.'
+      summary: Trigger a marketing platform sync
+      tags:
+      - Assets
+      parameters:
+      - name: asset_id
+        in: path
+        required: true
+        description: ID of the asset to sync.
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - integration_id
+              - sync_type
+              properties:
+                integration_id:
+                  type: string
+                  description: ID of the target integration. Must belong to the authenticated company and have platform `marketing_cloud`.
+                  example: 609d7ce223def
+                sync_type:
+                  type: string
+                  enum:
+                  - sync
+                  - resync
+                  example: sync
+                template_name:
+                  type: string
+                  nullable: true
+                  description: Optional override for the template/email name surfaced on the target platform. Falls back to the asset's name.
+                  example: Q2 Newsletter
+                platform_parameters:
+                  type: object
+                  description: Platform-specific sync configuration. Required when `sync_type` is `sync`. For `marketing_cloud` integrations, expects `folder_id` and `email_asset_type`.
+                  additionalProperties: true
+                  example:
+                    folder_id: '123456'
+                    email_asset_type: htmlemail
+                skip_optimize_validation:
+                  type: boolean
+                  default: false
+                  description: 'When `true`, bypasses the pre-sync audit validation and queues the sync even if the asset has audit errors or warnings. Requires the `emails_bypass_optimize_sync` permission on the authenticated user — callers without this permission will have the flag silently ignored (audit will still run). Use this to retry a sync after reviewing audit results that returned `can_skip_optimize: true`. Defaults to `false`.'
+                  example: false
+      responses:
+        '202':
+          description: Accepted. Sync has been queued. When the pre-sync audit runs, the response includes `meta.pre_sync_validation` with any non-blocking warnings or asset exceptions. The block is omitted when audit was bypassed via `skip_optimize_validation`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingPlatformSyncItem'
+              examples:
+                clean_audit:
+                  summary: Sync queued, no audit issues
+                  value:
+                    data:
+                      id: 609d7ce223411
+                      type: marketing_platform_sync
+                      attributes:
+                        status: pending
+                    meta:
+                      pre_sync_validation:
+                        errors: []
+                        warnings: []
+                        asset_exceptions: []
+                        can_skip_optimize: true
+                warnings_only:
+                  summary: Sync queued with non-blocking audit warnings
+                  value:
+                    data:
+                      id: 609d7ce223411
+                      type: marketing_platform_sync
+                      attributes:
+                        status: pending
+                    meta:
+                      pre_sync_validation:
+                        errors: []
+                        warnings:
+                        - id: preview-text
+                          message: Preview text is shorter than recommended.
+                          assets:
+                          - 609d7ce223abc
+                        asset_exceptions: []
+                        can_skip_optimize: true
+                audit_bypassed:
+                  summary: Sync queued, audit bypassed via skip_optimize_validation
+                  value:
+                    data:
+                      id: 609d7ce223411
+                      type: marketing_platform_sync
+                      attributes:
+                        status: pending
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '409':
+          description: A sync is already in progress for this asset + integration pair.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - status: '409'
+                  title: Conflict
+                  detail: A sync is already in progress for this asset and integration.
+                  meta:
+                    existing_sync_id: 609d7ce223411
+        '422':
+          description: "Validation failed. Two distinct cases produce this response:\n\n1. **Resync precondition** — `sync_type` was `resync` but the asset\n   has never been successfully synced to the target integration.\n\n\n2. **Pre-sync audit failure** — the asset has audit errors that block\n   the sync. See the `meta.pre_sync_validation` example below.\n\n\nInspect the `errors[].title` field to disambiguate (`Unprocessable Entity` vs. `PreSyncValidationFailed`)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                resync_never_synced:
+                  summary: Resync of an asset that has never been synced
+                  value:
+                    errors:
+                    - status: '422'
+                      title: Unprocessable Entity
+                      detail: This asset has never been synced to the target integration. Use sync_type = "sync" for the first sync.
+                      meta:
+                        asset_id: 609d7ce223abc
+                        integration_id: 609d7ce223def
+                pre_sync_validation_failed:
+                  summary: Asset failed pre-sync audit validation
+                  value:
+                    errors:
+                    - status: '422'
+                      title: PreSyncValidationFailed
+                      detail: Pre-sync audit validation failed. The asset has errors that must be resolved before it can be synced. See `meta.pre_sync_validation` for details.
+                      meta:
+                        pre_sync_validation:
+                          errors:
+                          - id: alt-text
+                            message: One or more images are missing alt text.
+                            assets:
+                            - 609d7ce223abc
+                          - id: email-size
+                            message: Email exceeds the 102KB Gmail clipping threshold.
+                            assets:
+                            - 609d7ce223abc
+                          warnings: []
+                          asset_exceptions: []
+                          can_skip_optimize: false
+components:
+  schemas:
+    CustomField:
+      type: object
+      properties:
+        label:
+          type: string
+          example: Custom Field 1
+        key:
+          type: string
+          example: custom_field_1
+        value:
+          type: string
+          example: My Value
+        locked:
+          type: boolean
+          example: false
+          description: Indicates if the custom field is locked by the brand.
+    AssetPreview:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 609d7ce223411
+            format:
+              type: string
+              enum:
+              - png
+              - pdf
+              example: png
+            client:
+              type: string
+              enum:
+              - desktop
+              - mobile
+              example: desktop
+            details:
+              type: boolean
+              description: Whether the email details header is included in the returned preview. Only `false` when the preview was rendered for `format=pdf` with `client=desktop` and `details=false` was requested; `true` in all other cases.
+              example: true
+            url:
+              type: string
+              nullable: true
+              description: Publicly accessible preview URL (no authentication required). Null while the preview is still being generated (HTTP 202).
+              example: https://cdn.example.com/preview-desktop.png
+    AssetContent:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: asset
+            id:
+              type: string
+              example: 609d7ce223411
+            attributes:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                subject:
+                  type: string
+                  example: Spring Newsletter
+                from_name:
+                  type: string
+                  example: John Doe
+                from_email:
+                  type: string
+                  example: john.doe@email.com
+                reply_email:
+                  type: string
+                  example: john.doe@email.com
+                type:
+                  type: string
+                  enum:
+                  - email
+                  - landing
+                  example: email
+                name:
+                  type: string
+                  example: Spring Newsletter
+                text:
+                  type: string
+                  example: Sample email content
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+                language_code:
+                  type: string
+                  nullable: true
+                  example: es
+                html:
+                  type: string
+                  example: <div>Sample email content</div>
+                version:
+                  type: string
+                  example: '1.0'
+                parent_asset_id:
+                  type: string
+                  nullable: true
+                  example: 609d7ce22341c
+    AssetCustomFields:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: asset-custom-fields
+            id:
+              type: string
+              example: 609d7ce223411
+              definition: ID of the asset the custom fields belong to
+            attributes:
+              type: object
+              properties:
+                asset_id:
+                  type: string
+                  example: 609d7ce223411
+                custom_fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CustomField'
+    MarketingPlatformSync:
+      type: object
+      properties:
+        type:
+          type: string
+          example: marketing-platform-sync
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/MarketingPlatformSyncAttributes'
+    Response:
+      type: object
+      properties:
+        message:
+          type: string
+          example: This is the response message to the request made.
+    AssetList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/assets?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/assets?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/assets?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/assets?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/assets?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/assets?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    Asset:
+      type: object
+      required:
+      - type
+      - id
+      - attributes
+      properties:
+        type:
+          type: string
+          example: asset
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          type: object
+          required:
+          - id
+          - creator_id
+          - subject
+          - from_name
+          - from_email
+          - reply_email
+          - name
+          - folder_path
+          - campaign
+          - brand
+          - language_code
+          - version
+          - type
+          - parent_asset_id
+          properties:
+            id:
+              type: string
+              example: 609d7ce223411
+            creator_id:
+              type: string
+              example: 611e7cf243412
+            subject:
+              type: string
+              example: Spring Newsletter
+            from_name:
+              type: string
+              nullable: true
+              example: John Doe
+            from_email:
+              type: string
+              nullable: true
+              example: john.doe@email.com
+            reply_email:
+              type: string
+              nullable: true
+              example: john.doe@email.com
+            type:
+              type: string
+              enum:
+              - email
+              - landing
+              example: email
+            name:
+              type: string
+              example: Spring Newsletter
+            folder_path:
+              type: string
+              example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+            campaign:
+              type: string
+              example: Sample Campaign
+            brand:
+              type: string
+              example: Sample Brand
+            language_code:
+              type: string
+              nullable: true
+              example: es
+            version:
+              type: string
+              example: '1.0'
+            parent_asset_id:
+              type: string
+              nullable: true
+              example: 609d7ce22341c
+            ai_generation_status:
+              type: string
+              nullable: true
+              enum:
+              - started
+              - completed
+              - failed
+              description: Status of AI content generation. Only present on assets created via the /assets/generate endpoint. Null for non-AI assets.
+              example: null
+      additionalProperties: false
+    AssetItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Asset'
+    MarketingPlatformSyncItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/MarketingPlatformSync'
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
+    MarketingPlatformSyncAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        asset_id:
+          type: string
+          example: 609d7ce223abc
+        integration_id:
+          type: string
+          example: 609d7ce223def
+        platform:
+          type: string
+          example: marketing_cloud
+        sync_type:
+          type: string
+          enum:
+          - sync
+          - resync
+          example: sync
+        status:
+          type: string
+          description: Wire value; the database stores `error` for failed syncs but the API response maps that to `failed` for consistency.
+          enum:
+          - pending
+          - in_progress
+          - complete
+          - failed
+          - confirmation_requested
+          example: pending
+        platform_asset_id:
+          type: string
+          nullable: true
+          example: '123456'
+        platform_asset_url:
+          type: string
+          nullable: true
+          example: https://mc.s7.exacttarget.com/emails/123456
+        error_message:
+          type: string
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time

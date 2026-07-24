@@ -1,0 +1,398 @@
+openapi: 3.1.0
+info:
+  description: '## Overview
+
+    An API specification to provide a Custom Sync Location in Knak.
+
+
+    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
+
+
+    ## Authentication
+
+    Knak provides two options for authentication:
+
+    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+
+    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+
+
+    Knak will use the tokens generated to make requests from your service.
+
+
+    ## Custom Sync Location
+
+    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+
+    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+
+
+    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+
+    '
+  version: V1
+  title: Custom Sync Location API Reference Asset Custom Fieldsets Fields API
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+- url: https://yourService.com/your-sync-location-api
+tags:
+- name: Fields
+  description: Create and list custom contact fields (schema metadata).
+paths:
+  /fields:
+    get:
+      tags:
+      - Fields
+      summary: List fields
+      description: 'Returns all custom contact fields for the authenticated company. Fields are schema metadata sourced
+
+        from connected systems and created via this API; the list is not paginated.
+
+        '
+      operationId: listFields
+      responses:
+        '200':
+          description: The list of fields.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Field'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: f1e2d3c4-b5a6-7890-abcd-ef1234567890
+                      key: department
+                      name: Department
+                      type: string
+                      directory_id: d4c3b2a1-0f9e-8765-abcd-ef1234567890
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+    post:
+      tags:
+      - Fields
+      summary: Create a field
+      description: 'Creates a new custom contact field. The field''s `key` is generated automatically from its `name`
+
+        (for example `Start Date` becomes `startDate`). Attempting to create a field whose generated key
+
+        already exists returns a `409 Conflict`.
+
+        '
+      operationId: createField
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldInput'
+            examples:
+              default:
+                value:
+                  name: Department
+                  type: string
+      responses:
+        '201':
+          description: The field was created.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Field'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/FieldConflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /fields/{id}/values:
+    get:
+      tags:
+      - Fields
+      summary: List a field's values
+      description: 'Returns the distinct values stored for a single field across the company''s contacts. Results are
+
+        paginated and sorted alphabetically by value by default.
+
+        '
+      operationId: listFieldValues
+      parameters:
+      - $ref: '#/components/parameters/FieldId'
+      - $ref: '#/components/parameters/PageNumber'
+      - $ref: '#/components/parameters/PageSize'
+      - name: sort[]
+        in: query
+        required: false
+        description: Sort by value, passed as a repeated `sort[]` parameter. Prefix with `-` for descending order. Defaults to ascending by value.
+        style: form
+        explode: true
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - value
+            - -value
+        example:
+        - value
+      responses:
+        '200':
+          description: A paginated list of the field's distinct values.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: string
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+              examples:
+                default:
+                  value:
+                    data:
+                    - Engineering
+                    - Marketing
+                    - Sales
+                    meta:
+                      total: 3
+                      current_page: 1
+                      last_page: 1
+                      per_page: 25
+                      from: 1
+                      to: 3
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/FieldNotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+components:
+  responses:
+    Forbidden:
+      description: Knak Send access is not enabled for the account, or the token lacks the required scope.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: ACCESS_DENIED
+              message: Knak Send access is not enabled for this account.
+    TooManyRequests:
+      description: 'The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
+
+        to wait before retrying.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpError'
+          example:
+            message: Too Many Attempts.
+            type: HttpException
+    ValidationError:
+      description: One or more request fields failed backend validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorList'
+          example:
+            error_at: '2026-06-02T13:56:31+00:00'
+            errors:
+            - identifier: ValidationError
+              details: One or more of the given request fields failed backend validation.
+              meta:
+                email:
+                - The email field is required.
+    FieldConflict:
+      description: A field with the same generated key already exists.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: FIELD_ALREADY_EXISTS
+              message: A field with the name Department already exists in API directory.
+    Unauthenticated:
+      description: The access token is missing, invalid or expired.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: UNAUTHENTICATED
+              message: Invalid or expired access token.
+    FieldNotFound:
+      description: No field exists with the given ID.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: FIELD_NOT_FOUND
+              message: Field with id f1e2d3c4-b5a6-7890-abcd-ef1234567890 not found.
+  parameters:
+    PageNumber:
+      name: page[number]
+      in: query
+      required: false
+      description: The page of results to return (1-based).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: page[size]
+      in: query
+      required: false
+      description: The number of records per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    FieldId:
+      name: id
+      in: path
+      required: true
+      description: The unique identifier of the field.
+      schema:
+        type: string
+      example: f1e2d3c4-b5a6-7890-abcd-ef1234567890
+  schemas:
+    PaginationMeta:
+      type: object
+      description: Pagination metadata describing the current result window.
+      properties:
+        total:
+          type: integer
+          description: The total number of matching records.
+        current_page:
+          type: integer
+        last_page:
+          type: integer
+        per_page:
+          type: integer
+        from:
+          type:
+          - integer
+          - 'null'
+          description: The index of the first record on the current page.
+        to:
+          type:
+          - integer
+          - 'null'
+          description: The index of the last record on the current page.
+    Field:
+      type: object
+      description: A custom contact field (schema metadata).
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the field.
+        key:
+          type: string
+          description: The generated key of the field, derived from its name (for example `startDate`).
+        name:
+          type: string
+          description: The human-readable name of the field.
+        type:
+          $ref: '#/components/schemas/FieldType'
+        directory_id:
+          type: string
+          description: The ID of the directory the field belongs to.
+    HttpError:
+      type: object
+      description: The error shape returned for rate-limit (429) errors.
+      properties:
+        message:
+          type: string
+          description: A human-readable description of the error.
+        type:
+          type: string
+          description: The error type. Always `HttpException` for this shape.
+    FieldInput:
+      type: object
+      description: The payload used to create a field.
+      required:
+      - name
+      - type
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          description: The human-readable name of the field. The field key is generated from this value.
+        type:
+          $ref: '#/components/schemas/FieldType'
+    ErrorObject:
+      type: object
+      description: The compact error shape returned for authentication, authorization and conflict errors.
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: A machine-readable error code.
+            message:
+              type: string
+              description: A human-readable description of the error.
+    ErrorList:
+      type: object
+      description: The error shape returned for validation and not-found errors.
+      properties:
+        error_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the error occurred.
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              identifier:
+                type: string
+                description: A machine-readable identifier for the error type.
+              details:
+                type: string
+                description: A human-readable description of the error.
+              meta:
+                type: object
+                description: Additional context. For validation errors, a map of field name to validation messages.
+    FieldType:
+      type: string
+      description: The data type of a field.
+      enum:
+      - string
+      - number
+      - date
+      - datetime
+      - boolean

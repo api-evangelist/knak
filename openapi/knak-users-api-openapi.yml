@@ -1,0 +1,695 @@
+openapi: 3.1.0
+info:
+  description: '## Overview
+
+    An API specification to provide a Custom Sync Location in Knak.
+
+
+    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
+
+
+    ## Authentication
+
+    Knak provides two options for authentication:
+
+    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+
+    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+
+
+    Knak will use the tokens generated to make requests from your service.
+
+
+    ## Custom Sync Location
+
+    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+
+    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+
+
+    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+
+    '
+  version: V1
+  title: Custom Sync Location API Reference Asset Custom Fieldsets Users API
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+- url: https://yourService.com/your-sync-location-api
+tags:
+- name: Users
+paths:
+  /users:
+    get:
+      description: Retrieve a page of [users](#tag/user_model) in the organization.
+      summary: List all users
+      parameters:
+      - name: filter[email]
+        in: query
+        description: Filter users by email. Partial match filter.
+        required: false
+        schema:
+          type: string
+          example: email@knak.com
+      - name: sort
+        in: query
+        description: Sort users by field (created_at, updated_at).
+        required: false
+        schema:
+          type: string
+          example: created_at
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        example: 1
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Number of items per page
+        example: 10
+        schema:
+          type: integer
+      tags:
+      - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /users/{user_id}:
+    get:
+      description: Retrieve a specific [user](#tag/user_model)'s information.
+      summary: Retrieve a specific user's information.
+      parameters:
+      - in: path
+        required: true
+        name: user_id
+        description: ID of user
+        example: 609d7ce223411
+        schema:
+          type: string
+      tags:
+      - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Resource Not Found.
+                  detail: Could not find the user you were looking for.
+    delete:
+      description: Delete [user](#tag/user_model) via their ID (if permissions allow).
+      summary: Delete user
+      parameters:
+      - in: path
+        required: true
+        name: user_id
+        description: ID of user to delete
+        example: 609d7ce223411
+        schema:
+          type: string
+      - in: query
+        required: false
+        name: user_to_reassign
+        description: ID of user to reassign approvals to if deleted user is currently a reviewer
+        example: 507b9de116822
+        schema:
+          type: string
+      tags:
+      - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: User successfully deleted.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Bad Request.
+                  detail: Cannot delete user as they are currently assigned to a review group.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Resource Not Found.
+                  detail: Could not find the user you were looking for.
+  /Users:
+    get:
+      description: Returns a list of user resources
+      summary: Retrieve users
+      parameters:
+      - in: query
+        required: false
+        name: count
+        description: For pagination, used to specify number of items for the page
+        example: '10'
+        schema:
+          type: string
+      - in: query
+        required: false
+        name: startIndex
+        description: For pagination, used to specify what index to start looking at
+        schema:
+          type: string
+      - in: query
+        required: false
+        name: filter
+        description: Specify an attribute to filter results by. Currently only support the userName field, which maps to an email
+        schema:
+          type: string
+      tags:
+      - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserList_2'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Unauthenticated.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Forbidden.
+    post:
+      description: Creates a user.
+      summary: Create a user
+      requestBody:
+        description: JSON string with the new user’s information/attributes in SCIM user schema format.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSchema'
+      tags:
+      - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSchema'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Unauthenticated.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Forbidden.
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Attempting to create user that already exists.
+  /Users/{user_id}:
+    get:
+      description: Returns a single user resource
+      summary: Retrieve a user
+      parameters:
+      - in: path
+        required: true
+        name: user_id
+        description: ID of user to retrieve
+        example: 609d7ce223411
+        schema:
+          type: string
+      tags:
+      - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSchema'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                schemas:
+                - urn:ietf:params:scim:api:messages:2.0:Error
+                status: 404
+                detail: User not found.
+    put:
+      description: Updates an existing user resource, used specifically for updating user's active status.
+      summary: Update a user
+      parameters:
+      - in: path
+        required: true
+        name: user_id
+        description: ID of user to update
+        example: 609d7ce223411
+        schema:
+          type: string
+      requestBody:
+        description: JSON string with the updated user’s information/attributes in SCIM user schema format.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSchema'
+      tags:
+      - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSchema'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Unsupported update action...
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Unauthenticated.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Unauthorized.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorSchema'
+              example:
+                schemas:
+                - urn:ietf:params:scim:api:messages:2.0:Error
+                status: 404
+                detail: User does not exist.
+    patch:
+      description: Updates an existing user resource, specifically for updating user's active status.
+      summary: Update a user
+      parameters:
+      - in: path
+        required: true
+        name: user_id
+        description: ID of user to update
+        example: 609d7ce223411
+        schema:
+          type: string
+      requestBody:
+        description: JSON string with the updated user’s information/attributes in SCIM user schema format.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSchema'
+      tags:
+      - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSchema'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Unauthenticated.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error_2'
+              example:
+                error: Unauthorized.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorSchema'
+              example:
+                schemas:
+                - urn:ietf:params:scim:api:messages:2.0:Error
+                status: 404
+                detail: User does not exist.
+components:
+  schemas:
+    ErrorSchema:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:Error
+        status:
+          type: string
+          example: 404
+        detail:
+          type: string
+          example: User not found
+    Error_2:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthenticated.
+    UserResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserItem'
+        message:
+          type: string
+          example: Success
+    UserItem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: user
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/User'
+    Response:
+      type: object
+      properties:
+        message:
+          type: string
+          example: This is the response message to the request made.
+    UserList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserItem'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
+    UserList_2:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults:
+          type: integer
+          example: 10
+        startIndex:
+          type: integer
+          example: 0
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSchema'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john.doe@email.com
+        roles:
+          type: array
+          example:
+          - Email Creator
+          - Collaborator
+          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
+          items:
+            type: string
+    UserSchema:
+      type: object
+      description: SCIM User schema representation for users in the platform.
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+            example: urn:ietf:params:scim:schemas:core:2.0:User
+          description:
+          - The list of supported schemas for the user. The value of this attribute is always 'urn:ietf:params:scim:schemas:core:2.0:User'.
+        id:
+          type: string
+          example: 609d7ce223411
+          description:
+          - The ID of the user within the Knak platform.
+        userName:
+          type: string
+          example: john.doe@email.com
+          description:
+          - Username of the user in the platform. For Knak, this is the email of the user.
+        name:
+          type: object
+          properties:
+            givenName:
+              type: string
+              example: Doe
+            familyName:
+              type: string
+              example: John
+        emails:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: john.doe@email.com
+              primary:
+                type: boolean
+                example: true
+        active:
+          type: boolean
+          example: true

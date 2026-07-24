@@ -1,0 +1,136 @@
+openapi: 3.1.0
+info:
+  description: '## Overview
+
+    An API specification to provide a Custom Sync Location in Knak.
+
+
+    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
+
+
+    ## Authentication
+
+    Knak provides two options for authentication:
+
+    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+
+    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+
+
+    Knak will use the tokens generated to make requests from your service.
+
+
+    ## Custom Sync Location
+
+    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+
+    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+
+
+    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+
+    '
+  version: V1
+  title: Custom Sync Location API Reference Asset Custom Fieldsets Brands API
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+- url: https://yourService.com/your-sync-location-api
+tags:
+- name: Brands
+paths:
+  /brands:
+    get:
+      description: Retrieve all [brands](#tag/brand_model) in the organization.
+      summary: List all brands
+      parameters:
+      - name: sort
+        in: query
+        description: Sort users by field (created_at, updated_at).
+        required: false
+        schema:
+          type: string
+          example: created_at
+      - name: page
+        in: query
+        required: false
+        description: Page number
+        example: 1
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: Number of items per page
+        example: 10
+        schema:
+          type: integer
+      tags:
+      - Brands
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
+    Brand:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 63eff7760568a
+        name:
+          type: string
+          example: AMER
+        updated_at:
+          type: string
+          format: date-time
+          example: '2023-05-18T19:55:21.000000Z'
+        created_at:
+          type: string
+          format: date-time
+          example: '2023-05-17T21:54:19.000000Z'

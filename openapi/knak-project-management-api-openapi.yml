@@ -1,0 +1,231 @@
+openapi: 3.1.0
+info:
+  description: '## Overview
+
+    An API specification to provide a Custom Sync Location in Knak.
+
+
+    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
+
+
+    ## Authentication
+
+    Knak provides two options for authentication:
+
+    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+
+    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+
+
+    Knak will use the tokens generated to make requests from your service.
+
+
+    ## Custom Sync Location
+
+    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+
+    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+
+
+    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+
+    '
+  version: V1
+  title: Custom Sync Location API Reference Asset Custom Fieldsets Project Management API
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+- url: https://yourService.com/your-sync-location-api
+tags:
+- name: Project Management
+paths:
+  /assets/{asset_id}/project-management-link:
+    get:
+      description: Retrieve the most recently created project management link for an asset.
+      summary: Retrieve a project management link for an asset
+      tags:
+      - Project Management
+      parameters:
+      - name: asset_id
+        in: path
+        required: true
+        example: 609d7ce223411
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectManagementLink'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Resource Not Found.
+                  detail: Could not find the project management link you were looking for.
+    patch:
+      description: Update the most recently created project management link for an asset or create a new one if one does not exist.
+      summary: Update/Create a project management link for an asset
+      tags:
+      - Project Management
+      parameters:
+      - name: asset_id
+        in: path
+        required: true
+        example: 609d7ce223411
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                integration_id:
+                  type: string
+                  example: 609d7ce223411
+                project_management_url:
+                  type: string
+                  example: https://knak.my.workfront.com/task/64a521d456747a13ec3fc60911274eda2/documents
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectManagementLink'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Validation Error for project_management_url.
+                  detail: The project management url field is required.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Resource Not Found.
+                  detail: Could not find the project management link you were looking for.
+    delete:
+      description: Delete the most recently created project management link for an asset.
+      summary: Delete a project management link for an asset
+      tags:
+      - Project Management
+      parameters:
+      - name: asset_id
+        in: path
+        required: true
+        example: 609d7ce223411
+        schema:
+          type: string
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Resource Not Found.
+                  detail: Could not find the project management link you were looking for.
+components:
+  schemas:
+    ProjectManagementLink:
+      type: object
+      properties:
+        type:
+          type: string
+          example: project-management-link
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 609d7ce223411
+            integration_id:
+              type: string
+              example: 609d7ce223411
+            project_management_id:
+              type: string
+              example: 1234
+            project_management_url:
+              type: string
+              example: https://knak.my.workfront.com/task/64a521d456747a13ec3fc60911274eda2/documents
+            project_management_entity_name:
+              type: string
+              example: Workfront Task
+            integration_metadata:
+              type: object
+              example: {}
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true

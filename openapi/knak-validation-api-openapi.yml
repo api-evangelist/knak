@@ -1,0 +1,166 @@
+openapi: 3.1.0
+info:
+  description: '## Overview
+
+    An API specification to provide a Custom Sync Location in Knak.
+
+
+    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
+
+
+    ## Authentication
+
+    Knak provides two options for authentication:
+
+    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+
+    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+
+
+    Knak will use the tokens generated to make requests from your service.
+
+
+    ## Custom Sync Location
+
+    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+
+    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+
+
+    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+
+    '
+  version: V1
+  title: Custom Sync Location API Reference Asset Custom Fieldsets Validation API
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+- url: https://yourService.com/your-sync-location-api
+tags:
+- name: Validation
+paths:
+  /v1/validate:
+    post:
+      tags:
+      - Validation
+      summary: Validate Content
+      description: Run custom validation on the provided Asset content and metadata, and return the result.
+      security:
+      - customSecurityHeader: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - asset
+              - user
+              - company
+              properties:
+                asset:
+                  type: object
+                  required:
+                  - id
+                  - name
+                  - content
+                  - brand
+                  - language_code
+                  - version
+                  - version_id
+                  - parent_asset_id
+                  properties:
+                    id:
+                      type: string
+                      description: The ID of the asset to validate
+                      example: 609d7ce223411
+                    name:
+                      type: string
+                      description: The name of the asset to validate
+                      example: Spring Newsletter
+                    subject:
+                      type: string
+                      description: The subject (if email)
+                      example: See our Spring deals!
+                    content:
+                      type: string
+                      description: The Asset content to validate
+                      example: <html>...</html>
+                    brand:
+                      type: string
+                      description: The name of the Brand of the associated with the Asset
+                      example: Sample Brand
+                    language_code:
+                      type: string
+                      description: The language code of the Asset
+                      example: en-US
+                      nullable: true
+                    version:
+                      type: string
+                      description: The version of the Asset
+                      example: '1.0'
+                    version_id:
+                      type: string
+                      description: The unique version ID of the Asset
+                      example: 6560e3cbcfc656.88392489
+                    parent_asset_id:
+                      type: string
+                      description: The ID of the parent asset, if applicable
+                      example: 609d7ce22341c
+                      nullable: true
+                user:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The ID of the user
+                      example: 609d7ce223411
+                    name:
+                      type: string
+                      description: The name of the user
+                      example: John Doe
+                    email:
+                      type: string
+                      description: The email of the user
+                      example: john.doe@email.com
+                    roles:
+                      type: array
+                      description: The roles of the user
+                      items:
+                        type: string
+                        example: Builder
+                company:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The ID of the company
+                      example: 609d7ce223411
+                    name:
+                      type: string
+                      description: The name of the company
+                      example: My Company
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - result
+                - result_url
+                properties:
+                  result:
+                    type: string
+                    description: The result of the validation. This can be `pass`, `fail`
+                    example: pass
+                  result_url:
+                    type: string
+                    description: The URL to the result of the validation. This is usually a link to a page in your service with more information.
+                    example: https://yourService.com/ValidationResults/1234
+        401:
+          description: Unauthenticated
+        403:
+          description: Unauthorized

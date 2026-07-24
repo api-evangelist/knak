@@ -1,0 +1,179 @@
+openapi: 3.1.0
+info:
+  description: '## Overview
+
+    An API specification to provide a Custom Sync Location in Knak.
+
+
+    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
+
+
+    ## Authentication
+
+    Knak provides two options for authentication:
+
+    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+
+    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+
+
+    Knak will use the tokens generated to make requests from your service.
+
+
+    ## Custom Sync Location
+
+    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+
+    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+
+
+    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+
+    '
+  version: V1
+  title: Custom Sync Location API Reference Asset Custom Fieldsets MarketingPlatformSyncs API
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+- url: https://yourService.com/your-sync-location-api
+tags:
+- name: MarketingPlatformSyncs
+paths:
+  /marketing-platform-syncs/{sync_history}:
+    get:
+      description: Retrieve a specific [marketing platform sync](#tag/marketing_platform_sync) for status polling.
+      summary: Retrieve a marketing platform sync
+      tags:
+      - MarketingPlatformSyncs
+      parameters:
+      - name: sync_history
+        in: path
+        required: true
+        description: ID of the sync history record to retrieve.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingPlatformSyncItem'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Unauthenticated.
+                  detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Forbidden.
+                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                - title: Resource Not Found.
+                  detail: Could not find the marketing platform sync you were looking for.
+components:
+  schemas:
+    MarketingPlatformSyncItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/MarketingPlatformSync'
+    MarketingPlatformSync:
+      type: object
+      properties:
+        type:
+          type: string
+          example: marketing-platform-sync
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/MarketingPlatformSyncAttributes'
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
+    MarketingPlatformSyncAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        asset_id:
+          type: string
+          example: 609d7ce223abc
+        integration_id:
+          type: string
+          example: 609d7ce223def
+        platform:
+          type: string
+          example: marketing_cloud
+        sync_type:
+          type: string
+          enum:
+          - sync
+          - resync
+          example: sync
+        status:
+          type: string
+          description: Wire value; the database stores `error` for failed syncs but the API response maps that to `failed` for consistency.
+          enum:
+          - pending
+          - in_progress
+          - complete
+          - failed
+          - confirmation_requested
+          example: pending
+        platform_asset_id:
+          type: string
+          nullable: true
+          example: '123456'
+        platform_asset_url:
+          type: string
+          nullable: true
+          example: https://mc.s7.exacttarget.com/emails/123456
+        error_message:
+          type: string
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
