@@ -1,25 +1,511 @@
 aid: knak
 name: Knak
-description: Knak is a company surfaced as a portfolio company of insight-partners and added to the API
-  Evangelist network as a stub for enrichment. This profile is a lead awaiting the enrichment pipeline.
+description: >-
+  Knak is a no-code email and landing page creation platform built for enterprise marketing
+  teams. Marketers design on-brand, responsive emails and landing pages in a drag-and-drop builder, then
+  sync the finished HTML directly into their marketing automation platform (Marketo, Eloqua, Salesforce
+  Marketing Cloud, Braze, HubSpot and others) without writing code or waiting on developers. For technical
+  teams Knak publishes a documented developer surface -- the Knak Enterprise REST API for automating users,
+  assets, themes, modules, brands, folders, merge tags and translation requests; the Knak Send Contacts
+  API; a SCIM 2.0 API for identity-provider driven user provisioning; signed webhooks for asset and
+  translation lifecycle events; a set of customer-implemented integration contracts (Custom DAM, Custom
+  Validator, Custom Sync Location); and a hosted, OAuth 2.1 protected MCP server that lets AI clients
+  generate and browse Knak assets.
 url: https://raw.githubusercontent.com/api-evangelist/knak/refs/heads/main/apis.yml
+accessModel:
+  pricing: unknown
+  onboarding: self-serve
+  trial: false
+  try_now: false
+  public: false
+  label: Self-serve signup
+  confidence: medium
+  source:
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 x-type: company
 x-source: vc-portfolio
 x-backed-by:
 - insight-partners
-x-tier: stub
-x-tier-reason: portfolio-lead
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-17'
+modified: '2026-07-19'
 tags:
 - Company
-apis: []
+- Email Marketing
+- Marketing Automation
+- Landing Pages
+- Content Creation
+- Marketing Operations
+- Campaign Management
+- No-Code
+- SCIM
+- Webhooks
+apis:
+- aid: knak:knak-asset-custom-fieldsets-api
+  name: Knak Asset Custom Fieldsets API
+  description: The Asset Custom Fieldsets API from Knak — 2 operation(s) for asset custom fieldsets.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Asset Custom Fieldsets
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-asset-custom-fieldsets-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-assetfolders-api
+  name: Knak AssetFolders API
+  description: The AssetFolders API from Knak — 2 operation(s) for assetfolders.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - AssetFolders
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-assetfolders-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-assets-api
+  name: Knak Assets API
+  description: The Assets API from Knak — 7 operation(s) for assets.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Assets
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-assets-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-availableplatforms-api
+  name: Knak AvailablePlatforms API
+  description: The AvailablePlatforms API from Knak — 1 operation(s) for availableplatforms.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - AvailablePlatforms
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-availableplatforms-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-brands-api
+  name: Knak Brands API
+  description: The Brands API from Knak — 1 operation(s) for brands.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Brands
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-brands-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-contacts-api
+  name: Knak Contacts API
+  description: Create, retrieve and list contacts in Knak Send.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Contacts
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-contacts-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-dam-assets-api
+  name: Knak DAM Assets API
+  description: Endpoints to retrieve DAM Assets
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - DAM Assets
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-dam-assets-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-fields-api
+  name: Knak Fields API
+  description: Create and list custom contact fields (schema metadata).
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Fields
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-fields-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-integrations-api
+  name: Knak Integrations API
+  description: The Integrations API from Knak — 1 operation(s) for integrations.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Integrations
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-integrations-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-marketingplatformsyncs-api
+  name: Knak MarketingPlatformSyncs API
+  description: The MarketingPlatformSyncs API from Knak — 1 operation(s) for marketingplatformsyncs.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - MarketingPlatformSyncs
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-marketingplatformsyncs-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-mergetags-api
+  name: Knak MergeTags API
+  description: The MergeTags API from Knak — 2 operation(s) for mergetags.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - MergeTags
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-mergetags-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-modules-api
+  name: Knak Modules API
+  description: The Modules API from Knak — 3 operation(s) for modules.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Modules
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-modules-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-oauth2-api
+  name: Knak OAuth2 API
+  description: Endpoints that need to be implemented to support OAuth2
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - OAuth2
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-oauth2-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-project-management-api
+  name: Knak Project Management API
+  description: The Project Management API from Knak — 1 operation(s) for project management.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Project Management
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-project-management-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-status-api
+  name: Knak Status API
+  description: The Status API from Knak — 1 operation(s) for status.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Status
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-status-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-sync-location-api
+  name: Knak Sync Location API
+  description: Endpoints to retrieve Sync Location
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Sync Location
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-sync-location-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-syncstatuses-api
+  name: Knak SyncStatuses API
+  description: The SyncStatuses API from Knak — 1 operation(s) for syncstatuses.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - SyncStatuses
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-syncstatuses-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-themes-api
+  name: Knak Themes API
+  description: The Themes API from Knak — 2 operation(s) for themes.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Themes
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-themes-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-translationrequests-api
+  name: Knak TranslationRequests API
+  description: The TranslationRequests API from Knak — 5 operation(s) for translationrequests.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - TranslationRequests
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-translationrequests-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-users-api
+  name: Knak Users API
+  description: The Users API from Knak — 4 operation(s) for users.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Users
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-users-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-validation-api
+  name: Knak Validation API
+  description: The Validation API from Knak — 1 operation(s) for validation.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Validation
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-validation-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: TrustCenter
+  url: security/knak-trust-center.yml
 - type: Website
   url: https://knak.com/
+- type: DeveloperPortal
+  url: https://developer.knak.com/
+- type: Documentation
+  url: https://developer.knak.com/
+- type: APIReference
+  url: https://developer.knak.com/api/
+- type: GettingStarted
+  url: https://developer.knak.com/welcome/getting-started/
+- type: Support
+  url: https://help.knak.io/en/
+- type: Blog
+  url: https://knak.com/blog/
+- type: Pricing
+  url: https://knak.com/pricing/
+- type: SignUp
+  url: https://enterprise.knak.io/
+- type: TermsOfService
+  url: https://knak.com/terms/
+- type: PrivacyPolicy
+  url: https://knak.com/privacy-policy/
+- type: StatusPage
+  url: https://status.knak.io/
+- type: Compliance
+  url: https://knak.com/security/
+- type: Security
+  url: https://knak.com/security/
+- type: VulnerabilityDisclosure
+  url: security/knak-vulnerability-disclosure.yml
+- type: OpenAPI
+  name: Custom DAM API
+  url: openapi/knak-dam-openapi-original.yml
+- type: OpenAPI
+  name: Custom Validator API
+  url: openapi/knak-custom-validator-openapi-original.yml
+- type: OpenAPI
+  name: Custom Sync Location API
+  url: openapi/knak-custom-sync-location-openapi-original.yml
+- type: MCPServer
+  url: mcp/knak-mcp.yml
+- type: Authentication
+  url: authentication/knak-authentication.yml
+- type: OAuthScopes
+  url: scopes/knak-scopes.yml
+- type: WellKnown
+  url: well-known/knak-well-known.yml
+- type: Conventions
+  url: conventions/knak-conventions.yml
+- type: ErrorCatalog
+  url: errors/knak-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/knak-lifecycle.yml
+- type: Conformance
+  url: conformance/knak-conformance.yml
+- type: DataModel
+  url: data-model/knak-data-model.yml
+- type: Webhooks
+  url: asyncapi/knak-enterprise-webhooks.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: LLMsTxt
+  url: llms/knak-llms.txt
+- type: DomainSecurity
+  url: security/knak-domain-security.yml
+- type: Overlay
+  name: Knak Enterprise API overlay
+  url: overlays/knak-enterprise-overlay.yaml
+- type: Overlay
+  name: Knak Send Contacts API overlay
+  url: overlays/knak-send-overlay.yaml
+- type: Overlay
+  name: Knak SCIM API overlay
+  url: overlays/knak-scim-overlay.yaml
+x-enrichment:
+  date: '2026-07-19'
+  status: backfilled
+  pass: local-v1
+  note: backfilled from .gitignore signal + verified work evidence
