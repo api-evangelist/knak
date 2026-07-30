@@ -1,0 +1,42 @@
+generated: '2026-07-19'
+method: searched
+source: https://enterprise.knak.io/.well-known/oauth-authorization-server
+docs: https://developer.knak.com/api/
+notes: >-
+  The Knak Enterprise API OpenAPI does not declare formal oauth2 securitySchemes, so the
+  mechanical derive pass returns nothing. OAuth 2.0 is nevertheless documented in the
+  Enterprise API overview and a live RFC 8414 authorization server metadata document is
+  published for the MCP server. Access granted through the Enterprise authorization code
+  flow is bounded by the permissions of the authorizing Knak user and their API role
+  rather than by named request scopes; the only scope Knak advertises is mcp:use.
+schemes:
+- name: Knak Enterprise OAuth2
+  source: https://developer.knak.com/api/
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://enterprise.knak.io/oauth/authorize
+    tokenUrl: https://enterprise.knak.io/oauth/token
+    scopes_documented: false
+    notes: Authorization code grant. Applications are registered at
+      https://enterprise.knak.io/account/oauth-applications and receive a client_id,
+      client_secret and redirect_uri. Returns an (access_token, refresh_token) pair.
+- name: Knak MCP OAuth 2.1
+  source: https://enterprise.knak.io/.well-known/oauth-authorization-server
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: https://enterprise.knak.io/oauth/authorize
+    tokenUrl: https://enterprise.knak.io/oauth/token
+    registrationUrl: https://enterprise.knak.io/oauth/register
+    pkce: S256
+    scopes_documented: true
+scopes:
+- scope: mcp:use
+  description: Permits an MCP client to invoke the Knak MCP server tools on behalf of the
+    authorizing user.
+  flows:
+  - authorizationCode
+  sources:
+  - https://enterprise.knak.io/.well-known/oauth-authorization-server
+grant_types:
+- authorization_code
+- refresh_token

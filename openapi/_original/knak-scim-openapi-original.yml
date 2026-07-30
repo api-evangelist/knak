@@ -1,0 +1,393 @@
+openapi: '3.1'
+info:
+  title: SCIM API Reference
+  version: V2
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+  contact:
+    email: support@knak.com
+  description: |
+    # Overview
+    Welcome to the developer documentation for the Knak Enterprise SCIM API.
+
+    We provide a RESTful interface for user management and provisioning that follows the SCIM 2.0 protocol. This will allow you to leverage Single Sign-On (SSO) services and Identity Providers (IdP) to manage users in your Knak Enterprise account.
+
+    For more information regarding the SCIM protocol, please refer to the [SCIM 2.0 Official Documentation](https://scim.cloud).
+
+    You can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.
+
+    ## Endpoint
+    `https://enterprise.knak.io/scim/v2`
+
+    **This will be the base URL that you provide to your IdP to connect to the SCIM API.**
+
+    ## Authentication
+    For information on how to authenticate with the SCIM API, follow the authentication steps found in the main API documentation page.
+
+    [Knak Public API Authentication Reference](https://developer.knak.com/api#description/authentication)
+
+    ## Important Notes
+    - The `userName` attribute always maps to the user's email address in Knak, keep this in mind when setting up the API with your IdP
+    - The only SCIM resource supported is the User resource, Groups are not supported at this time
+    - The PATCH/PUT methods, are strictly used for deactivating users. (i.e., setting the active attribute to `false`)
+      Any updates to the user should be done on the Knak platform directly or a new user can be created
+servers:
+  - url: https://enterprise.knak.io/scim/v2
+tags:
+  - name: user
+  - name: user_model
+    x-displayName: User Model
+    description: |
+      Represents the format of a user object in the system, based on the SCIM User schema format.
+      <SchemaDefinition schemaRef="#/components/schemas/UserSchema" />
+paths:
+  /Users:
+    get:
+      description: Returns a list of user resources
+      summary: Retrieve users
+      parameters:
+        - in: query
+          required: false
+          name: count
+          description: For pagination, used to specify number of items for the page
+          example: '10'
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: startIndex
+          description: For pagination, used to specify what index to start looking at
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: filter
+          description: Specify an attribute to filter results by. Currently only support the userName field, which maps to an email
+          schema:
+            type: string
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Unauthenticated.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Forbidden.
+    post:
+      description: Creates a user.
+      summary: Create a user
+      requestBody:
+        description: JSON string with the new user’s information/attributes in SCIM user schema format.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSchema'
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSchema'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Unauthenticated.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Forbidden.
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Attempting to create user that already exists.
+  /Users/{user_id}:
+    get:
+      description: Returns a single user resource
+      summary: Retrieve a user
+      parameters:
+        - in: path
+          required: true
+          name: user_id
+          description: ID of user to retrieve
+          example: 609d7ce223411
+          schema:
+            type: string
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSchema'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                schemas:
+                  - urn:ietf:params:scim:api:messages:2.0:Error
+                status: 404
+                detail: User not found.
+    put:
+      description: Updates an existing user resource, used specifically for updating user's active status.
+      summary: Update a user
+      parameters:
+        - in: path
+          required: true
+          name: user_id
+          description: ID of user to update
+          example: 609d7ce223411
+          schema:
+            type: string
+      requestBody:
+        description: JSON string with the updated user’s information/attributes in SCIM user schema format.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSchema'
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSchema'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Unsupported update action...
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Unauthenticated.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Unauthorized.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorSchema'
+              example:
+                schemas:
+                  - urn:ietf:params:scim:api:messages:2.0:Error
+                status: 404
+                detail: User does not exist.
+    patch:
+      description: Updates an existing user resource, specifically for updating user's active status.
+      summary: Update a user
+      parameters:
+        - in: path
+          required: true
+          name: user_id
+          description: ID of user to update
+          example: 609d7ce223411
+          schema:
+            type: string
+      requestBody:
+        description: JSON string with the updated user’s information/attributes in SCIM user schema format.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSchema'
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSchema'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Unauthenticated.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Unauthorized.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorSchema'
+              example:
+                schemas:
+                  - urn:ietf:params:scim:api:messages:2.0:Error
+                status: 404
+                detail: User does not exist.
+components:
+  schemas:
+    UserSchema:
+      type: object
+      description: SCIM User schema representation for users in the platform.
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+            example: urn:ietf:params:scim:schemas:core:2.0:User
+          description:
+            - The list of supported schemas for the user. The value of this attribute is always 'urn:ietf:params:scim:schemas:core:2.0:User'.
+        id:
+          type: string
+          example: 609d7ce223411
+          description:
+            - The ID of the user within the Knak platform.
+        userName:
+          type: string
+          example: john.doe@email.com
+          description:
+            - Username of the user in the platform. For Knak, this is the email of the user.
+        name:
+          type: object
+          properties:
+            givenName:
+              type: string
+              example: Doe
+            familyName:
+              type: string
+              example: John
+        emails:
+          type: array
+          items:
+            type: object
+            properties:
+              value:
+                type: string
+                example: john.doe@email.com
+              primary:
+                type: boolean
+                example: true
+        active:
+          type: boolean
+          example: true
+    UserList:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults:
+          type: integer
+          example: 10
+        startIndex:
+          type: integer
+          example: 0
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSchema'
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthenticated.
+    ErrorSchema:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:Error
+        status:
+          type: string
+          example: 404
+        detail:
+          type: string
+          example: User not found
+x-tagGroups:
+  - name: User Management
+    tags:
+      - Users
+  - name: Models
+    tags:
+      - user_model

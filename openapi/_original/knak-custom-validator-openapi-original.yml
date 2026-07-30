@@ -1,0 +1,173 @@
+---
+openapi: "3.1.0"
+info:
+    description: |
+        ## Overview
+        An API specification to perform custom testing and validation of Knak Asset content.
+
+        By implementing a service conforming to this API specification, you will be able to initiate a content test from the Knak UI, and results from your service will be displayed to the Knak User. For information on how to configure the connection to your custom validator in Knak, see our guide [here](https://help.knak.io/en/articles/8708391-setting-up-a-custom-validator-integration).
+
+        ## Authentication
+        As part of the Integration Configuration stage in Knak, you are able to specify your own HTTP security header name and value. These values are referred to by `<security-header-name>` and `<security-header-value>` in this specification, and will be present in every request.
+
+    version: "V1"
+    title: "Knak Custom Validator API Reference"
+    x-logo:
+        url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+    - url: "https://yourService.com/yourValidationApi"
+    - url: "https://example.com"
+#tags:
+#    - name: Validation
+#      description: Endpoints to retrieve DAM Assets
+#    - name: Status
+#      description: Endpoints for health checks
+
+paths:
+    /v1/validate:
+        post:
+            tags:
+                - Validation
+            summary: "Validate Content"
+            description: "Run custom validation on the provided Asset content and metadata, and return the result."
+            security:
+                - customSecurityHeader: []
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            required:
+                                - asset
+                                - user
+                                - company
+                            properties:
+                                asset:
+                                    type: object
+                                    required:
+                                        - id
+                                        - name
+                                        - content
+                                        - brand
+                                        - language_code
+                                        - version
+                                        - version_id
+                                        - parent_asset_id
+                                    properties:
+                                        id:
+                                            type: string
+                                            description: "The ID of the asset to validate"
+                                            example: "609d7ce223411"
+                                        name:
+                                            type: string
+                                            description: "The name of the asset to validate"
+                                            example: "Spring Newsletter"
+                                        subject:
+                                            type: string
+                                            description: "The subject (if email)"
+                                            example: "See our Spring deals!"
+                                        content:
+                                            type: string
+                                            description: "The Asset content to validate"
+                                            example: "<html>...</html>"
+                                        brand:
+                                            type: string
+                                            description: "The name of the Brand of the associated with the Asset"
+                                            example: "Sample Brand"
+                                        language_code:
+                                            type: string
+                                            description: "The language code of the Asset"
+                                            example: "en-US"
+                                            nullable: true
+                                        version:
+                                            type: string
+                                            description: "The version of the Asset"
+                                            example: "1.0"
+                                        version_id:
+                                            type: string
+                                            description: "The unique version ID of the Asset"
+                                            example: "6560e3cbcfc656.88392489"
+                                        parent_asset_id:
+                                            type: string
+                                            description: "The ID of the parent asset, if applicable"
+                                            example: "609d7ce22341c"
+                                            nullable: true
+
+                                user:
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: string
+                                            description: "The ID of the user"
+                                            example: "609d7ce223411"
+                                        name:
+                                            type: string
+                                            description: "The name of the user"
+                                            example: "John Doe"
+                                        email:
+                                            type: string
+                                            description: "The email of the user"
+                                            example: "john.doe@email.com"
+                                        roles:
+                                            type: array
+                                            description: "The roles of the user"
+                                            items:
+                                                type: string
+                                                example: "Builder"
+                                company:
+                                    type: object
+                                    properties:
+                                        id:
+                                            type: string
+                                            description: "The ID of the company"
+                                            example: "609d7ce223411"
+                                        name:
+                                            type: string
+                                            description: "The name of the company"
+                                            example: "My Company"
+
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                required:
+                                    - "result"
+                                    - "result_url"
+                                properties:
+                                    result:
+                                        type: string
+                                        description: "The result of the validation. This can be `pass`, `fail`"
+                                        example: "pass"
+                                    result_url:
+                                        type: string
+                                        description: "The URL to the result of the validation. This is usually a link to a page in your service with more information."
+                                        example: "https://yourService.com/ValidationResults/1234"
+                401:
+                    description: "Unauthenticated"
+                403:
+                    description: "Unauthorized"
+    /v1/ping:
+        get:
+            tags:
+                - Status
+            summary: "Status check"
+            description: "Check to see that the service is responsive, indicating to the User that the service is available. Any 200 response will be considered a success."
+            security:
+                -   customSecurityHeader: []
+            responses:
+                200:
+                    description: ""
+
+
+components:
+    schemas:
+    securitySchemes:
+        customSecurityHeader:
+            type: apiKey
+            in: header
+            name: <security-header-name>
+            description: "The security header name and value is specified in the Integration Configuration stage in Knak."

@@ -1,0 +1,77 @@
+generated: '2026-07-19'
+method: searched
+source: https://developer.knak.com/api/
+derived_from:
+- openapi/knak-enterprise-openapi-original.yml
+- openapi/knak-send-openapi-original.yml
+authentication:
+  style: bearer-token
+  header: Authorization
+  detail: authentication/knak-authentication.yml
+idempotency:
+  supported: false
+  notes: >-
+    Knak documents no idempotency key header or parameter, and no Idempotency-Key
+    parameter appears in any published OpenAPI. Bulk contact upsert on the Send API
+    (POST /contacts/bulk, bulkUpsertContacts) is upsert-by-nature and therefore
+    naturally repeatable, but this is not a general idempotency contract.
+pagination:
+  style: page-number
+  params:
+  - name: page
+    type: integer
+    default: 1
+    description: The page number in the results set.
+  - name: per_page
+    type: integer
+    default: 10
+    maximum: 100
+    description: Items per page. Requests for more than 100 items per page are capped at 100.
+  notes: If neither page nor per_page is specified the API returns the first page with the
+    default size of 10 items.
+filtering:
+  style: bracketed-query-param
+  param: filter[field_name]
+  types:
+  - id: exact
+    description: Matches the exact value of a field.
+  - id: partial
+    description: Returns all matches that contain the specified value.
+  - id: scope
+    description: Filters on a static list of values. Supported items are listed per endpoint.
+  notes: Supported filters are documented per endpoint.
+sorting:
+  param: sort
+  fields:
+  - updated_at
+  - created_at
+  description: Order the results of a GET request by the given field.
+field_expansion:
+  supported: false
+metadata:
+  supported: true
+  notes: Assets carry user-defined custom fields via asset custom fieldsets
+    (GET/PATCH /assets/{asset_id}/custom-fields).
+request_tracing:
+  request_id_header: null
+  notes: Knak documents no request-id or correlation header.
+versioning:
+  scheme: uri-path
+  current: v1
+  detail: lifecycle/knak-lifecycle.yml
+error_envelope:
+  format: http-status
+  rfc9457: false
+  notes: Errors are signalled by HTTP status code; Knak documents 400, 401, 403 and 404
+    with plain-language reasons. No application/problem+json media type is used.
+  detail: errors/knak-problem-types.yml
+rate_limiting:
+  documented: false
+  notes: Knak publishes no rate limit values or rate-limit response headers.
+webhooks:
+  signing: hmac-sha256
+  signature_header: knak-signature
+  retry_policy: Up to three attempts, 60 seconds apart, until a successful response status
+    is returned.
+  detail: asyncapi/knak-enterprise-webhooks.yml
+media_type: application/json

@@ -1,0 +1,41 @@
+generated: '2026-07-19'
+method: searched
+source: https://developer.knak.com/api/
+versioning:
+  scheme: uri-path
+  current: v1
+  docs: https://developer.knak.com/api/
+  per_api:
+  - api: knak:enterprise
+    version: V1
+    base: https://enterprise.knak.io/api/published/v1
+  - api: knak:send
+    version: V1
+    base: https://send.knak.io/api/public/v1
+  - api: knak:scim
+    version: V2
+    base: https://enterprise.knak.io/scim/v2
+    notes: Version tracks the SCIM 2.0 standard.
+deprecation:
+  policy_url: null
+  policy_published: false
+  sunset_header: false
+  notes: Knak publishes no deprecation or sunset policy, and no RFC 8594 Sunset or
+    Deprecation header support is documented.
+deprecated_operations: []
+sla:
+  url: null
+  uptime_target: null
+  notes: No public SLA or uptime target is published; availability commitments are made in
+    enterprise contracts. SOC 2 Type II coverage includes Availability.
+status_page: https://status.knak.io/
+status_page_notes: Realtime and historical uptime, published as "Knak Status".
+changelog:
+  published: false
+  notes: No dated public changelog or release-notes feed was found on knak.com,
+    developer.knak.com or help.knak.io. Product updates are communicated through the Knak
+    blog and webinars rather than a versioned changelog.
+support:
+  docs: https://help.knak.io/en/
+  email: support@knak.com
+  in_app: Chat icon in the bottom right corner when logged into Knak.

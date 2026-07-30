@@ -1,0 +1,34 @@
+generated: '2026-07-19'
+method: searched
+source: live probes of Knak base hosts
+hosts:
+- host: https://enterprise.knak.io
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    file: knak-oauth-authorization-server.json
+    note: RFC 8414 authorization server metadata backing the Knak MCP server. Advertises
+      dynamic client registration and PKCE S256, with a single mcp:use scope.
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+- host: https://knak.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+- host: https://developer.knak.com
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /llms.txt
+    status: 404
+notes:
+- Knak publishes no RFC 9116 security.txt on any probed host, although a responsible
+  disclosure process and a security@knak.com contact are documented at https://knak.com/security/.
+- The only well-known document served is the OAuth 2.1 authorization server metadata
+  on enterprise.knak.io, which exists to support the hosted Knak MCP server.

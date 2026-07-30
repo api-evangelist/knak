@@ -1,0 +1,40 @@
+generated: '2026-07-19'
+method: searched
+source: https://developer.knak.com/api/
+derived_from:
+- openapi/knak-enterprise-openapi-original.yml
+- openapi/knak-send-openapi-original.yml
+format: http-status
+rfc9457: false
+envelope:
+  notes: Knak signals errors with the HTTP status code. Responses are application/json;
+    no application/problem+json media type is published and no machine-readable error
+    type URI or error code registry is documented.
+problems:
+- status: 400
+  title: Bad Request
+  detail: Request is malformed or invalid.
+  remediation: Check the request body and query parameters against the endpoint schema,
+    including filter[] and sort values.
+  source: https://developer.knak.com/api/
+- status: 401
+  title: Unauthenticated
+  detail: Need to be signed in with a proper account to make this request.
+  remediation: Send a valid Bearer token in the Authorization header. API keys are issued
+    at https://enterprise.knak.io/account/api-access; OAuth access tokens expire and must
+    be refreshed with the refresh_token.
+  source: https://developer.knak.com/api/
+- status: 403
+  title: Forbidden
+  detail: The request cannot be completed because the account that is being used does not
+    have sufficient permissions to perform the action in question.
+  remediation: Grant the API user a role carrying the required permission. API token
+    management requires the "Can Manage API Tokens" permission.
+  source: https://developer.knak.com/api/
+- status: 404
+  title: Not Found
+  detail: The requested resource could not be found. Verify that the resource you are
+    looking for exists and that you are using the proper key to search for it.
+  remediation: Confirm the resource id and that the authenticated account has visibility
+    of the brand or folder containing it.
+  source: https://developer.knak.com/api/

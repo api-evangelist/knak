@@ -1,0 +1,39 @@
+generated: '2026-07-19'
+method: searched
+status: published
+source: https://developer.knak.com/ai-integrations/mcp/
+server:
+  name: knak
+  transport: http
+  url: https://enterprise.knak.io/mcp/public
+  docs: https://developer.knak.com/ai-integrations/mcp/
+authentication:
+  type: oauth2.1
+  flow: authorization_code
+  pkce: S256
+  dynamic_client_registration: true
+  discovery: https://enterprise.knak.io/.well-known/oauth-authorization-server
+  authorization_endpoint: https://enterprise.knak.io/oauth/authorize
+  token_endpoint: https://enterprise.knak.io/oauth/token
+  registration_endpoint: https://enterprise.knak.io/oauth/register
+  scopes:
+  - mcp:use
+  notes: No client secrets are exposed; all authentication uses proof keys (PKCE).
+clients:
+- Claude Desktop
+- ChatGPT
+tools:
+- name: list-brands
+  description: Retrieve the brand profiles accessible to the authenticated user.
+- name: list-campaigns
+  description: Discover campaigns within a brand.
+- name: list-themes
+  description: Browse the design themes available for asset generation.
+- name: generate-asset
+  description: Create a new email asset from an AI-driven prompt.
+- name: get-asset-preview
+  description: Return a rendered visual preview of an asset.
+- name: list-assets
+  description: Search existing assets with filtering.
+- name: get-asset
+  description: Fetch metadata for an individual asset.

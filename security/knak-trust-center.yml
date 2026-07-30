@@ -1,0 +1,12 @@
+generated: '2026-07-19'
+method: searched
+probe: true
+source: https://trust.knak.com/
+url: https://trust.knak.com/
+certifications:
+- SOC 2
+evidence:
+- source: https://trust.knak.com/
+  keywords:
+  - soc 2
+  - trust center

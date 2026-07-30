@@ -1,0 +1,481 @@
+---
+openapi: "3.1.0"
+info:
+    description: |
+        ## Overview
+        An API specification to search and use DAM content in Knak.
+
+        By implementing a service conforming to this API specification, you will be able to search for and use
+        content in your custom DAM in Knak.
+
+        ## Authentication
+        Knak can use OAuth 2.0 or HTTP Basic to authenticate with your API.
+
+        ### OAuth 2.0
+        For OAuth 2.0, you will need to implement the necessary endpoints under the
+        `/oauth2` path to support this. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+        Knak will use the tokens generated to make requests to your service on behalf of the current authenticated user.
+
+        ### HTTP Basic
+        For HTTP Basic, Knak will include a valid username and password that are base64 encoded in the Authorization
+        header for the request to your service. The credentials can be set in Knak when creating a new custom DAM integration.
+
+        ## DAM Assets
+        Knak will call the `/dam-assets` and `/search` endpoints to retrieve assets from your DAM. The two main use cases are:
+        - reading all assets and folders in a given folder
+        - searching for assets matching a given search term, within a selected path
+
+        Note that Knak will use the URL\'s of the fetched assets for both preview and final deployment,
+        and will never transfer any asset content from your DAM to Knak directly.
+
+    version: "V1"
+    title: "Custom Digital Asset Management (DAM) API Reference"
+    x-logo:
+        url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+servers:
+    - url: "https://yourService.com/yourDamApi"
+tags:
+    - name: OAuth2
+      description: Endpoints that need to be implemented to support OAuth2
+    - name: DAM Assets
+      description: Endpoints to retrieve DAM Assets
+    - name: Status
+      description: Endpoints for health checks
+
+paths:
+    /v1/dam-assets:
+        get:
+            tags:
+                - DAM Assets
+            summary: "Retrieve DAM Assets"
+            description: "Retrieve all DAM Assets in the folder specified. If no path is given, the app should return the contents of the base folder available to the authorized user. Results are paginated, with a default page size of 10"
+            parameters:
+                - in: query
+                  name: path
+                  required: false
+                  description: "The path of to the folder to retrieve"
+                  schema:
+                    type: string
+                  example: "folder1/folder2"
+                - name: "offset"
+                  in: "query"
+                  required: false
+                  description: "(pagination) The offset of the first result to return. Default is 0."
+                  schema:
+                        type: integer
+                - name: "per_page"
+                  in: "query"
+                  required: false
+                  description: "(pagination) The Number of items to return per page. Default is 10."
+                  schema:
+                      type: integer
+                - name: "Authorization"
+                  in: "header"
+                  required: false
+                  description: "Oauth2 bearer token"
+                  example: "Bearer xxxxxxxxx"
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DamAssetsIndexResponse"
+                            examples:
+                                folder_example:
+                                    summary: Folder listing
+                                    description: Listing contents of folder1 containing images and sub-folders
+                                    value:
+                                        data:
+                                            - id: 24fa00d8-211a-4a5f-aa53-f1e30dca86b9
+                                              name: folder2
+                                              type: folder
+                                              path: /folder1/folder2
+                                            - id: c9ccdf9f-a876-47db-bdc7-1ce828d60d86
+                                              name: image1.png
+                                              type: image
+                                              path: /folder1/image1.png
+                                              url: https://my.cdn.com/images/c9ccdf9f-a876-47db-bdc7-1ce828d60d86.png
+                                              thumbnail_url: https://my.cdn.com/previews/c9ccdf9f-a876-47db-bdc7-1ce828d60d86.png\
+                                              metadata:
+                                                width: 1920
+                                                height: 1080
+                                                size: 1024
+                                                mime_type: image/png
+                                            - id: b9f22f78-be85-47f8-bff4-8d0b0152669c
+                                              name: image2.png
+                                              type: image
+                                              path: /folder1/image2.png
+                                              url: https://my.cdn.com/images/b9f22f78-be85-47f8-bff4-8d0b0152669c.png
+                                              thumbnail_url: https://my.cdn.com/previews/b9f22f78-be85-47f8-bff4-8d0b0152669c.png
+                                              metadata:
+                                                width: 1920
+                                                height: 1080
+                                                size: 1024
+                                                mime_type: image/png
+                                        messages:
+                                            - message: "Search for asset by their name or ID"
+                                              type: search
+                                              level: info
+                                            - message: "No results found for the search, verify the name or ID used"
+                                              type: empty
+                                              level: error
+                                        meta:
+                                            offset: 0
+                                            per_page: 3
+                                            total: 40
+                401:
+                    description: "Unauthenticated"
+                403:
+                    description: "Unauthorized"
+    /v1/search:
+        get:
+            tags:
+                - DAM Assets
+            summary: "Search DAM Assets"
+            description: "Retrieve all DAM Assets matching the search criteria. Results should be paginated with per_page items per page. The most relevant results should be provided first"
+            parameters:
+                - in: query
+                  name: path
+                  required: false
+                  description: "Restrict the search to Assets in the specified folder and all child folders. If no path is given, the app should search globally"
+                  example: "folderX/folderY"
+                  schema:
+                    type: string
+                - name: term
+                  in: "query"
+                  required: true
+                  description: "Search query term or phrase."
+                  schema:
+                    type: string
+                  example: "my_product*"
+                - name: "offset"
+                  in: "query"
+                  required: false
+                  description: "(pagination) The offset of the first result to return. Default is 0."
+                  schema:
+                    type: integer
+                - name: "per_page"
+                  in: "query"
+                  required: false
+                  description: "(pagination) The Number of items to return per page. Default is 10."
+                  schema:
+                      type: integer
+                - name: "Authorization"
+                  in: "header"
+                  required: false
+                  description: "Oauth2 bearer token"
+                  example: "Bearer xxxxxxxxx"
+            responses:
+                200:
+                    description: "OK"
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/DamAssetsSearchResponse"
+                401:
+                    description: "Unauthenticated"
+                403:
+                    description: "Unauthorized"
+    /v1/ping:
+        get:
+            tags:
+                - Status
+            summary: "Status check"
+            description: "Check to see that the app is responsive. Any 200 response will be considered a success"
+            responses:
+                200:
+                    description: ""
+    /oauth2/authorize:
+        get:
+            tags:
+                - OAuth2
+            summary: "OAuth2 Authorization"
+            description: "<p>
+                     <a href='https://tools.ietf.org/html/rfc6749#section-3.1'>OAuth2 Authorize</a>
+                     endpoint. Will need to be configured in Knak.
+                    </p>"
+            parameters:
+                - name: "response_type"
+                  in: "query"
+                  required: true
+                  schema:
+                    type: "string"
+                  description: "The expected response type. This field should be `code`"
+                  example: "code"
+                - name: "client_id"
+                  in: "query"
+                  required: true
+                  schema:
+                      type: "string"
+                  description: "The client ID (will need to be configured in Knak)"
+                  example: "1948194"
+                - name: "redirect_uri"
+                  in: "query"
+                  required: true
+                  schema:
+                    type: "string"
+                  description: "The URI that expected authorization code should be sent to."
+                  example: "https://enterprise.knak.io/account/integrations/custom-dam/authorize"
+                - name: "state"
+                  in: "query"
+                  required: true
+                  schema:
+                    type: "string"
+                  description: "State"
+                  example: "za81js910s"
+                - name: "scope"
+                  in: "query"
+                  required: false
+                  schema:
+                    type: "string"
+                  description: "Optional: if your application requires a set of scopes, they can be configured in Knak"
+                  example: "read:assets"
+            responses:
+                200:
+                    description: success
+    /oauth2/token:
+        post:
+            tags:
+                - OAuth2
+            summary: "OAuth2 Token"
+            description: |
+                <p>
+                <a href='https://tools.ietf.org/html/rfc6749#section-3.2'>OAuth2 Token</a>
+                endpoint. Please note that this authorization url is configured in Knak.
+                The required parameters depend on the grant type requested:
+                </p>
+
+                <p>Authorization Code:</p>
+                <ul>
+                  <li>grant_type: authorization_code</li>
+                  <li>client_id</li>
+                  <li>client_secret</li>
+                  <li>code</li>
+                  <li>redirect_uri</li>
+                </ul>
+
+                <p>Refresh Token</p>
+                <ul>
+                  <li>grant_type: refresh_token</li>
+                  <li>client_id </li>
+                  <li>client_secret </li>
+                  <li>refresh_token </li>
+                </ul>
+            parameters:
+                - name: tokenRequest
+                  in: body
+                  schema:
+                      $ref: '#/components/schemas/OAuth2TokenRequest'
+            responses:
+                200:
+                    description: success
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/OAuth2TokenResponse"
+
+components:
+    schemas:
+        DamAssetsIndexResponse:
+            type: "object"
+            required:
+                - "data"
+                - "metadata"
+            properties:
+                data:
+                    type: "array"
+                    description: "The DAM Asset results"
+                    items:
+                        $ref: "#/components/schemas/DamAsset"
+                messages:
+                    type: "array"
+                    description: "Custom messages to display on DAM file viewer"
+                    items:
+                        $ref: "#/components/schemas/DamMessage"
+                meta:
+                    type: "object"
+                    description: "response metadata"
+                    required:
+                        - "offset"
+                        - "total"
+                    properties:
+                        offset:
+                            type: number
+                            description: "The current offset of fetched results"
+                            example: 0
+                        per_page:
+                            type: number
+                            description: "The number of items requested per page"
+                            example: 1
+                        total:
+                            type: number
+                            description: "The total number of search results"
+                            example: 40
+        DamAssetsSearchResponse:
+            type: "object"
+            required:
+                - "data"
+                - "meta"
+            properties:
+                data:
+                    type: "array"
+                    description: "The DAM Asset results"
+                    items:
+                        $ref: "#/components/schemas/DamAsset"
+                messages:
+                    type: "array"
+                    description: "Custom messages to display on DAM file viewer"
+                    items:
+                        $ref: "#/components/schemas/DamMessage"
+                meta:
+                    type: "object"
+                    description: "response metadata"
+                    required:
+                        - "offset"
+                        - "total"
+                    properties:
+                        offset:
+                            type: number
+                            description: "The current offset of fetched results"
+                            example: 0
+                        per_page:
+                            type: number
+                            description: "The number of items requested per page"
+                            example: 1
+                        total:
+                            type: number
+                            description: "The total number of search results"
+                            example: 40
+        DamAsset:
+            type: "object"
+            required:
+                - "id"
+                - "name"
+                - "type"
+                - "path"
+            properties:
+                id:
+                    type: "string"
+                    description: "Resource ID"
+                    example: "99816c53-62b1-484d-89b9-35d4453ef770"
+                name:
+                    type: "string"
+                    description: "Resource filename."
+                    example: "myImage.jpg"
+                type:
+                    $ref: "#/components/schemas/AssetType"
+                path:
+                    type: "string"
+                    description: "Full path to resource file"
+                    example: "path/to/myimage/folder/myImage.jpg"
+                url:
+                    type: "string"
+                    description: "Resource url as used for content delivery"
+                    example: "https://my.cdn.com/images/99816c53-62b1-484d-89b9-35d4453ef770.jpg"
+                thumbnail_url:
+                    type: "string"
+                    description: "Resource thumbnail url for previewing."
+                    example: "https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg"
+                metadata:
+                    $ref: "#/components/schemas/AssetMetaData"
+        DamMessage:
+            type: "object"
+            required:
+                - "message"
+                - "type"
+                - "level"
+            properties:
+                message:
+                    type: "string"
+                    description: "Message text to display"
+                    example: "Search for asset by their name or ID"
+                type:
+                    $ref: "#/components/schemas/MessageType"
+                level:
+                    $ref: "#/components/schemas/MessageLevel"
+        AssetMetaData:
+            type: object
+            properties:
+                width:
+                    type: number
+                    description: "The width of the asset in pixels"
+                    example: 1920
+                height:
+                    type: number
+                    description: "The height of the asset in pixels"
+                    example: 1080
+                size:
+                    type: number
+                    description: "The size of the asset in bytes"
+                    example: 1024
+                mime_type:
+                    type: string
+                    description: "The mime type of the asset"
+                    example: "image/jpeg"
+        AssetType:
+            type: string
+            enum:
+              - "image"
+              - "video"
+              - "folder"
+        MessageType:
+            type: string
+            enum:
+                - "search"
+                - "empty"
+        MessageLevel:
+            type: string
+            enum:
+                - "info"
+                - "warning"
+                - "error"
+        OAuth2TokenRequest:
+            type: object
+            required:
+                - grant_type
+            properties:
+                grant_type:
+                    type: "string"
+                    description: "The expected OAuth2 grant type. This field should be `authorization_code` or `refresh_token`"
+                    example: "authorization_code"
+                code:
+                    type: "string"
+                    description: "The authorization code granted by the application. Used with grant type: authorization_code"
+                    example: "1as314rdfv291si2"
+                client_id:
+                    type: "string"
+                    description: "The client ID"
+                    example: "1948194"
+                client_secret:
+                    type: "string"
+                    description: "The client secret"
+                    example: "1948194"
+                redirect_uri:
+                    type: "string"
+                    description: "The URI that expected authorization code was sent to. Used with grant type: authorization_code"
+                    example: "https://enterprise.knak.io/account/integrations/custom-dam/authorize"
+                refresh_token:
+                    type: "string"
+                    description: "The refresh token for the member that needs its token to be refreshed. Used with grant type: refresh_token"
+                    example: 'null'
+        OAuth2TokenResponse:
+            type: object
+            properties:
+                access_token:
+                    type: "string"
+                    description: "The member's assigned access token"
+                    example: "wj1ds92jdowk132"
+                refresh_token:
+                    type: "string"
+                    description: "The member's assigned refresh token "
+                    example: "ai298dj2od01kde"
+                expires_in:
+                    type: "string"
+                    description: "The number of seconds in which the access token is valid"
+                    example: "7200"
+                token_type:
+                    type: "string"
+                    description: "The type of access token"
+                    example: "ai298dj2od01kde"

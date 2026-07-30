@@ -1,0 +1,76 @@
+generated: '2026-07-19'
+method: derived
+source: openapi/, https://developer.knak.com/api/, https://knak.com/security/
+standards:
+- id: openapi-3.1
+  conforms: true
+  evidence: All six published Knak specifications declare openapi 3.1.0 (SCIM declares 3.1).
+- id: oauth2-authorization-code
+  conforms: true
+  evidence: Enterprise API documents an RFC 6749 authorization code grant at
+    https://enterprise.knak.io/oauth/authorize and /oauth/token.
+- id: oauth2.1-pkce
+  conforms: true
+  evidence: MCP server requires OAuth 2.1 authorization code with PKCE S256, per
+    https://enterprise.knak.io/.well-known/oauth-authorization-server.
+- id: rfc8414-oauth-authorization-server-metadata
+  conforms: true
+  evidence: /.well-known/oauth-authorization-server returns 200 on enterprise.knak.io.
+- id: rfc7591-dynamic-client-registration
+  conforms: true
+  evidence: registration_endpoint advertised at https://enterprise.knak.io/oauth/register.
+- id: scim-2.0
+  conforms: true
+  evidence: Dedicated SCIM API at https://enterprise.knak.io/scim/v2 with /Users resource
+    supporting GET, POST, PUT and PATCH; spec titled "SCIM API Reference" version V2.
+- id: rfc6750-bearer-token
+  conforms: true
+  evidence: All Enterprise API requests authenticate with a Bearer token in the
+    Authorization header.
+- id: mcp
+  conforms: true
+  evidence: Hosted Model Context Protocol server at https://enterprise.knak.io/mcp/public
+    exposing seven tools.
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: Errors are signalled by HTTP status code only; no application/problem+json
+    media type appears in any published spec.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: /.well-known/security.txt returns 404 on knak.com, developer.knak.com and
+    enterprise.knak.io.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No deprecation or sunset policy is published.
+- id: openidconnect
+  conforms: false
+  evidence: /.well-known/openid-configuration returns 404; SSO is offered via SAML 2.0
+    rather than OIDC.
+- id: saml-2.0
+  conforms: true
+  evidence: SAML 2.0 single sign-on documented at https://knak.com/security/.
+- id: json-api
+  conforms: false
+  evidence: Responses are plain application/json; no JSON:API media type or document
+    structure.
+- id: idempotency-key
+  conforms: false
+  evidence: No idempotency key header or parameter is documented or present in any spec.
+compliance:
+  published: true
+  page: https://knak.com/security/
+  trust_center: https://trust.knak.com/
+  certifications:
+  - id: soc2-type-ii
+    name: SOC 2 Type II
+    evidence: Audited annually by an accredited third party for Security, Availability and
+      Confidentiality. Knak reports achieving SOC 2 Type 2 with zero findings.
+  practices:
+  - Bi-annual penetration testing of the application and cloud infrastructure, with reports
+    available in the Trust Center.
+  - 24/7 managed detection and response monitoring.
+  - Continuous vulnerability scanning in the development pipeline.
+  - Quarterly access reviews.
+  - Daily backups replicated to a geographically distinct region.
+  - Disaster recovery and business continuity plans tested annually.
+  - Encryption of data in transit and at rest.

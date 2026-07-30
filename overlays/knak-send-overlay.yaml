@@ -1,0 +1,29 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Knak Send Contacts API
+  version: 1.0.0
+extends: openapi/knak-send-openapi-original.yml
+x-generated: '2026-07-19'
+x-method: generated
+x-source: API Evangelist enrichment pipeline
+x-notes: >-
+  The Send Contacts API is the strongest of the Knak specifications: it is the only one
+  that declares operationId values and a securityScheme. Observations below concern
+  runtime semantics that the spec does not express.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-artifacts:
+      authentication: authentication/knak-authentication.yml
+      conventions: conventions/knak-conventions.yml
+      errors: errors/knak-problem-types.yml
+      skills: skills/knak-manage-send-contacts.md
+    x-apievangelist-observations:
+    - All 11 operations declare an operationId, unlike the other Knak specifications.
+    - bulkUpsertContacts is upsert-by-nature and therefore repeatable, but Knak documents
+      no general idempotency-key contract, so createContact remains unsafe to
+      blind-retry.
+    - replaceContactFieldValues is a PUT that replaces the entire field-value set; callers
+      must read and merge to avoid dropping values.
+    - No rate limit values or rate-limit response headers are published for bulk
+      operations.

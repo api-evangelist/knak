@@ -1,0 +1,54 @@
+generated: '2026-07-19'
+method: searched
+type: Webhooks
+source: openapi/knak-enterprise-openapi-original.yml
+docs: https://help.knak.io/en/articles/7950399-knak-custom-integration-setup
+spec_type: null
+spec_notes: >-
+  Knak publishes no AsyncAPI document. The event surface is declared natively in the
+  OpenAPI 3.1 webhooks object of the Knak Enterprise API specification, and is captured
+  here verbatim from those declarations.
+transport: https
+delivery:
+  method: POST
+  content_type: application/json
+  target: A webhook URL configured per event in the Knak Enterprise UI.
+  management_url: https://enterprise.knak.io/account/webhooks
+security:
+  signing: hmac-sha256
+  signature_header: knak-signature
+  description: The request body is signed with a SHA-256 HMAC using a secret generated in
+    Knak. Compute the HMAC of the raw request body with the secret and compare the
+    hexadecimal digest to the knak-signature header using a timing-safe comparison.
+  secret_source: Reveal the secret on the selected webhook at
+    https://enterprise.knak.io/account/webhooks
+delivery_policy:
+  retries: 3
+  retry_interval_seconds: 60
+  description: Webhooks are sent up to a maximum of three times, with a delay of 60 seconds
+    between each request, until a successful response status is returned.
+events:
+- name: asset.created
+  resource: asset
+  description: An asset (email or landing page) was created in Knak.
+  source: openapi/knak-enterprise-openapi-original.yml#/webhooks/asset.created
+- name: asset.sync_requested
+  resource: asset
+  description: A sync of an asset to a marketing automation platform was requested.
+  source: openapi/knak-enterprise-openapi-original.yml#/webhooks/asset.sync_requested
+- name: asset.sync_confirmation_responded
+  resource: asset
+  description: A response was returned confirming the outcome of a requested asset sync.
+  source: openapi/knak-enterprise-openapi-original.yml#/webhooks/asset.sync_confirmation_responded
+- name: asset.approval_status_updated
+  resource: asset
+  description: The approval status of an asset changed.
+  source: openapi/knak-enterprise-openapi-original.yml#/webhooks/asset.approval_status_updated
+- name: asset.translation_requested
+  resource: asset
+  description: A translation was requested for an asset.
+  source: openapi/knak-enterprise-openapi-original.yml#/webhooks/asset.translation_requested
+- name: translation_request.created
+  resource: translation_request
+  description: A translation request record was created.
+  source: openapi/knak-enterprise-openapi-original.yml#/webhooks/translation_request.created

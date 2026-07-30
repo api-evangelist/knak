@@ -1,0 +1,267 @@
+generated: '2026-07-19'
+method: derived
+source: openapi/knak-enterprise-openapi-original.yml
+notes: >-
+  Entity graph derived from the components.schemas of the Knak Enterprise API and the
+  id-reference fields those schemas declare. Knak uses a JSON:API-like envelope shape
+  (type / id / attributes) without adopting the JSON:API media type. Ids are opaque; no
+  id prefixes are published.
+envelope:
+  item: '{ type, id, attributes }'
+  notes: List endpoints wrap items in a *List schema; single-resource endpoints wrap in a
+    *Item schema.
+entities:
+- name: Brand
+  description: A high level container for assets and asset folders. Serves as the key
+    reference for categorizing and identifying assets by their respective brands.
+  operations:
+  - GET /brands
+  fields:
+  - id
+  - name
+  - created_at
+  - updated_at
+  relationships:
+  - has_many: Asset
+    via: brand
+  - has_many: AssetFolder
+    via: brand_id
+  - has_many: Module
+    via: brand_ids
+  - has_many: AssetCustomFieldset
+    via: brands
+- name: Asset
+  description: A digital marketing material such as an email or a landing page.
+  operations:
+  - GET /assets
+  - POST /assets
+  - POST /assets/generate
+  - GET /assets/{asset_id}
+  - GET /assets/{asset_id}/content
+  - GET /assets/{asset_id}/preview
+  fields:
+  - id
+  - creator_id
+  - subject
+  - from_name
+  - from_email
+  - reply_email
+  - type
+  - name
+  - folder_path
+  - campaign
+  - brand
+  - language_code
+  - version
+  - parent_asset_id
+  - ai_generation_status
+  relationships:
+  - belongs_to: Brand
+    via: brand
+  - belongs_to: User
+    via: creator_id
+  - belongs_to: Asset
+    via: parent_asset_id
+    note: Self-reference used for asset versions and translated derivatives.
+  - has_many: AssetCustomField
+    via: /assets/{asset_id}/custom-fields
+  - has_one: ProjectManagementLink
+    via: /assets/{asset_id}/project-management-link
+  - has_many: MarketingPlatformSync
+    via: /assets/{asset_id}/marketing-platform-syncs
+  - has_many: TranslationRequest
+    via: asset
+- name: AssetFolder
+  description: A container that holds and organizes assets, supporting hierarchical
+    structuring.
+  operations:
+  - GET /asset-folders
+  - POST /asset-folders
+  - PATCH /asset-folders/{asset_folder_id}
+  - DELETE /asset-folders/{asset_folder_id}
+  fields:
+  - id
+  - name
+  - parent_folder_id
+  - brand_id
+  - type
+  - created_at
+  - updated_at
+  relationships:
+  - belongs_to: Brand
+    via: brand_id
+  - belongs_to: AssetFolder
+    via: parent_folder_id
+    note: Self-reference forming the folder tree.
+  - has_many: Asset
+    via: folder_path
+- name: User
+  description: An individual who interacts with the system as a viewer, administrator or
+    builder.
+  operations:
+  - GET /users
+  - GET /users/{user_id}
+  - DELETE /users/{user_id}
+  fields:
+  - id
+  - name
+  - email
+  - roles
+  relationships:
+  - has_many: Asset
+    via: creator_id
+  note: Also provisionable through the SCIM 2.0 API at /Users.
+- name: Theme
+  description: A template design used to create consistent, visually coherent assets.
+  operations:
+  - GET /themes
+  - GET /themes/{theme_id}
+  fields:
+  - id
+  - name
+  - description
+  - published
+  - tags
+  - created_at
+  - updated_at
+  relationships:
+  - has_many: Asset
+    via: theme selection at asset creation
+- name: Module
+  description: A reusable, pre-built content block (header, hero, footer) used as a
+    building block for emails and landing pages. Only modules with at least one published
+    version are returned.
+  operations:
+  - GET /modules
+  - GET /modules/{module_id}
+  - GET /modules/{module_id}/content
+  fields:
+  - id
+  - name
+  - type
+  - status
+  - category
+  - brand_ids
+  - created_at
+  - updated_at
+  relationships:
+  - belongs_to: Brand
+    via: brand_ids
+- name: AssetCustomFieldset
+  description: A collection of custom fields associated with an asset, storing
+    user-defined information beyond the standard asset model.
+  operations:
+  - GET /asset-custom-fieldsets
+  - GET /asset-custom-fieldsets/{asset_custom_fieldset_id}/asset-custom-fields
+  fields:
+  - id
+  - name
+  - brands
+  - created_at
+  - updated_at
+  relationships:
+  - belongs_to: Brand
+    via: brands
+  - has_many: AssetCustomField
+    via: asset_custom_fieldset_id
+- name: AvailablePlatform
+  description: A marketing automation platform (for example Marketo, Eloqua or Salesforce
+    Marketing Cloud) available to the company, either through HTML downloads or a
+    configured integration.
+  operations:
+  - GET /available-platforms
+  relationships:
+  - has_many: MarketingPlatformSync
+    via: platform
+- name: Integration
+  description: A configured connection between Knak and an external platform.
+  operations:
+  - GET /integrations
+  relationships:
+  - has_many: ProjectManagementLink
+    via: integration_id
+- name: MarketingPlatformSync
+  description: A record of an asset being pushed to a marketing automation platform.
+  operations:
+  - POST /assets/{asset_id}/marketing-platform-syncs
+  - GET /marketing-platform-syncs/{sync_history}
+  relationships:
+  - belongs_to: Asset
+    via: asset_id
+  - has_one: SyncStatus
+    via: sync_status_id
+- name: SyncStatus
+  description: The status of a sync operation, updatable by a custom integration.
+  operations:
+  - GET /sync-statuses/{sync_status_id}
+  - PATCH /sync-statuses/{sync_status_id}
+  relationships:
+  - belongs_to: MarketingPlatformSync
+    via: sync_status_id
+- name: MergeTag
+  description: A personalization token available for use inside assets.
+  operations:
+  - GET /merge-tags
+  - POST /merge-tags
+  - GET /merge-tags/{merge_tag_id}
+  - PATCH /merge-tags/{merge_tag_id}
+  - DELETE /merge-tags/{merge_tag_id}
+- name: TranslationRequest
+  description: A request to translate an asset into one or more target languages.
+  operations:
+  - GET /translation-requests
+  - POST /translation-requests
+  - GET /translation-requests/{id}
+  - PATCH /translation-requests/{id}
+  - GET /translation-requests/{id}/download-source
+  - POST /translation-requests/{id}/upload-translation
+  relationships:
+  - belongs_to: Asset
+    via: asset
+  - references: TranslationLanguage
+    via: language_code
+- name: TranslationLanguage
+  description: A language supported for translation requests.
+  operations:
+  - GET /translation-languages
+- name: ProjectManagementLink
+  description: A link binding an asset to an entity in an external project management tool.
+  operations:
+  - GET /assets/{asset_id}/project-management-link
+  - PATCH /assets/{asset_id}/project-management-link
+  - DELETE /assets/{asset_id}/project-management-link
+  fields:
+  - id
+  - integration_id
+  - project_management_id
+  - project_management_url
+  - project_management_entity_name
+  - integration_metadata
+  relationships:
+  - belongs_to: Asset
+    via: asset_id
+  - belongs_to: Integration
+    via: integration_id
+- name: Contact
+  description: A contact in Knak Send, with typed field values.
+  source: openapi/knak-send-openapi-original.yml
+  operations:
+  - listContacts
+  - createContact
+  - getContact
+  - deleteContact
+  - bulkUpsertContacts
+  - bulkDeleteContacts
+  relationships:
+  - has_many: ContactFieldValue
+    via: /contacts/{id}/field-values
+- name: Field
+  description: A field definition available to Knak Send contacts.
+  source: openapi/knak-send-openapi-original.yml
+  operations:
+  - listFields
+  - createField
+  - listFieldValues
+  relationships:
+  - has_many: ContactFieldValue
+    via: field id

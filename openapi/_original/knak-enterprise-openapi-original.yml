@@ -1,0 +1,5524 @@
+openapi: 3.1.0
+info:
+  title: Knak Enterprise API
+  version: V1
+  x-logo:
+    url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+  contact:
+    email: support@knak.com
+  description: |
+    # Overview
+    Welcome to the developer documentation for the Knak Enterprise API.
+    We provide a RESTful interface to key resources within the Knak platform to enable your own custom integration and automation workflows.
+    This API will allow you to automate processes regarding user management within your Knak environment.
+    You can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.
+
+    ## Endpoint
+    `https://enterprise.knak.io/api/published/v1`
+
+    ## Additional APIs
+    - [SCIM API Reference](https://enterprise.knak.io/docs/scim-api)
+
+    ## Authentication
+    All requests are authenticated using a Bearer token in the `Authorization` header:
+    ```
+    curl --location --request GET 'http://enterprise.knak.io/api/published/v1/emails' \
+    --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...'
+    ```
+    There are two ways to obtain tokens:
+    ### 1 - API Key
+    A user generates a non-expiring token through the Enterprise UI, via the [API Access menu](https://enterprise.knak.io/account/api-access). This is generally only recommended for testing and development, or if the Oauth2 flow is not applicable to your particular use case.
+
+    ### 2 - OAuth2 via Authorization Code Grant Flow
+    This is the **recommended** method for users to allow your application access to their data in Knak. You can manage your own OAuth2 applications in Knak [**here**](http://enterprise.knak.io/account/oauth-applications). Please contact support to enable this feature if unauthorized, or if you need a specific developer account set up for Knak.
+    - **Authorization URL**
+        - `https://enterprise.knak.io/oauth/authorize`
+    - **Token URL**
+        - `https://enterprise.knak.io/oauth/token`
+
+    Creating an OAuth2 application will provide you with a *client_id*, *client_secret* and a *redirect_uri* of your choosing. Users can then authorize your application to access their Knak account by being directed to the Authorization URL:
+
+    ```
+    http://enterprise.knak.io/oauth/authorize?client_id=<your client ID>&redirect_uri=http://your.redirect.url/callback&response_type=code&state=xyzABC123
+    ```
+
+    | Query Parameter | Description |
+    | ----------------| ----------- |
+    | client_id       | **(Required)** The client ID for your application|
+    | redirect_uri    | **(Required)** The url the client will be redirected to. HTTPS required. Must match the url specified in your OAuth2 application|
+    | response_type   | **(Required)** Only a value of `code` is currently supported|
+    | state           | (Optional) This value will be included as part of the redirect response. Your OAuth2 client library most likely uses this parameter to prevent CSRF attacks|
+
+    The user will be redirected to your `redirect_uri` with the authorization code included as the `code` query parameter:
+    ```http
+    HTTP/1.1 302 Found
+    Location: https://your.redirect.url/callback?code=AUTHORIZATION_CODE&state=xyzABC123
+    ```
+    You can then use this code to request a `(access_token, refresh_token)` pair from the Token URL:
+    ```http
+    POST /oauth/token HTTP/1.1
+    Host: enterprise.knak.io
+    Accept: application/json
+    Authorization: Bearer ...
+    Content-Type: application/x-www-form-urlencoded
+    grant_type=authorization_code&client_id=<client_id>&client_secret=<client_secret>&redirect_uri=<redirect_uri>&code=AUTHORIZATION_CODE
+    ```
+    ## Errors
+    Errors in requests made to the API can be viewed directly from the response code that is returned.
+
+    Below are a list of the common error responses returned and an explanation of what they mean.
+
+    | Code | Reason |Description |
+    | ----------------| ----------- | ----------- |
+    | **400**      | **Bad Request** | Request is malformed or invalid. |
+    | **401**      | **Unauthenticated** | Need to be signed in with a proper account to make this request. |
+    | **403**    | **Forbidden** | The request cannot be completed because the account that is being used does not have sufficient permissions to perform the action in question. |
+    | **404**  | **Not Found** | The requested resource could not be found. Verify that the resource you are looking for exists and that you are using the proper key to search for it. |
+
+    ## Pagination
+    Our API supports pagination, allowing you to navigate through large sets of data efficiently. This is particularly useful for endpoints that can return a lot of data, such as listings of users, assets, or other entities. To manage the amount of data returned, we use two query parameters: `page` and `per_page`.
+
+    ### Parameters
+    page (Integer, optional): This parameter specifies the page number in the results set. Each page contains a subset of the total data based on the per_page value. The default value is 1 if not specified.
+
+    per_page (Integer, optional): This parameter controls the number of items returned per page. It allows you to specify the page size, i.e., how many items you want to be included in each page of results. The default value is 10, and the maximum allowable value is 100.
+
+    ### Defaults and Limits
+    If neither page nor per_page is specified, the API will return the first page with the default size of 10 items.
+    The per_page parameter defaults to 10 but can be set to any integer up to a maximum of 100. Requests for more than 100 items per page will be capped at 100.
+
+    ## Filtering
+    Our API supports filtering on specific fields of resources for GET requests. This allows clients to retrieve a subset of records based on certain criteria. Supported filters will be listed in each endpoint.
+
+    ### Parameters
+    filter[field_name]:To apply filters, add a filter query parameter to your GET request, followed by the field name you wish to filter on.
+    Each filter can have one of the following types:
+
+    #### Exact
+    This filter type is used to match the exact value of a field.
+
+    #### Partial
+    This filter type will return all matches that contain the specified value.
+
+    #### Scope
+    This filter type is used to filtered on a static list of values. Supported items will be listed in each endpoint.
+
+    ## Sorting
+    Our API provides sorting functionality, allowing clients to order the results of a GET request based on specified fields. Sorting makes it easier to organize and navigate through lists of records.
+
+    ### Parameters
+    sort (string, optional): To apply sorting, use the sort query parameter followed by the field name you wish to sort by:
+
+    - updated_at: Sorts records by the last update timestamp.
+
+    - created_at: Sorts records by the creation timestamp.
+
+    ## Webhook Setup
+    Webhooks are a way to notify your application when a specific event occurs in your Knak environment. When the event occurs, Knak sends an HTTP POST request to the webhook's configured URL. You can use webhooks to trigger custom workflows, send notifications, or update external systems based on events that occur in Knak.
+    For information on how to create and manage webhooks, please visit the [Knak Custom Integration Setup](https://help.knak.io/en/articles/7950399-knak-custom-integration-setup) page in the Knak Help Center, and the events section below.
+
+    ## Retry Policy
+    Webhooks will be sent out up to a maximum of three times, with a delay of 60 seconds between each request, until a Successful response status is returned.
+
+    ## Verifying Webhook Signatures
+    Webhooks are signed using a SHA-256 HMAC with the secret generated in Knak. The signature is included in the `knak-signature` header of the request. You can use this signature to verify that the request was sent by Knak, and not a third party.
+
+    Before you can verify the signature, you will need to obtain the secret from Knak. You can do this by navigating to the [Webhooks](https://enterprise.knak.io/account/webhooks) page in the Enterprise UI. Select the webhook you want to obtain the secret for, and click the reveal icon next to the secret. In the code sample below we assume that the secret is stored in an environment variable called `WEBHOOK_SECRET`.
+
+    You can perform this verification in any language that supports HMAC-SHA256. You provide the request body and secret as input to the HMAC-SHA256 algorithm, and then compare the output to the signature provided in the request header.
+
+    View the sample code below for an example of how to verify the signature using Node and express.js.
+    ```javascript
+    const crypto = require('crypto');
+    const express = require("express");
+    const app = express();
+
+    app.post("/sync-requested", express.raw({type: 'application/json'}), (req, res) => {
+        try {
+            // Get the knak-signature header from the request
+            const signature = req.headers['knak-signature'];
+
+            // Generate the hash value from the request body
+            const payload = req.body.toString();
+            const secret = process.env.WEBHOOK_SECRET;
+            const hmac = crypto.createHmac('sha256', secret).update(payload);
+
+            // Generate hexidecimal hash value
+            const calculatedHash = hmac.digest('hex');
+
+            // Compare the calculated hash to the knak-signature header
+            if (crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(signature))) {
+                // continue processing the request
+                res.send("Payload is authentic");
+            } else {
+                // reject the request
+                res.send("Payload has been tampered with");
+            }
+        } catch (err) {
+            res.status(500).send("An error occurred");
+        }
+    });
+    ```
+servers:
+  - url: https://enterprise.knak.io/api/published/v1
+    description: production
+tags:
+  - name: user
+  - name: user_model
+    x-displayName: User Model
+    description: |
+      The User model represents an individual who interacts with the system, as a viewer, administrator, or builder.
+      <SchemaDefinition schemaRef="#/components/schemas/User" />
+  - name: asset
+  - name: asset_model
+    x-displayName: Asset Model
+    description: |
+      The Asset model represents digital marketing materials such as emails or landing pages. It contains all the necessary information to create, and manage these digital assets.
+      <SchemaDefinition schemaRef="#/components/schemas/Asset" />
+  - name: theme
+  - name: theme_model
+    x-displayName: Theme Model
+    description: |
+      The Theme model represents a template design used for creating consistent and visually coherent assets, such as emails or landing pages. It encapsulates design elements like layout, color schemes, typography, and other stylistic choices, enabling users to maintain brand consistency across various digital assets. This model only return data to allow for filtering and creating assets based on the theme's id.
+      <SchemaDefinition schemaRef="#/components/schemas/Theme" />
+  - name: module
+  - name: module_model
+    x-displayName: Module Model
+    description: |
+      The Module model represents a reusable, pre-built content block (for example a header, hero, or footer) that can be used as a building block for emails and landing pages. Only modules with at least one published version are returned by the API.
+      <SchemaDefinition schemaRef="#/components/schemas/Module" />
+  - name: Brand
+  - name: brand_model
+    x-displayName: Brand Model
+    description: |
+      The Brand model is a high level container for assets and asset folders. It primarily holds brand names and serves as a key reference for categorizing and identifying assets by their respective brands.
+      <SchemaDefinition schemaRef="#/components/schemas/Brand" />
+  - name: Asset Folder
+  - name: asset_folder_model
+    x-displayName: Asset Folder Model
+    description: |
+      The Asset Folder model represents a container within our digital asset management system that holds and organizes various assets. It allows for hierarchical structuring of assets, making it easier to manage and retrieve them. This model includes information about the folder's properties, its relationship to assets and other folders
+      <SchemaDefinition schemaRef="#/components/schemas/AssetFolder" />
+  - name: Asset Custom Fieldset
+  - name: asset_custom_fieldset
+    x-displayName: Asset Custom Fieldset Model
+    description: |
+      The Asset Custom Fieldset model represents a collection of custom fields associated with an asset. These fields allow for the storage of additional, user-defined information about assets that may not be covered by the standard asset model.
+      <SchemaDefinition schemaRef="#/components/schemas/AssetCustomFieldset" />
+  - name: Available Platform
+  - name: available_platform
+    x-displayName: Available Platform Model
+    description: |
+      The Available Platform Model represents a platform (for example Marketo, Eloqua, or Salesforce Marketing Cloud) that is available for your company. A platform becomes available when it has HTML downloads enabled or when it has an integration or custom integration configured.
+      <SchemaDefinition schemaRef="#/components/schemas/AvailablePlatform" />
+  - name: Merge Tag
+  - name: merge_tag
+    x-displayName: Merge Tag Model
+    description: |
+      The Merge Tag Model represents a merge tag for an available platform.
+      For example, it could be a City merge tag for Marketo or a Lead First Name merge tag for Pardot.
+      Each merge tag includes a `knak_tag` value: a paste-ready token you can embed directly in asset content, such as the body of an email created through asset generation.
+      The token uses the syntax `{{!<name>.knakTagId:<id>!}}`. For example, a City merge tag with id `609d7ce223411` is embedded as `{{!City.knakTagId:609d7ce223411!}}`.
+      Always embed the exact `knak_tag` value returned by the merge-tag endpoints rather than building the token by hand. When the asset is synced to a marketing platform, Knak replaces each token with that platform's merge tag value (for example `{{lead.City}}` for Marketo).
+      <SchemaDefinition schemaRef="#/components/schemas/MergeTag" />
+  - name: Sync Status
+  - name: sync_status
+    x-displayName: Sync Status Model
+    description: |
+      The Sync Status API Model is designed to track and maintain a detailed history of all synchronization attempts made for all Knak assets. This model plays a crucial role in monitoring the integrity and consistency of data across different systems or platforms. Each record in this model provides insights into the success or failure of sync attempts, along with relevant metadata.
+      <SchemaDefinition schemaRef="#/components/schemas/SyncStatus" />
+  - name: Integrations
+  - name: integration
+    x-displayName: Integration Model
+    description: |
+      The Integration model represents a configured connection between Knak and an external platform (for example Salesforce Marketing Cloud, Marketo, or Eloqua). Each integration carries a platform identifier, a human-readable name, and a category (`map`, `dam`, `translation`, etc.).
+      <SchemaDefinition schemaRef="#/components/schemas/Integration" />
+  - name: MarketingPlatformSyncs
+  - name: marketing_platform_sync
+    x-displayName: Marketing Platform Sync Model
+    description: |
+      The Marketing Platform Sync model represents the lifecycle of a single sync of a Knak asset to a marketing platform. Callers trigger a sync via `POST /assets/{asset_id}/marketing-platform-syncs` and poll its status via `GET /marketing-platform-syncs/{id}` until `status` reaches a terminal value (`complete` or `failed`).
+      <SchemaDefinition schemaRef="#/components/schemas/MarketingPlatformSync" />
+  - name: Translation Request
+  - name: translation_request
+    x-displayName: Translation Request Model
+    description: |
+      The Translation Request model represents a request to translate an asset into a different language. It contains all the necessary information to create, manage, and track translation requests for assets.
+      <SchemaDefinition schemaRef="#/components/schemas/TranslationRequest" />
+  - name: project_management_link
+    x-displayName: Project Management Link Model
+    description: |
+      The Project Management Link model represents a link between an asset and a project management item. It contains all the necessary information to create, manage, and track project management links for assets.
+      <SchemaDefinition schemaRef="#/components/schemas/ProjectManagementLink" />
+paths:
+  /users:
+    get:
+      description: Retrieve a page of [users](#tag/user_model) in the organization.
+      summary: List all users
+      parameters:
+        - name: filter[email]
+          in: query
+          description: Filter users by email. Partial match filter.
+          required: false
+          schema:
+            type: string
+            example: email@knak.com
+        - name: sort
+          in: query
+          description: Sort users by field (created_at, updated_at).
+          required: false
+          schema:
+            type: string
+            example: created_at
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /users/{user_id}:
+    get:
+      description: Retrieve a specific [user](#tag/user_model)'s information.
+      summary: Retrieve a specific user's information.
+      parameters:
+        - in: path
+          required: true
+          name: user_id
+          description: ID of user
+          example: 609d7ce223411
+          schema:
+            type: string
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the user you were looking for.
+    delete:
+      description: Delete [user](#tag/user_model) via their ID (if permissions allow).
+      summary: Delete user
+      parameters:
+        - in: path
+          required: true
+          name: user_id
+          description: ID of user to delete
+          example: 609d7ce223411
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: user_to_reassign
+          description: ID of user to reassign approvals to if deleted user is currently a reviewer
+          example: 507b9de116822
+          schema:
+            type: string
+      tags:
+        - Users
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: User successfully deleted.
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Bad Request.
+                    detail: Cannot delete user as they are currently assigned to a review group.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the user you were looking for.
+  /assets:
+    get:
+      description: Retrieve all [assets](#tag/asset_model)  in organization.
+      summary: List all assets
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+        - name: filter[parent_asset_id]
+          in: query
+          required: false
+          description: Filter assets by parent asset ID. Exact match filter.
+          example: 609ca344d1b1b
+          schema:
+            type: string
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+    post:
+      description: Create an [asset](#tag/asset_model). Can either be a email or landing page, and must be associated with a campaign.
+      summary: Create an asset
+      tags:
+        - Assets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - type
+                - campaign_id
+              properties:
+                name:
+                  type: string
+                  example: test
+                type:
+                  type: string
+                  enum:
+                    - email
+                    - landing
+                  maxLength: 13
+                  example: email
+                campaign_id:
+                  type: string
+                  maxLength: 13
+                  example: 609d7ce223411
+                from_name:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  example: Sender
+                from_email:
+                  type: string
+                  format: email
+                  nullable: true
+                  maxLength: 191
+                  example: email@knak.com
+                reply_email:
+                  type: string
+                  format: email
+                  nullable: true
+                  maxLength: 191
+                  example: reply_email@knak.com
+                subject:
+                  type: string
+                  nullable: true
+                  maxLength: 500
+                  example: Email Subject
+                preview_text:
+                  type: string
+                  nullable: true
+                  maxLength: 500
+                  example: This is the preview text.
+                theme_id:
+                  type: string
+                  nullable: true
+                  maxLength: 13
+                  example: 609d7ce223411
+                custom_fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        example: custom_field_key_1
+                      value:
+                        type: string
+                        example: field value 1
+                tags:
+                  type: array
+                  items:
+                    type: string
+                    example: tag 1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetItem'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Validation error for name.
+                    detail: The name field is required.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /assets/generate:
+    post:
+      description: |-
+        Generate an AI-powered email [asset](#tag/asset_model) from a text prompt. The asset is created immediately and returned in the response with `ai_generation_status: started`. AI content generation runs asynchronously in the background. Poll `GET /assets/{asset_id}` to check when `ai_generation_status` changes to `completed` or `failed`.
+
+        The asset must be associated with a campaign (asset folder). The brand is automatically resolved from the campaign.
+      summary: Generate an AI email asset
+      tags:
+        - Assets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - prompt
+                - type
+                - campaign_id
+              properties:
+                prompt:
+                  type: string
+                  description: Text instructions describing the email to generate. This is the main input for the AI generation.
+                  example: Create a promotional email for our spring sale with 20% off all items
+                type:
+                  type: string
+                  enum:
+                    - email
+                  description: The type of asset to generate. Currently only `email` is supported.
+                  example: email
+                campaign_id:
+                  type: string
+                  maxLength: 13
+                  description: The ID of the campaign (asset folder) where the asset will be created. The brand is automatically resolved from the campaign.
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  nullable: true
+                  maxLength: 512
+                  description: Optional name for the asset. If not provided, a name may be auto-generated.
+                  example: Spring Sale Promo
+                theme_id:
+                  type: string
+                  nullable: true
+                  maxLength: 13
+                  description: Optional theme ID to base the generated email on. Must belong to your company.
+                  example: 609d7ce223411
+                subject:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  description: Optional subject line for the email. If not provided, the AI will generate a subject line automatically.
+                  example: Spring Sale - 20% Off Everything
+                from_name:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  description: Sender name for the email.
+                  example: Marketing Team
+                from_email:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  description: Sender email address.
+                  example: marketing@example.com
+                reply_email:
+                  type: string
+                  nullable: true
+                  maxLength: 191
+                  description: Reply-to email address.
+                  example: replies@example.com
+                tags:
+                  type: array
+                  nullable: true
+                  items:
+                    type: string
+                  description: Tags to apply to the generated asset.
+                  example:
+                    - spring-sale
+                    - promo
+                images:
+                  type: array
+                  nullable: true
+                  maxItems: 10
+                  description: Images to provide as context for AI generation. Maximum 10 images.
+                  items:
+                    type: object
+                    required:
+                      - url
+                      - filename
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                        description: Publicly accessible URL of the image.
+                        example: https://example.com/images/hero.png
+                      filename:
+                        type: string
+                        description: Filename for the image.
+                        example: hero.png
+                files:
+                  type: array
+                  nullable: true
+                  maxItems: 2
+                  description: Files (e.g. PDFs) to provide as context for AI generation. Maximum 2 files.
+                  items:
+                    type: object
+                    required:
+                      - url
+                      - filename
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                        description: Publicly accessible URL of the file.
+                        example: https://example.com/files/brand-guide.pdf
+                      filename:
+                        type: string
+                        description: Filename for the file.
+                        example: brand-guide.pdf
+                asset_id:
+                  type: string
+                  nullable: true
+                  maxLength: 13
+                  description: Optional. When provided, overwrites the target email asset's content with a new version instead of creating a new asset. Must reference an email asset in your company, and you must have save permission on that asset. `campaign_id` is still required and its brand is used for the regenerated content.
+                  example: 609d7ce223411
+                module_ids:
+                  type: array
+                  nullable: true
+                  maxItems: 10
+                  description: Optional module IDs to use as building blocks for the generated email. Each module must belong to your company. Only the latest published version of each module is used; modules without a published version are ignored. Maximum 10 modules.
+                  items:
+                    type: string
+                    maxLength: 13
+                  example:
+                    - 63eff78889f21
+      responses:
+        '200':
+          description: Asset created successfully. AI content generation is running asynchronously. Poll GET /assets/{asset_id} to check generation status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetItem'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Validation error for prompt.
+                    detail: A prompt is required.
+                  - title: Validation error for asset_id.
+                    detail: The specified asset does not exist or is not an email asset in your company.
+                  - title: Validation error for module_ids.
+                    detail: One or more of the specified modules do not exist in your company.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Forbidden - AI generation is not enabled for this account, or (when `asset_id` is provided) the caller does not have save permission on the target asset.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '429':
+          description: Too Many Requests - Rate limit exceeded (5 requests per minute)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Too Many Requests.
+                    detail: You have exceeded the rate limit. Please try again later.
+  /assets/{asset_id}:
+    get:
+      description: Retrieve a specific [asset](#tag/asset_model)'s information, given their asset ID.
+      summary: Retrieve specific asset
+      parameters:
+        - in: path
+          required: true
+          name: asset_id
+          description: ID of asset
+          example: 609d7ce223411
+          schema:
+            type: string
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetItem'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the email you were looking for.
+  /assets/{asset_id}/content:
+    get:
+      description: Retrieve a specific asset's html content. Returns a similar response to the /assets/ GET endpoint, but includes field 'html' in the response.
+      summary: Retrieve specific asset content
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          description: ID of asset
+          example: 609d7ce223411
+          schema:
+            type: string
+        - name: platform
+          in: query
+          required: false
+          description: name of platform
+          example: marketo
+          schema:
+            type: string
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetContent'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Resource not found.
+  /assets/{asset_id}/preview:
+    get:
+      description: |-
+        Retrieve a rendered preview of a specific asset. The returned `url` is publicly accessible without authentication. A 202 response with `url` set to null means the preview is still being generated; the client should poll this endpoint again until a 200 is returned.
+
+        Use the `client` and `details` query parameters to control how the preview is rendered. `client` applies to both the `png` and `pdf` formats. `details` only takes effect for `format=pdf` with `client=desktop`; it is ignored for `png` and for `pdf` with `client=mobile`.
+      summary: Retrieve specific asset preview
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          description: ID of asset
+          example: 609d7ce223411
+          schema:
+            type: string
+        - name: format
+          in: query
+          required: false
+          description: Preview format
+          example: png
+          schema:
+            type: string
+            enum:
+              - png
+              - pdf
+            default: png
+        - name: client
+          in: query
+          required: false
+          description: The client to render the preview for. Applies to both `png` and `pdf` formats.
+          example: desktop
+          schema:
+            type: string
+            enum:
+              - desktop
+              - mobile
+            default: desktop
+        - name: details
+          in: query
+          required: false
+          description: Whether to include the email details header in the preview. Only takes effect for `format=pdf` with `client=desktop`, where `false` omits the details header. Ignored for `png` (any client) and for `pdf` with `client=mobile`, where the details header is always included. Defaults to `true`.
+          example: true
+          schema:
+            type: boolean
+            default: true
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: Preview is ready. The `url` is populated and publicly accessible.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetPreview'
+        '202':
+          description: Preview is still being generated. The `url` is null; poll again until a 200 is returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetPreview'
+              example:
+                data:
+                  id: 609d7ce223411
+                  format: png
+                  client: desktop
+                  details: true
+                  url: null
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Validation error for format.
+                    detail: The format must be either png or pdf.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Not Found.
+                    detail: Could not find the email you were looking for.
+  /assets/{asset_id}/custom-fields:
+    get:
+      description: Retrieve the custom fields that are defined on a specific asset.
+      summary: Retrieve custom fields of an asset
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          description: ID of asset
+          example: 609d7ce223411
+          schema:
+            type: string
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetCustomFields'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Resource not found.
+    patch:
+      description: Edit the custom field values of a specific asset.
+      summary: Edit custom fields of an asset
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          description: ID of asset
+          example: 609d7ce223411
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                asset_custom_fields:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        example: custom_field_key_1
+                      value:
+                        type: string
+                        example: field value 1
+      tags:
+        - Assets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetCustomFields'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+            example:
+              message: Invalid asset custom field key
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+                example:
+                  message: Resource not found.
+  /assets/{asset_id}/project-management-link:
+    get:
+      description: Retrieve the most recently created project management link for an asset.
+      summary: Retrieve a project management link for an asset
+      tags:
+        - Project Management
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          example: 609d7ce223411
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectManagementLink'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the project management link you were looking for.
+    patch:
+      description: Update the most recently created project management link for an asset or create a new one if one does not exist.
+      summary: Update/Create a project management link for an asset
+      tags:
+        - Project Management
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          example: 609d7ce223411
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                integration_id:
+                  type: string
+                  example: 609d7ce223411
+                project_management_url:
+                  type: string
+                  example: https://knak.my.workfront.com/task/64a521d456747a13ec3fc60911274eda2/documents
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectManagementLink'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Validation Error for project_management_url.
+                    detail: The project management url field is required.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the project management link you were looking for.
+    delete:
+      description: Delete the most recently created project management link for an asset.
+      summary: Delete a project management link for an asset
+      tags:
+        - Project Management
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          example: 609d7ce223411
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the project management link you were looking for.
+  /themes:
+    get:
+      description: Retrieve all [themes](#tag/theme_model) in organization.
+      summary: List all themes
+      tags:
+        - Themes
+      parameters:
+        - name: filter[name]
+          in: query
+          description: Filter themes by name. Exact match filter.
+          required: false
+          schema:
+            type: string
+            example: Spring Newsletter
+        - name: filter[tags]
+          in: query
+          description: Filter themes by tags. Scope match filter.
+          required: false
+          schema:
+            type: string
+            example: Newsletter,Outreach
+        - name: filter[published]
+          in: query
+          description: Filter themes by published status. Scope match filter.
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - name: sort
+          in: query
+          description: Sort themes by field (created_at, updated_at).
+          required: false
+          schema:
+            type: string
+            example: created_at
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThemeList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Resource not found.
+  /themes/{theme_id}:
+    get:
+      description: Retrieve a specific [themes](#tag/theme_model)'s information, given their theme ID.
+      summary: Retrieve specific theme
+      parameters:
+        - in: path
+          required: true
+          name: theme_id
+          description: ID of theme
+          example: 609d7ce223411
+          schema:
+            type: string
+      tags:
+        - Themes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Theme'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the email you were looking for.
+  /modules:
+    get:
+      description: Retrieve all [modules](#tag/module_model) in your organization that have at least one published version. Modules without a published version are not returned.
+      summary: List all modules
+      tags:
+        - Modules
+      parameters:
+        - name: filter[name]
+          in: query
+          description: Filter modules by name. Exact match filter.
+          required: false
+          schema:
+            type: string
+            example: Hero Banner
+        - name: filter[type]
+          in: query
+          description: Filter modules by type. Exact match filter.
+          required: false
+          schema:
+            type: string
+            enum:
+              - email
+              - landing
+            example: email
+        - name: filter[brand_id]
+          in: query
+          description: Filter modules by associated brand. Accepts one or more comma-separated brand IDs and returns modules associated with any of the given brands.
+          required: false
+          schema:
+            type: string
+            example: 63eff7760568a
+        - name: sort
+          in: query
+          description: Sort modules by field (created_at, updated_at).
+          required: false
+          schema:
+            type: string
+            example: created_at
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Resource not found.
+  /modules/{module_id}:
+    get:
+      description: Retrieve a specific [module](#tag/module_model)'s metadata, given its module ID. Only modules with at least one published version are returned.
+      summary: Retrieve specific module
+      tags:
+        - Modules
+      parameters:
+        - name: module_id
+          in: path
+          required: true
+          description: ID of module
+          example: 63eff78889f21
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleItem'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found - the module does not exist or has no published version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Resource not found.
+  /modules/{module_id}/content:
+    get:
+      description: Retrieve the HTML content of a [module](#tag/module_model)'s latest published version. Draft versions are never returned. Returns a 422 error if the module has no published version.
+      summary: Retrieve module content
+      tags:
+        - Modules
+      parameters:
+        - name: module_id
+          in: path
+          required: true
+          description: ID of module
+          example: 63eff78889f21
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleContent'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Resource not found.
+        '422':
+          description: Unprocessable Entity - the module has no published version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - status: '422'
+                    title: Unprocessable Entity
+                    detail: This module has no published version. Publish the module in Knak before requesting its content.
+                    meta:
+                      module_id: 63eff78889f21
+  /asset-folders:
+    get:
+      description: Retrieve company [asset folders](#tag/asset_folder_model).
+      summary: List asset folders
+      parameters:
+        - in: query
+          required: false
+          name: filter[brand_id]
+          description: ID of brand to filter by. Exact match filter.
+          example: 609d7ce223411
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: filter[parent_folder_id]
+          description: ID of parent folder to filter by. Exact match filter.
+          example: 609d7ce223411
+          schema:
+            type: string
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+      tags:
+        - AssetFolders
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFolderList'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Bad Request.
+                    detail: 'Please modify request before attempting again. Message: Requested filter(s) `disallowed_filter` are not allowed. Allowed filter(s) are `brand_id, parent_folder_id`'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+    post:
+      description: Create an [asset folders](#tag/asset_folder_model).
+      summary: Create asset folder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: test
+                  maxLength: 191
+                type:
+                  type: string
+                  enum:
+                    - folder
+                    - campaign
+                  example: folder
+                parent_folder_id:
+                  type: string
+                  maxLength: 13
+                  example: 609d7ce223411
+              required:
+                - name
+                - type
+                - parent_folder_id
+      tags:
+        - AssetFolders
+      responses:
+        '201':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFolderItem'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Bad Request.
+                    detail: Please modify request before attempting again.`
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /asset-folders/{asset_folder_id}:
+    patch:
+      description: Update an [asset folders](#tag/asset_folder_model).
+      summary: Update asset folder
+      parameters:
+        - in: path
+          required: true
+          name: asset_folder_id
+          description: ID of asset folder
+          example: 609d7ce223411
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: test
+                  maxLength: 191
+                parent_folder_id:
+                  type: string
+                  maxLength: 13
+                  example: 609d7ce223411
+      tags:
+        - AssetFolders
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetFolderItem'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Bad Request.
+                    detail: Please modify request before attempting again.`
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+    delete:
+      description: Delete an [asset folders](#tag/asset_folder_model) and all its sub-content including folders, campaigns and assets.
+      summary: Delete an asset folder
+      parameters:
+        - in: path
+          required: true
+          name: asset_folder_id
+          description: ID of asset folder
+          example: 609d7ce223411
+          schema:
+            type: string
+      tags:
+        - AssetFolders
+      responses:
+        '204':
+          description: OK
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Bad Request.
+                    detail: Please modify request before attempting again.`
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /sync-statuses/{sync_status_id}:
+    get:
+      description: Retrieve a specific [sync status](#tag/sync_status).
+      summary: Retrieve specific sync status
+      tags:
+        - SyncStatuses
+      parameters:
+        - name: sync_status_id
+          in: path
+          required: true
+          description: ID of the sync status to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncStatusItem'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the sync status you were looking for.
+    patch:
+      description: Update a specific [sync status](#tag/sync_status).
+      summary: Update a specific sync status
+      tags:
+        - SyncStatuses
+      parameters:
+        - name: sync_status_id
+          in: path
+          required: true
+          description: ID of the sync status to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                map_id:
+                  type: string
+                  example: 123456
+                map_url:
+                  type: string
+                  nullable: true
+                  example: https://www.map.com/123456
+                error_message:
+                  type: string
+                  nullable: true
+                  example: Error creating asset in MAP
+                status:
+                  type: string
+                  enum:
+                    - in_progress
+                    - complete
+                    - error
+                    - confirmation_requested
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncStatusItem'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the sync status you were looking for.
+  /integrations:
+    get:
+      description: List all [integrations](#tag/integration) configured for your company. Supports optional filtering by platform and category.
+      summary: List integrations
+      tags:
+        - Integrations
+      parameters:
+        - name: filter[platform]
+          in: query
+          required: false
+          description: Filter by platform identifier. Commonly supported values include `marketing_cloud`, `marketo`, `eloqua`, `pardot`, `hubspot`, `adobe_journey_optimizer`, `iterable`, `sendgrid`, `responsys`, `acoustic`. This list is not exhaustive and new platforms are added over time.
+          schema:
+            type: string
+            example: marketing_cloud
+        - name: filter[category]
+          in: query
+          required: false
+          description: Filter by integration category.
+          schema:
+            type: string
+            enum:
+              - map
+              - dam
+              - translation
+              - personalization_platform
+              - project_management
+              - content_testing
+              - sync_location
+            example: map
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /assets/{asset_id}/marketing-platform-syncs:
+    post:
+      description: |-
+        Trigger a sync of an asset to a marketing platform. Returns 202 Accepted with a [marketing platform sync](#tag/marketing_platform_sync) record whose `id` can be polled via `GET /marketing-platform-syncs/{id}`.
+
+        **Platform support:** only integrations with platform `marketing_cloud` (Salesforce Marketing Cloud) are currently supported. Requests targeting other platforms return `422 Unprocessable Entity` with a validation error on `integration_id`. Additional platforms will be enabled in future releases.
+
+        Returns `409 Conflict` when another sync is already pending or in progress for the same asset + integration pair. The conflict response includes `meta.existing_sync_id` so the caller can poll that sync instead.
+
+        Returns `422 Unprocessable Entity` when `sync_type` is `resync` but the asset has never been successfully synced to the target integration.
+
+        ## Pre-sync Audit Validation
+
+        Before queuing a sync, Knak runs a pre-sync audit against the asset. When the audit finds blocking errors, the request returns `422 Unprocessable Entity` with a `meta.pre_sync_validation` block. When the audit passes (with or without non-blocking warnings), the request returns `202 Accepted` and the same `meta.pre_sync_validation` block is included with details. Privileged callers can opt out of audit enforcement by setting `skip_optimize_validation: true` (requires the `emails_bypass_optimize_sync` permission).
+
+        **Note:** "pre-sync audit" refers to Knak's structural and content checks on the asset (image alt text, email size, expired modules, etc.). It is *not* the LLM-based brand-voice "Optimize Checks" feature, which shares a name in the product UI but does not run on the Sync API today.
+
+        ### Audit Result Shape
+
+        Each entry in `errors[]`, `warnings[]`, and `asset_exceptions[]` has the shape `{ id, message, assets }`:
+
+        - `id` — stable string identifier for the audit rule that fired (for example, `alt-text`). Treat the set as open; Knak may add new IDs over time. Callers that want to filter on specific rules should match against `id`; everyone else should ignore it.
+
+        - `message` — human-readable description of the violation. Surface this directly to your end users.
+
+        - `assets` — array of asset IDs the violation applies to.
+
+        See the response examples below for concrete payloads.
+      summary: Trigger a marketing platform sync
+      tags:
+        - Assets
+      parameters:
+        - name: asset_id
+          in: path
+          required: true
+          description: ID of the asset to sync.
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - integration_id
+                - sync_type
+              properties:
+                integration_id:
+                  type: string
+                  description: ID of the target integration. Must belong to the authenticated company and have platform `marketing_cloud`.
+                  example: 609d7ce223def
+                sync_type:
+                  type: string
+                  enum:
+                    - sync
+                    - resync
+                  example: sync
+                template_name:
+                  type: string
+                  nullable: true
+                  description: Optional override for the template/email name surfaced on the target platform. Falls back to the asset's name.
+                  example: Q2 Newsletter
+                platform_parameters:
+                  type: object
+                  description: Platform-specific sync configuration. Required when `sync_type` is `sync`. For `marketing_cloud` integrations, expects `folder_id` and `email_asset_type`.
+                  additionalProperties: true
+                  example:
+                    folder_id: '123456'
+                    email_asset_type: htmlemail
+                skip_optimize_validation:
+                  type: boolean
+                  default: false
+                  description: 'When `true`, bypasses the pre-sync audit validation and queues the sync even if the asset has audit errors or warnings. Requires the `emails_bypass_optimize_sync` permission on the authenticated user — callers without this permission will have the flag silently ignored (audit will still run). Use this to retry a sync after reviewing audit results that returned `can_skip_optimize: true`. Defaults to `false`.'
+                  example: false
+      responses:
+        '202':
+          description: Accepted. Sync has been queued. When the pre-sync audit runs, the response includes `meta.pre_sync_validation` with any non-blocking warnings or asset exceptions. The block is omitted when audit was bypassed via `skip_optimize_validation`.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingPlatformSyncItem'
+              examples:
+                clean_audit:
+                  summary: Sync queued, no audit issues
+                  value:
+                    data:
+                      id: 609d7ce223411
+                      type: marketing_platform_sync
+                      attributes:
+                        status: pending
+                    meta:
+                      pre_sync_validation:
+                        errors: []
+                        warnings: []
+                        asset_exceptions: []
+                        can_skip_optimize: true
+                warnings_only:
+                  summary: Sync queued with non-blocking audit warnings
+                  value:
+                    data:
+                      id: 609d7ce223411
+                      type: marketing_platform_sync
+                      attributes:
+                        status: pending
+                    meta:
+                      pre_sync_validation:
+                        errors: []
+                        warnings:
+                          - id: preview-text
+                            message: Preview text is shorter than recommended.
+                            assets:
+                              - 609d7ce223abc
+                        asset_exceptions: []
+                        can_skip_optimize: true
+                audit_bypassed:
+                  summary: Sync queued, audit bypassed via skip_optimize_validation
+                  value:
+                    data:
+                      id: 609d7ce223411
+                      type: marketing_platform_sync
+                      attributes:
+                        status: pending
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '409':
+          description: A sync is already in progress for this asset + integration pair.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - status: '409'
+                    title: Conflict
+                    detail: A sync is already in progress for this asset and integration.
+                    meta:
+                      existing_sync_id: 609d7ce223411
+        '422':
+          description: |-
+            Validation failed. Two distinct cases produce this response:
+
+            1. **Resync precondition** — `sync_type` was `resync` but the asset
+               has never been successfully synced to the target integration.
+
+
+            2. **Pre-sync audit failure** — the asset has audit errors that block
+               the sync. See the `meta.pre_sync_validation` example below.
+
+
+            Inspect the `errors[].title` field to disambiguate (`Unprocessable Entity` vs. `PreSyncValidationFailed`).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                resync_never_synced:
+                  summary: Resync of an asset that has never been synced
+                  value:
+                    errors:
+                      - status: '422'
+                        title: Unprocessable Entity
+                        detail: This asset has never been synced to the target integration. Use sync_type = "sync" for the first sync.
+                        meta:
+                          asset_id: 609d7ce223abc
+                          integration_id: 609d7ce223def
+                pre_sync_validation_failed:
+                  summary: Asset failed pre-sync audit validation
+                  value:
+                    errors:
+                      - status: '422'
+                        title: PreSyncValidationFailed
+                        detail: Pre-sync audit validation failed. The asset has errors that must be resolved before it can be synced. See `meta.pre_sync_validation` for details.
+                        meta:
+                          pre_sync_validation:
+                            errors:
+                              - id: alt-text
+                                message: One or more images are missing alt text.
+                                assets:
+                                  - 609d7ce223abc
+                              - id: email-size
+                                message: Email exceeds the 102KB Gmail clipping threshold.
+                                assets:
+                                  - 609d7ce223abc
+                            warnings: []
+                            asset_exceptions: []
+                            can_skip_optimize: false
+  /marketing-platform-syncs/{sync_history}:
+    get:
+      description: Retrieve a specific [marketing platform sync](#tag/marketing_platform_sync) for status polling.
+      summary: Retrieve a marketing platform sync
+      tags:
+        - MarketingPlatformSyncs
+      parameters:
+        - name: sync_history
+          in: path
+          required: true
+          description: ID of the sync history record to retrieve.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MarketingPlatformSyncItem'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the marketing platform sync you were looking for.
+  /brands:
+    get:
+      description: Retrieve all [brands](#tag/brand_model) in the organization.
+      summary: List all brands
+      parameters:
+        - name: sort
+          in: query
+          description: Sort users by field (created_at, updated_at).
+          required: false
+          schema:
+            type: string
+            example: created_at
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+      tags:
+        - Brands
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Brand'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /asset-custom-fieldsets:
+    get:
+      description: Retrieve all [asset custom fieldsets](#tag/asset_custom_fieldset).
+      summary: List all asset custom fieldsets
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+      tags:
+        - Asset Custom Fieldsets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssetCustomFieldsetsList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Resource not found.
+  /asset-custom-fieldsets/{asset_custom_fieldset_id}/asset-custom-fields:
+    get:
+      description: Retrieve all asset custom fields within an [asset custom fieldset](#tag/asset_custom_fieldset).
+      summary: List all asset custom fields within an asset custom fieldset
+      parameters:
+        - in: path
+          required: true
+          name: asset_custom_fieldset_id
+          description: ID of asset custom fieldset
+          example: 64a4810d4d12b
+          schema:
+            type: string
+      tags:
+        - Asset Custom Fieldsets
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AssetCustomField'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the asset custom field you were looking for.
+  /available-platforms:
+    get:
+      description: Retrieve all [available platforms](#tag/available_platform) for your company.
+      summary: List all available platforms
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+      tags:
+        - AvailablePlatforms
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailablePlatformList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+  /merge-tags:
+    get:
+      description: Retrieve all [merge tags](#tag/merge_tag) for your company.
+      summary: List all merge tags
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+        - name: filter[name]
+          in: query
+          description: Filter by name. Exact match filter.
+          required: false
+          example: City
+          schema:
+            type: string
+        - name: filter[platform_id]
+          in: query
+          description: Filter by platform ID. Exact match filter.
+          required: false
+          example: marketo
+          schema:
+            type: string
+      tags:
+        - MergeTags
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeTagList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+    post:
+      description: Create a [merge tag](#tag/merge_tag). Requires permission to manage merge tags.
+      summary: Create a merge tag
+      tags:
+        - MergeTags
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - platform_id
+                - merge_tag_value
+              properties:
+                name:
+                  type: string
+                  example: Lead First Name
+                platform_id:
+                  type: string
+                  example: marketo
+                merge_tag_value:
+                  type: string
+                  example: '{{lead.firstName}}'
+                description:
+                  type: string
+                  example: The first name of the lead in Marketo
+                is_special_link:
+                  type: boolean
+                  example: false
+                velocity_script_token:
+                  type: string
+                  example: ${lead.firstName}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeTag'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Validation error for name.
+                    detail: The name field is required.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /merge-tags/{merge_tag_id}:
+    get:
+      description: Retrieve a specific [merge tag](#tag/merge_tag) via their ID.
+      summary: Retrieve a merge tag
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: ID of merge tag to get
+          example: 609d7ce223411
+          schema:
+            type: string
+      tags:
+        - MergeTags
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeTag'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+    patch:
+      description: Update a specific [merge tag](#tag/merge_tag) via their ID (if user has manage merge tags permission). This endpoint allows partial updates - only the fields provided in the request body will be updated.
+      summary: Update a merge tag
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: ID of merge tag to update
+          example: 609d7ce223411
+          schema:
+            type: string
+      requestBody:
+        description: Merge tag update data
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  description: The description of the merge tag
+                  example: Updated description for the merge tag
+                merge_tag_value:
+                  type: string
+                  description: The merge tag value/mapped name
+                  example: '{{lead.UpdatedField}}'
+                velocity_script_token:
+                  type: string
+                  description: The velocity script token
+                  example: ${lead.UpdatedField}
+                is_special_link:
+                  type: boolean
+                  description: Whether the merge tag is a special link (only applicable for Marketo platform).
+                  example: false
+      tags:
+        - MergeTags
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeTag'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+    delete:
+      description: Delete a [merge tag](#tag/merge_tag) via their ID (if user has manage merge tags permission).
+      summary: Delete a merge tag
+      parameters:
+        - in: path
+          required: true
+          name: id
+          description: ID of merge tag to delete
+          example: 609d7ce223411
+          schema:
+            type: string
+      tags:
+        - MergeTags
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+              example:
+                message: Merge Tag deleted.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+  /translation-requests:
+    get:
+      description: |-
+        Retrieve all [translation requests](#tag/translation_request) that the API user has access to based on their brand scopes.
+
+          **NOTE:** Only translation requests created from custom translation integrations will be visible. Steps to set up a custom translation integration can be found [here](https://help.knak.io/en/articles/9687639-knak-custom-translation-integration-setup-guide).
+      summary: List all translation requests
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number
+          example: 1
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          required: false
+          description: Number of items per page
+          example: 10
+          schema:
+            type: integer
+        - name: filter[status]
+          in: query
+          description: Filter by status. Exact match filter.
+          required: false
+          schema:
+            type: string
+            example: requested
+        - name: filter[asset_id]
+          in: query
+          description: Filter by asset ID. Exact match filter. (Corresponds to `base_asset_id` in response)
+          required: false
+          schema:
+            type: string
+            example: 609ca344d1b1b
+        - name: filter[created_at_before]
+          in: query
+          description: Filter translation requests created before a specific date, formatted in ISO 8601 format. Can be used in conjunction with `created_at_after` filter
+          required: false
+          schema:
+            type: string
+            example: '2023-04-01T00:00:00Z'
+        - name: filter[created_at_after]
+          in: query
+          description: Filter translation requests created after a specific date, formatted in ISO 8601 format. Can be used in conjunction with `created_at_before` filter
+          required: false
+          schema:
+            type: string
+            example: '2023-04-03T00:00:00Z'
+        - name: sort
+          in: query
+          description: Sort by field (`created_at`, `updated_at`), use '-' to reverse order of sort (e.g. -created_at).
+          required: false
+          schema:
+            type: string
+            example: created_at
+      tags:
+        - TranslationRequests
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationRequestList'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+    post:
+      description: |-
+        Create one or more [translation requests](#tag/translation_request) for an asset using a custom translation integration. One translation request is created per code supplied in `language_codes`, and newly created requests start with a `status` of `requested`.
+
+        The `integration_id` must reference a `custom_translation` integration that belongs to your company. Every code in `language_codes` must be one of your company's supported translation languages — call `GET /translation-languages` first to retrieve the valid set.
+
+        **NOTE:** Only `custom_translation` integrations are supported by this endpoint. Integrations for marketing platforms or other translation providers (Smartling, TransPerfect, Lazarus) are rejected with `422 Unprocessable Entity`. Steps to set up a custom translation integration can be found [here](https://help.knak.io/en/articles/9687639-knak-custom-translation-integration-setup-guide).
+      summary: Create translation requests
+      tags:
+        - TranslationRequests
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - integration_id
+                - asset_id
+                - language_codes
+              properties:
+                integration_id:
+                  type: string
+                  description: ID of the `custom_translation` integration to use. Must belong to your company.
+                  example: 609ca344d1caa
+                asset_id:
+                  type: string
+                  description: ID of the asset (email or landing page) to translate.
+                  example: 609ca344d1b1b
+                language_codes:
+                  type: array
+                  description: One or more target language codes. Each must be a supported translation language for your company (see `GET /translation-languages`). Values must be unique; one translation request is created per code.
+                  minItems: 1
+                  items:
+                    type: string
+                  example:
+                    - fr-CA
+                    - es-ES
+                notes:
+                  type: string
+                  nullable: true
+                  description: Optional notes or context stored on each created request. If omitted, the value will be null.
+                  example: Please prioritize this campaign
+                due_date:
+                  type: string
+                  nullable: true
+                  description: Optional due date for the translation, in ISO 8601 format. If omitted, the value will be null.
+                  example: '2026-07-01'
+      responses:
+        '201':
+          description: Created. Returns the translation requests that were created, one per language code.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationRequestCreatedList'
+              example:
+                data:
+                  - type: translation-request
+                    id: 609d7ce223411
+                    attributes:
+                      id: 609d7ce223411
+                      language_code: fr-CA
+                      status: requested
+                      base_asset_id: 609ca344d1b1b
+                      asset_version_id: 67d19607cbb1d4.78284760
+                      integration_id: 609ca344d1caa
+                      user:
+                        id: 609d7ce223400
+                        name: John Doe
+                        email: john.doe@email.com
+                        roles:
+                          - Email Creator
+                      notes: Please prioritize this campaign
+                      due_date: '2026-07-01'
+                      created_at: '2026-06-08T17:07:12+00:00'
+                      updated_at: '2026-06-08T17:07:12+00:00'
+                  - type: translation-request
+                    id: 609d7ce223412
+                    attributes:
+                      id: 609d7ce223412
+                      language_code: es-ES
+                      status: requested
+                      base_asset_id: 609ca344d1b1b
+                      asset_version_id: 67d19607cbb1d4.78284760
+                      integration_id: 609ca344d1caa
+                      user:
+                        id: 609d7ce223400
+                        name: John Doe
+                        email: john.doe@email.com
+                        roles:
+                          - Email Creator
+                      notes: Please prioritize this campaign
+                      due_date: '2026-07-01'
+                      created_at: '2026-06-08T17:07:12+00:00'
+                      updated_at: '2026-06-08T17:07:12+00:00'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Validation Error for language_codes
+                    detail: The language codes field is required.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the asset you were looking for.
+        '422':
+          description: Unprocessable Entity. Returned when `integration_id` is not a `custom_translation` integration belonging to your company, or when one or more `language_codes` are not supported for your company.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              examples:
+                invalid_integration:
+                  summary: integration_id is not a valid custom_translation integration
+                  value:
+                    errors:
+                      - status: '422'
+                        title: Unprocessable Entity
+                        detail: The integration_id is not a custom_translation integration belonging to your company.
+                        meta:
+                          integration_id: 609ca344d1caa
+                unsupported_language_code:
+                  summary: One or more language codes are not supported
+                  value:
+                    errors:
+                      - status: '422'
+                        title: Unprocessable Entity
+                        detail: 'These language codes are not supported for your company: zz-ZZ, ja-JP. Use GET /v1/translation-languages to list supported codes.'
+                        meta:
+                          unsupported_language_codes:
+                            - zz-ZZ
+                            - ja-JP
+  /translation-requests/{id}:
+    get:
+      description: Retrieve a [translation request](#tag/translation_request) created from a custom translation integration.
+      summary: Retrieve a translation request
+      tags:
+        - TranslationRequests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the translation request to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationRequest'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the translation request you were looking for.
+    patch:
+      description: Update the status of a [translation request](#tag/translation_request).
+      summary: Update a translation request
+      tags:
+        - TranslationRequests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the translation request to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - processing
+                    - completed
+                    - failed
+                    - cancelled
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationRequest'
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the translation request you were looking for.
+  /translation-requests/{id}/download-source:
+    get:
+      description: Download the source file for a [translation request](#tag/translation_request)  in the specified format. The `content-type` of the response will change depending on the format requested.
+      summary: Download source file for translation request
+      tags:
+        - TranslationRequests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the translation request to download the source file for
+          schema:
+            type: string
+        - name: format
+          in: query
+          required: false
+          description: Format of the source file to download
+          schema:
+            type: string
+            enum:
+              - arb
+              - xliff-1.2
+              - xliff-2.0
+      responses:
+        '200':
+          description: Success
+          content:
+            application/xml:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the translation request you were looking for.
+  /translation-requests/{id}/upload-translation:
+    post:
+      description: Upload a completed translation file for a [translation request](#tag/translation_request). The file is validated synchronously and the result of the validation is given by the response. If the file is valid (indicated by a 200 response), then the translation will be applied in Knak asynchronously. Once applied, the `status` of the translation request will be updated to `completed` automatically.
+      summary: Upload translated file
+      tags:
+        - TranslationRequests
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the translation request to upload a translation file for
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The translated file to apply
+      responses:
+        '200':
+          description: The file was uploaded successfully
+        '400':
+          description: File validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Validation error for file.
+                    detail: The file must be a valid XLIFF file.
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Resource Not Found.
+                    detail: Could not find the translation request you were looking for.
+  /translation-languages:
+    get:
+      description: Retrieve the translation languages supported for your company, ordered by ISO code. Each `iso_code` returned is a valid value for the `language_codes` field when creating a [translation request](#tag/translation_request) via `POST /translation-requests`.
+      summary: List supported translation languages
+      tags:
+        - TranslationRequests
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationLanguageList'
+              example:
+                data:
+                  - type: translation_language
+                    id: en-US
+                    attributes:
+                      iso_code: en-US
+                      name: English (United States)
+                  - type: translation_language
+                    id: es-ES
+                    attributes:
+                      iso_code: es-ES
+                      name: Spanish (Spain)
+                  - type: translation_language
+                    id: fr-CA
+                    attributes:
+                      iso_code: fr-CA
+                      name: French (Canada)
+        '401':
+          description: Unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Unauthenticated.
+                    detail: Authenticate before continuing.
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                errors:
+                  - title: Forbidden.
+                    detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+webhooks:
+  asset.created:
+    post:
+      tags:
+        - asset.created
+      parameters:
+        - in: header
+          name: knak-signature
+          schema:
+            type: string
+            example: eXYGdAHaNVcOLHVABaYIQHIdBTAZDFAT
+            description: Hash-based message authentication code (HMAC) with SHA-256 used to verify that the payload contents were sent by Knak.
+        - in: header
+          name: Knak-Version
+          schema:
+            type: string
+            example: '1.0'
+            description: The version of the webhook payload.
+        - in: header
+          name: Knak-Event-Type
+          schema:
+            type: string
+            example: asset.created
+            description: The webhook's event type.
+      requestBody:
+        description: Webhook notification that an asset's been created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/asset.created'
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the notification was received.
+  asset.sync_requested:
+    post:
+      tags:
+        - asset.sync_requested
+      parameters:
+        - in: header
+          name: knak-signature
+          schema:
+            type: string
+            example: eXYGdAHaNVcOLHVABaYIQHIdBTAZDFAT
+            description: Hash-based message authentication code (HMAC) with SHA-256 used to verify that the payload contents were sent by Knak.
+        - in: header
+          name: Knak-Version
+          schema:
+            type: string
+            example: '1.0'
+            description: The version of the webhook payload.
+        - in: header
+          name: Knak-Event-Type
+          schema:
+            type: string
+            example: asset.sync_requested
+            description: The webhook's event type.
+      requestBody:
+        description: Webhook notification that a sync has been initiated via the Knak UI.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/asset.sync_requested'
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the notification was received.
+  asset.sync_confirmation_responded:
+    post:
+      tags:
+        - asset.sync_confirmation_responded
+      parameters:
+        - in: header
+          name: knak-signature
+          schema:
+            type: string
+            example: eXYGdAHaNVcOLHVABaYIQHIdBTAZDFAT
+            description: Hash-based message authentication code (HMAC) with SHA-256 used to verify that the payload contents were sent by Knak.
+        - in: header
+          name: Knak-Version
+          schema:
+            type: string
+            example: '1.0'
+            description: The version of the webhook payload.
+        - in: header
+          name: Knak-Event-Type
+          schema:
+            type: string
+            example: asset.sync_confirmation_responded
+            description: The webhook's event type.
+      requestBody:
+        description: Webhook notification that a user has responded to a sync confirmation.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/asset.sync_confirmation_responded'
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the notification was received.
+  asset.approval_status_updated:
+    post:
+      tags:
+        - asset.approval_status_updated
+      parameters:
+        - in: header
+          name: knak-signature
+          schema:
+            type: string
+            example: eXYGdAHaNVcOLHVABaYIQHIdBTAZDFAT
+            description: Hash-based message authentication code (HMAC) with SHA-256 used to verify that the payload contents were sent by Knak.
+        - in: header
+          name: Knak-Version
+          schema:
+            type: string
+            example: '1.0'
+            description: The version of the webhook payload.
+        - in: header
+          name: Knak-Event-Type
+          schema:
+            type: string
+            example: asset.approval_status_updated
+            description: The webhook's event type.
+      requestBody:
+        description: Webhook notification that an asset's status was updated.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/asset.approval_status_updated'
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the notification was received.
+  asset.translation_requested:
+    post:
+      tags:
+        - asset.translation_requested
+      parameters:
+        - in: header
+          name: knak-signature
+          schema:
+            type: string
+            example: eXYGdAHaNVcOLHVABaYIQHIdBTAZDFAT
+            description: Hash-based message authentication code (HMAC) with SHA-256 used to verify that the payload contents were sent by Knak.
+        - in: header
+          name: Knak-Version
+          schema:
+            type: string
+            example: '1.0'
+            description: The version of the webhook payload.
+        - in: header
+          name: Knak-Event-Type
+          schema:
+            type: string
+            example: asset.translation_requested
+            description: The webhook's event type.
+      requestBody:
+        description: Webhook notification that a user has requested a translation.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/asset.translation_requested'
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the notification was received.
+  translation_request.created:
+    post:
+      tags:
+        - translation_request.created
+      parameters:
+        - in: header
+          name: knak-signature
+          schema:
+            type: string
+            example: eXYGdAHaNVcOLHVABaYIQHIdBTAZDFAT
+            description: Hash-based message authentication code (HMAC) with SHA-256 used to verify that the payload contents were sent by Knak.
+        - in: header
+          name: Knak-Version
+          schema:
+            type: string
+            example: '1.0'
+            description: The version of the webhook payload.
+        - in: header
+          name: Knak-Event-Type
+          schema:
+            type: string
+            example: translation_request.created
+            description: The webhook's event type.
+      requestBody:
+        description: Webhook notification that a user has requested a translation.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/translation_request.created'
+      responses:
+        '200':
+          description: Return a 200 status to indicate that the notification was received.
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john.doe@email.com
+        roles:
+          type: array
+          example:
+            - Email Creator
+            - Collaborator
+          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
+          items:
+            type: string
+    UserItem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: user
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/User'
+    UserList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserItem'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/users?per_page=10&page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
+    UserResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserItem'
+        message:
+          type: string
+          example: Success
+    Response:
+      type: object
+      properties:
+        message:
+          type: string
+          example: This is the response message to the request made.
+    Asset:
+      type: object
+      required:
+        - type
+        - id
+        - attributes
+      properties:
+        type:
+          type: string
+          example: asset
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          type: object
+          required:
+            - id
+            - creator_id
+            - subject
+            - from_name
+            - from_email
+            - reply_email
+            - name
+            - folder_path
+            - campaign
+            - brand
+            - language_code
+            - version
+            - type
+            - parent_asset_id
+          properties:
+            id:
+              type: string
+              example: 609d7ce223411
+            creator_id:
+              type: string
+              example: 611e7cf243412
+            subject:
+              type: string
+              example: Spring Newsletter
+            from_name:
+              type: string
+              nullable: true
+              example: John Doe
+            from_email:
+              type: string
+              nullable: true
+              example: john.doe@email.com
+            reply_email:
+              type: string
+              nullable: true
+              example: john.doe@email.com
+            type:
+              type: string
+              enum:
+                - email
+                - landing
+              example: email
+            name:
+              type: string
+              example: Spring Newsletter
+            folder_path:
+              type: string
+              example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+            campaign:
+              type: string
+              example: Sample Campaign
+            brand:
+              type: string
+              example: Sample Brand
+            language_code:
+              type: string
+              nullable: true
+              example: es
+            version:
+              type: string
+              example: '1.0'
+            parent_asset_id:
+              type: string
+              nullable: true
+              example: 609d7ce22341c
+            ai_generation_status:
+              type: string
+              nullable: true
+              enum:
+                - started
+                - completed
+                - failed
+              description: Status of AI content generation. Only present on assets created via the /assets/generate endpoint. Null for non-AI assets.
+              example: null
+      additionalProperties: false
+    AssetList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/assets?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/assets?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/assets?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/assets?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/assets?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/assets?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    AssetItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Asset'
+    AssetContent:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: asset
+            id:
+              type: string
+              example: 609d7ce223411
+            attributes:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                subject:
+                  type: string
+                  example: Spring Newsletter
+                from_name:
+                  type: string
+                  example: John Doe
+                from_email:
+                  type: string
+                  example: john.doe@email.com
+                reply_email:
+                  type: string
+                  example: john.doe@email.com
+                type:
+                  type: string
+                  enum:
+                    - email
+                    - landing
+                  example: email
+                name:
+                  type: string
+                  example: Spring Newsletter
+                text:
+                  type: string
+                  example: Sample email content
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+                language_code:
+                  type: string
+                  nullable: true
+                  example: es
+                html:
+                  type: string
+                  example: <div>Sample email content</div>
+                version:
+                  type: string
+                  example: '1.0'
+                parent_asset_id:
+                  type: string
+                  nullable: true
+                  example: 609d7ce22341c
+    AssetPreview:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 609d7ce223411
+            format:
+              type: string
+              enum:
+                - png
+                - pdf
+              example: png
+            client:
+              type: string
+              enum:
+                - desktop
+                - mobile
+              example: desktop
+            details:
+              type: boolean
+              description: Whether the email details header is included in the returned preview. Only `false` when the preview was rendered for `format=pdf` with `client=desktop` and `details=false` was requested; `true` in all other cases.
+              example: true
+            url:
+              type: string
+              nullable: true
+              description: Publicly accessible preview URL (no authentication required). Null while the preview is still being generated (HTTP 202).
+              example: https://cdn.example.com/preview-desktop.png
+    CustomField:
+      type: object
+      properties:
+        label:
+          type: string
+          example: Custom Field 1
+        key:
+          type: string
+          example: custom_field_1
+        value:
+          type: string
+          example: My Value
+        locked:
+          type: boolean
+          example: false
+          description: Indicates if the custom field is locked by the brand.
+    AssetCustomFields:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: asset-custom-fields
+            id:
+              type: string
+              example: 609d7ce223411
+              definition: ID of the asset the custom fields belong to
+            attributes:
+              type: object
+              properties:
+                asset_id:
+                  type: string
+                  example: 609d7ce223411
+                custom_fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CustomField'
+    ProjectManagementLink:
+      type: object
+      properties:
+        type:
+          type: string
+          example: project-management-link
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 609d7ce223411
+            integration_id:
+              type: string
+              example: 609d7ce223411
+            project_management_id:
+              type: string
+              example: 1234
+            project_management_url:
+              type: string
+              example: https://knak.my.workfront.com/task/64a521d456747a13ec3fc60911274eda2/documents
+            project_management_entity_name:
+              type: string
+              example: Workfront Task
+            integration_metadata:
+              type: object
+              example: {}
+    Theme:
+      type: object
+      properties:
+        type:
+          type: string
+          example: theme
+        id:
+          type: string
+          example: 63eff78889f21
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 63eff78889f21
+            name:
+              type: string
+              example: Spring Newsletter
+            description:
+              type: string
+              example: Sample description
+            published:
+              type: boolean
+              example: true
+            tags:
+              type: array
+              example:
+                - Newsletter
+                - Outreach
+            created_at:
+              type: string
+              format: date-time
+              example: '2023-05-17T21:54:19.000000Z'
+            updated_at:
+              type: string
+              format: date-time
+              example: '2023-05-18T19:55:21.000000Z'
+    ThemeList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Theme'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/themes?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/themes?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/themes?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/themes?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/themes?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/themes?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    Module:
+      type: object
+      properties:
+        type:
+          type: string
+          example: module
+        id:
+          type: string
+          example: 63eff78889f21
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 63eff78889f21
+            name:
+              type: string
+              example: Hero Banner
+            type:
+              type: string
+              enum:
+                - email
+                - landing
+              example: email
+            status:
+              type: string
+              enum:
+                - draft
+                - final
+              example: final
+            category:
+              type: object
+              nullable: true
+              properties:
+                id:
+                  type: string
+                  example: 63eff7760568b
+                name:
+                  type: string
+                  example: Headers
+            brand_ids:
+              type: array
+              items:
+                type: string
+              example:
+                - 63eff7760568a
+            created_at:
+              type: string
+              format: date-time
+              example: '2023-05-17T21:54:19Z'
+            updated_at:
+              type: string
+              format: date-time
+              example: '2023-05-18T19:55:21Z'
+    ModuleList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Module'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/modules?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/modules?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/modules?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/modules?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/modules?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/modules?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    ModuleItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Module'
+    ModuleContent:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: module-content
+            id:
+              type: string
+              example: 63eff78889f21
+            attributes:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 63eff78889f21
+                name:
+                  type: string
+                  example: Hero Banner
+                type:
+                  type: string
+                  enum:
+                    - email
+                    - landing
+                  example: email
+                status:
+                  type: string
+                  enum:
+                    - draft
+                    - final
+                  example: final
+                category:
+                  type: object
+                  nullable: true
+                  properties:
+                    id:
+                      type: string
+                      example: 63eff7760568b
+                    name:
+                      type: string
+                      example: Headers
+                brand_ids:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - 63eff7760568a
+                version:
+                  type: string
+                  example: '2'
+                html:
+                  type: string
+                  example: <div>Hero banner content</div>
+    AssetFolder:
+      type: object
+      properties:
+        type:
+          type: string
+          example: asset-folder
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 609d7ce223411
+            name:
+              type: string
+              example: Spring Newsletter
+            parent_folder_id:
+              type: string
+              example: 609d7ce223411
+              nullable: true
+            brand_id:
+              type: string
+              example: 609d7ce223411
+            type:
+              type: string
+              example: folder
+            created_at:
+              type: string
+              example: '2018-04-14T18:35:58+00:00'
+            updated_at:
+              type: string
+              example: '2018-04-14T18:35:58+00:00'
+    AssetFolderList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetFolder'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/asset-folders?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/asset-folders?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/asset-folders?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/asset-folders?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/asset-folders?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/asset-folders?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    AssetFolderItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/AssetFolder'
+    SyncStatusAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        type:
+          type: string
+          enum:
+            - sync
+            - resync
+          example: sync
+        status:
+          type: string
+          enum:
+            - initialized
+            - in_progress
+            - complete
+            - failed
+          example: in_progress
+        error_message:
+          type: string
+          nullable: true
+          example: Error creating asset in MAP
+        map_id:
+          type: string
+          nullable: true
+          example: 123456
+        map_url:
+          type: string
+          nullable: true
+          example: https://www.map.com/123456
+        custom_confirmation_content:
+          type: object
+          nullable: true
+        last_user_confirmation_response:
+          type: string
+          nullable: true
+          enum:
+            - ok
+            - cancelled
+            - 'null'
+          example: ok
+    SyncStatus:
+      type: object
+      properties:
+        type:
+          type: string
+          example: sync-status
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/SyncStatusAttributes'
+    SyncStatusItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SyncStatus'
+    IntegrationAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: Acme SFMC Integration
+        platform:
+          type: string
+          example: marketing_cloud
+        category:
+          type: string
+          example: map
+    Integration:
+      type: object
+      properties:
+        type:
+          type: string
+          example: integration
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/IntegrationAttributes'
+    IntegrationList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Integration'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/integrations?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/integrations?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/integrations?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/integrations?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/integrations?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/integrations?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    MarketingPlatformSyncAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        asset_id:
+          type: string
+          example: 609d7ce223abc
+        integration_id:
+          type: string
+          example: 609d7ce223def
+        platform:
+          type: string
+          example: marketing_cloud
+        sync_type:
+          type: string
+          enum:
+            - sync
+            - resync
+          example: sync
+        status:
+          type: string
+          description: Wire value; the database stores `error` for failed syncs but the API response maps that to `failed` for consistency.
+          enum:
+            - pending
+            - in_progress
+            - complete
+            - failed
+            - confirmation_requested
+          example: pending
+        platform_asset_id:
+          type: string
+          nullable: true
+          example: '123456'
+        platform_asset_url:
+          type: string
+          nullable: true
+          example: https://mc.s7.exacttarget.com/emails/123456
+        error_message:
+          type: string
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    MarketingPlatformSync:
+      type: object
+      properties:
+        type:
+          type: string
+          example: marketing-platform-sync
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/MarketingPlatformSyncAttributes'
+    MarketingPlatformSyncItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/MarketingPlatformSync'
+    Brand:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 63eff7760568a
+        name:
+          type: string
+          example: AMER
+        updated_at:
+          type: string
+          format: date-time
+          example: '2023-05-18T19:55:21.000000Z'
+        created_at:
+          type: string
+          format: date-time
+          example: '2023-05-17T21:54:19.000000Z'
+    BrandSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 63eff7760568a
+        name:
+          type: string
+          example: AMER
+    AssetCustomFieldset:
+      type: object
+      properties:
+        type:
+          type: string
+          example: asset-custom-fieldset
+        id:
+          type: string
+          example: 63eff78889f21
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 63eff78889f21
+            name:
+              type: string
+              example: Asset Custom Fieldset
+            brands:
+              type: array
+              items:
+                $ref: '#/components/schemas/BrandSummary'
+            created_at:
+              type: string
+              format: date-time
+              example: '2023-05-17T21:54:19.000000Z'
+            updated_at:
+              type: string
+              format: date-time
+              example: '2023-05-18T19:55:21.000000Z'
+    AssetCustomFieldsetsList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssetCustomFieldset'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/asset-custom-fieldsets?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/asset-custom-fieldsets?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/asset-custom-fieldsets?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/asset-custom-fieldsets?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/asset-custom-fieldsets?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/asset-custom-fieldsets?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    AssetCustomField:
+      type: object
+      properties:
+        type:
+          type: string
+          example: asset-custom-field
+        id:
+          type: string
+          example: 63eff78889f21
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 63eff78889f21
+            label:
+              type: string
+              example: Field Label
+            field_name:
+              type: string
+              example: Field Name
+            default_value:
+              type: string
+              example: Default
+              nullable: true
+            type_definition:
+              type: string
+              format: JSON object
+              example:
+                type: date
+            required:
+              type: boolean
+              example: false
+            created_at:
+              type: string
+              format: date-time
+              example: '2023-05-17T21:54:19.000000Z'
+            updated_at:
+              type: string
+              format: date-time
+              example: '2023-05-18T19:55:21.000000Z'
+    AvailablePlatformAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: marketo
+        name:
+          type: string
+          example: Marketo
+    AvailablePlatform:
+      type: object
+      properties:
+        type:
+          type: string
+          example: available-platform
+        id:
+          type: string
+          example: marketo
+        attributes:
+          $ref: '#/components/schemas/AvailablePlatformAttributes'
+    AvailablePlatformList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/AvailablePlatform'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/available-platforms?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/available-platforms?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/available-platforms?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/available-platforms?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 2
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/available-platforms?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/available-platforms?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 3
+            total:
+              type: integer
+              example: 3
+    MergeTagAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: City
+        description:
+          type: string
+          example: The target city of the marketing campaign
+        is_special_link:
+          type: boolean
+          example: false
+        platform_id:
+          type: string
+          example: marketo
+        merge_tag_value:
+          type: string
+          example: '{{lead.City}}'
+        velocity_script_token:
+          type:
+            - 'null'
+            - string
+          example: ${lead.City}
+        knak_tag:
+          type: string
+          description: A paste-ready merge-tag token you can embed directly in asset content. Knak resolves it to the correct platform merge tag when the asset is synced. See the [Merge Tag Model](#tag/merge_tag) for the content syntax.
+          example: '{{!City.knakTagId:609d7ce223411!}}'
+    MergeTag:
+      type: object
+      properties:
+        type:
+          type: string
+          example: merge-tag
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/MergeTagAttributes'
+    MergeTagList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MergeTag'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/merge-tags?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/merge-tags?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/merge-tags?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/merge-tags?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 2
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/merge-tags?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/merge-tags?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 3
+            total:
+              type: integer
+              example: 3
+    TranslationRequestItemAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        language_code:
+          description: The language code of the translation target
+          type: string
+          example: zh-CN
+        source_language_code:
+          description: The language code of the translation source. If not set, the value will be null
+          type: string
+          nullable: true
+          example: en-US
+        status:
+          type: string
+          enum:
+            - cancelled
+            - completed
+            - deleted
+            - failed
+            - manually_translating
+            - processing
+            - reopened
+            - requested
+            - re_requested
+          example: processing
+        base_asset_id:
+          description: The ID of the Asset that should be translated
+          type: string
+          example: 609ca344d1b1b
+        asset_version_id:
+          description: The ID of the Asset Version that should be translated
+          type: string
+          example: 67d19607cbb1d4.78284760
+        integration_id:
+          type: string
+          description: The ID of the integration that was used to request the translation
+          example: 609ca344d1caa
+        creator_id:
+          type: string
+          description: The ID of the user who requested the translation
+          example: 609ca344d1b1b
+        notes:
+          type: string
+          description: Any notes or context relating to the translation request. If not set, the value will be null
+          nullable: true
+          example: Need a translation for this asset soon
+        due_date:
+          type: string
+          description: The date the translation is due. If not set, the value will be null
+          nullable: true
+          example: '2023-02-08'
+        created_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        updated_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+    TranslationRequestItem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: translation-request
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/TranslationRequestItemAttributes'
+    TranslationRequestList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TranslationRequestItem'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/translation-requests?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/translation-requests?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/translation-requests?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/translation-requests?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 2
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/translation-requests?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/translation-requests?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 3
+            total:
+              type: integer
+              example: 3
+    TranslationRequestAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        language_code:
+          description: The language code of the translation target
+          type: string
+          example: zh-CN
+        source_language_code:
+          description: The language code of the translation source. If not set, the value will be null
+          type: string
+          nullable: true
+          example: en-US
+        status:
+          type: string
+          enum:
+            - cancelled
+            - completed
+            - deleted
+            - failed
+            - manually_translating
+            - processing
+            - reopened
+            - requested
+            - re_requested
+          example: processing
+        base_asset_id:
+          description: The ID of the Asset that should be translated
+          type: string
+          example: 609ca344d1b1b
+        asset_version_id:
+          description: The ID of the Asset Version that should be translated
+          type: string
+          example: 67d19607cbb1d4.78284760
+        integration_id:
+          type: string
+          description: The ID of the integration that was used to request the translation
+          example: 609ca344d1caa
+        user:
+          $ref: '#/components/schemas/User'
+          required:
+            - email
+        notes:
+          type: string
+          description: Any notes or context relating to the translation request. If not set, the value will be null
+          nullable: true
+          example: Need a translation for this asset soon
+        due_date:
+          type: string
+          description: The date the translation is due. If not set, the value will be null
+          nullable: true
+          example: '2023-02-08'
+        created_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        updated_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+    TranslationRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          example: translation-request
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/TranslationRequestAttributes'
+    TranslationRequestCreatedList:
+      type: object
+      properties:
+        data:
+          type: array
+          description: The translation requests that were created, one per requested language code.
+          items:
+            $ref: '#/components/schemas/TranslationRequest'
+    TranslationLanguage:
+      type: object
+      properties:
+        type:
+          type: string
+          example: translation_language
+        id:
+          type: string
+          description: The ISO language code. Used as the resource id and as a value for `language_codes` when creating a translation request.
+          example: fr-CA
+        attributes:
+          type: object
+          properties:
+            iso_code:
+              type: string
+              description: The ISO language code supported for translation requests.
+              example: fr-CA
+            name:
+              type: string
+              description: Human-readable language name.
+              example: French (Canada)
+    TranslationLanguageList:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TranslationLanguage'
+    asset.created:
+      type: object
+      properties:
+        event_type:
+          type: string
+          example: asset.created
+        event_id:
+          type: string
+          example: 609d7ce223411
+        event_date:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        version:
+          type: string
+          example: '1.0'
+        data:
+          type: object
+          properties:
+            asset:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  example: Spring Newsletter
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+            user:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  example: John Doe
+                email:
+                  type: string
+                  example: john.doe@email.com
+                company_id:
+                  type: string
+                  example: 93dad37q92
+                roles:
+                  type: array
+                  example: builder
+    asset.sync_requested:
+      type: object
+      properties:
+        event_type:
+          type: string
+          example: asset.sync_requested
+        event_id:
+          type: string
+          example: 609d7ce223411
+        event_date:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        version:
+          type: string
+          example: '1.0'
+        data:
+          type: object
+          properties:
+            asset:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  example: Spring Newsletter
+                content_link:
+                  type: string
+                  example: https://enterprise.knak.io/api/published/v1/assets/609d7ce223411/content
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+                version:
+                  type: string
+                  example: '1.0'
+                language_code:
+                  type: string
+                  nullable: true
+                  example: es
+            user:
+              $ref: '#/components/schemas/User'
+              required:
+                - email
+            sync_status:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                type:
+                  type: string
+                  example: sync
+                map_id:
+                  type: string
+                  nullable: true
+                  example: 123456
+                link:
+                  type: string
+                  example: https://enterprise.knak.io/api/published/v1/sync-statuses/609d7ce223411
+            integration:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Custom Integration
+    asset.sync_confirmation_responded:
+      type: object
+      properties:
+        event_type:
+          type: string
+          example: asset.sync_confirmation_responded
+        event_id:
+          type: string
+          example: 609d7ce223411
+        event_date:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        version:
+          type: string
+          example: '1.0'
+        data:
+          type: object
+          properties:
+            asset:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  example: Spring Newsletter
+                content_link:
+                  type: string
+                  example: https://enterprise.knak.io/api/published/v1/assets/609d7ce223411/content
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+                version:
+                  type: string
+                  example: '1.0'
+                language_code:
+                  type: string
+                  nullable: true
+                  example: es
+            user:
+              $ref: '#/components/schemas/User'
+              required:
+                - email
+            sync_status:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                type:
+                  type: string
+                  example: sync
+                map_id:
+                  type: string
+                  nullable: true
+                  example: 123456
+                link:
+                  type: string
+                  example: https://enterprise.knak.io/api/published/v1/sync-statuses/609d7ce223411
+                last_user_confirmation_response:
+                  type: string
+                  nullable: true
+                  enum:
+                    - continue
+                    - cancel
+                    - 'null'
+                  example: continue
+            integration:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: Custom Integration
+    asset.approval_status_updated:
+      type: object
+      properties:
+        event_type:
+          type: string
+          example: asset.approval_status_updated
+        event_id:
+          type: string
+          example: 609d7ce223411
+        event_date:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        version:
+          type: string
+          example: '1.0'
+        data:
+          type: object
+          properties:
+            asset:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  example: Spring Newsletter
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+                status:
+                  type: string
+                  example: In Review
+    asset.translation_requested:
+      type: object
+      properties:
+        event_type:
+          type: string
+          example: asset.translation_requested
+        event_id:
+          type: string
+          example: 609d7ce223411
+        event_date:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        version:
+          type: string
+          example: '1.0'
+        data:
+          type: object
+          properties:
+            asset:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  example: Spring Newsletter
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+                version:
+                  type: string
+                  example: '1.0'
+                language_code:
+                  type: string
+                  nullable: true
+                  example: es
+            user:
+              $ref: '#/components/schemas/User'
+              required:
+                - email
+            translation_requests:
+              type: array
+              items:
+                $ref: '#/components/schemas/TranslationRequestItem'
+    translation_request.created:
+      type: object
+      properties:
+        event_type:
+          type: string
+          example: asset.translation_requested
+        event_id:
+          type: string
+          example: 609d7ce223411
+        event_date:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        version:
+          type: string
+          example: '1.0'
+        data:
+          type: object
+          properties:
+            asset:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  example: Spring Newsletter
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+                version:
+                  type: string
+                  example: '1.0'
+                language_code:
+                  type: string
+                  nullable: true
+                  example: es
+            user:
+              $ref: '#/components/schemas/User'
+              required:
+                - email
+            translation_request:
+              $ref: '#/components/schemas/TranslationRequestAttributes'
+x-tagGroups:
+  - name: User Management
+    tags:
+      - Users
+  - name: Assets
+    tags:
+      - Assets
+      - Project Management
+  - name: Themes
+    tags:
+      - Themes
+  - name: Modules
+    tags:
+      - Modules
+  - name: Brands
+    tags:
+      - Brands
+  - name: Asset Folders
+    tags:
+      - AssetFolders
+  - name: Assets Custom Fieldsets
+    tags:
+      - Asset Custom Fieldsets
+  - name: Available Platforms
+    tags:
+      - AvailablePlatforms
+  - name: Merge Tags
+    tags:
+      - MergeTags
+  - name: Integrations
+    tags:
+      - Integrations
+  - name: Sync
+    tags:
+      - SyncStatuses
+      - MarketingPlatformSyncs
+  - name: Translation Requests
+    tags:
+      - TranslationRequests
+  - name: Events
+    tags:
+      - asset.created
+      - asset.sync_requested
+      - asset.sync_confirmation_responded
+      - asset.approval_status_updated
+      - asset.translation_requested
+      - translation_request.created
+  - name: Models
+    tags:
+      - user_model
+      - asset_model
+      - theme_model
+      - module_model
+      - brand_model
+      - asset_folder_model
+      - asset_custom_fieldset
+      - available_platform
+      - merge_tag
+      - sync_status
+      - integration
+      - marketing_platform_sync
+      - translation_request
+      - project_management_link

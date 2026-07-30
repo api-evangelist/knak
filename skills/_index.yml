@@ -1,0 +1,59 @@
+generated: '2026-07-19'
+method: generated
+source: openapi/, https://developer.knak.com/
+notes: >-
+  Skills are grounded in operations verified against the published Knak specifications.
+  Only the Knak Send Contacts API declares operationId values; the Enterprise, SCIM, DAM,
+  Validator and Sync Location specs declare none, so those skills identify operations by
+  HTTP method and path rather than inventing identifiers.
+skills:
+- file: knak-generate-and-sync-email.md
+  name: Generate a Knak email and sync it to a marketing platform
+  api: openapi/knak-enterprise-openapi-original.yml
+  operations:
+  - GET /brands
+  - GET /themes
+  - POST /assets/generate
+  - POST /assets
+  - GET /assets/{asset_id}/content
+  - GET /assets/{asset_id}/preview
+  - GET /available-platforms
+  - POST /assets/{asset_id}/marketing-platform-syncs
+  - GET /marketing-platform-syncs/{sync_history}
+- file: knak-translate-asset.md
+  name: Run a Knak asset through a translation round trip
+  api: openapi/knak-enterprise-openapi-original.yml
+  operations:
+  - GET /translation-languages
+  - POST /translation-requests
+  - GET /translation-requests/{id}/download-source
+  - POST /translation-requests/{id}/upload-translation
+  - PATCH /translation-requests/{id}
+- file: knak-provision-users-scim.md
+  name: Provision and deprovision Knak users
+  api: openapi/knak-scim-openapi-original.yml
+  operations:
+  - GET /Users
+  - POST /Users
+  - PUT /Users/{user_id}
+  - PATCH /Users/{user_id}
+  - DELETE /users/{user_id}
+- file: knak-manage-send-contacts.md
+  name: Manage Knak Send contacts and fields
+  api: openapi/knak-send-openapi-original.yml
+  operations:
+  - listFields
+  - createField
+  - listContacts
+  - createContact
+  - bulkUpsertContacts
+  - replaceContactFieldValues
+  - bulkDeleteContacts
+- file: knak-consume-webhooks.md
+  name: Receive and verify Knak webhooks
+  api: openapi/knak-enterprise-openapi-original.yml
+  operations:
+  - webhook asset.created
+  - webhook asset.sync_confirmation_responded
+  - webhook asset.approval_status_updated
+  - webhook translation_request.created

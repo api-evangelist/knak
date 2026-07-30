@@ -1,0 +1,253 @@
+openapi: 3.1.0
+info:
+  description: >
+    ## Overview
+
+    An API specification to provide a Custom Sync Location in Knak.
+
+
+    By implementing a service conforming to this API specification, you will be
+    able to send asset data to your own service and have that service specify a
+    sync location based on that data.
+
+
+    ## Authentication
+
+    Knak provides two options for authentication:
+
+    - **Basic Authentication**: Knak will use Basic Authentication to
+    authenticate with your API. You will just need to provide a username and
+    password when configuring the integration.
+
+    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will
+    need to implement endpoints under a specified authorization path to support
+    this. The default path will be `/oauth/token` but you can provide a separate
+    path when configuring the integration if you so choose. The flow used is the
+    standard [Authorization Code
+    Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
+
+
+    Knak will use the tokens generated to make requests from your service.
+
+
+    ## Custom Sync Location
+
+    When a user has a custom sync location configured and they have set up a
+    sync restriction that leverages the custom sync location.
+
+    Knak will call the `/knak-sync-location` (or your own specified path)
+    endpoint with the asset data when an asset is synced. Your service should
+    return a response with the sync location for the asset.
+
+
+    When your service provides a sync location, Knak will use that location to
+    display only the available sync location to the user.
+  version: V1
+  title: Custom Sync Location API Reference
+  x-logo:
+    url: 'https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png'
+servers:
+  - url: 'https://yourService.com/your-sync-location-api'
+tags:
+  - name: OAuth2
+    description: Endpoints that need to be implemented to support OAuth2
+  - name: Sync Location
+    description: Endpoints to retrieve Sync Location
+paths:
+  /v1/knak-sync-location:
+    post:
+      tags:
+        - Sync Location
+      summary: Provide Sync Location for Asset
+      description: "Knak will call this endpoint to get the sync location for the asset. This is used to determine the sync location for the asset in Knak."
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        description: "The type of the asset"
+                        example: "email"
+                      id:
+                        type: string
+                        description: "The ID of the asset"
+                        example: "66154fd1e9704"
+                      custom_field_example_1:
+                        type: string
+                        description: "Can be any custom field you want to use to determine the sync location"
+                        example: "newsletter"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: "The type of the asset"
+                          example: "email"
+                        id:
+                          type: string
+                          description: "The ID of the asset"
+                          example: "66154fd1e9704"
+                        folder:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: "The ID of the folder or program"
+                              example: "1256"
+                            title:
+                              type: string
+                              description: "The title of the folder or program"
+                              example: "My Favourite Program"
+                            is_root:
+                              type: boolean
+                              description: "Whether this is a root folder"
+                              example: false
+                            status:
+                              type: string
+                              description: "The status of the folder or program"
+                              nullable: true
+                              example: null
+                            parent_id:
+                              type: string
+                              description: "The ID of the parent folder"
+                              example: "48"
+                            folder_type:
+                              type: string
+                              description: "The type of the folder (Folder or Program)"
+                              example: "Program"
+        401:
+          description: "Unauthenticated"
+        403:
+          description: "Unauthorized"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        type:
+                          type: string
+                          description: "The type of the asset"
+                          example: "email"
+                        id:
+                          type: string
+                          description: "The ID of the asset"
+                          example: "66154fd1e9704"
+                  messages:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        message:
+                          type: string
+                          description: "The error message"
+                          example: "Invalid Custom Field"
+                        type:
+                          type: string
+                          description: "The type of the error"
+                          example: "invalid"
+                        level:
+                          type: string
+                          description: "The severity level of the error"
+                          example: "error"
+                        email_id:
+                          type: string
+                          description: "The ID of the email"
+                          example: "66154fd1e9704"
+  /v1/oauth/token:
+    post:
+      tags:
+        - OAuth2
+      summary: Provide an Access Token
+      description: "If using an Oauth2 configured custom sync location integration Knak will call this endpoint to get an access token for your service. This is used to authenticate requests from Knak to your service."
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                  description: "The grant type. This should be `authorization_code`."
+                  example: "authorization_code"
+                code:
+                  type: string
+                  description: "The authorization code."
+                  example: "123456"
+                redirect_uri:
+                  type: string
+                  description: "The redirect URI."
+                  example: "https://yourService.com/oauth/callback"
+                client_id:
+                  type: string
+                  description: "The client ID."
+                  example: "your-client-id"
+                client_secret:
+                  type: string
+                  description: "The client secret."
+                  example: "your-client-secret"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                    description: "The access token."
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+                  token_type:
+                    type: string
+                    description: "The token type."
+                    example: "Bearer"
+                  expires_in:
+                    type: integer
+                    description: "The number of seconds until the token expires."
+                    example: 3600
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: "The error message."
+                    example: "invalid_request"
+                  error_description:
+                    type: string
+                    description: "A description of the error."
+                    example: "The request is missing a required parameter."
+        401:
+          description: "Unauthorized"

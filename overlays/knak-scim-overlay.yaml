@@ -1,0 +1,28 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Knak SCIM API
+  version: 1.0.0
+extends: openapi/knak-scim-openapi-original.yml
+x-generated: '2026-07-19'
+x-method: generated
+x-source: API Evangelist enrichment pipeline
+x-notes: >-
+  Records how the Knak SCIM surface relates to the Enterprise user endpoints and where the
+  specification is thinner than the SCIM 2.0 standard it implements.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-artifacts:
+      authentication: authentication/knak-authentication.yml
+      conformance: conformance/knak-conformance.yml
+      data-model: data-model/knak-data-model.yml
+      skills: skills/knak-provision-users-scim.md
+    x-apievangelist-observations:
+    - Implements SCIM 2.0 at https://enterprise.knak.io/scim/v2 with a /Users resource
+      supporting GET, POST, PUT and PATCH. No /Groups resource is published.
+    - No operationId is declared on any operation.
+    - No securitySchemes are declared, although provisioning requests require a bearer
+      token issued in Knak Enterprise.
+    - The same users are also readable and deletable through the Enterprise API /users
+      endpoints; deletion is available there rather than through SCIM.
+    - Single sign-on is delivered over SAML 2.0 rather than OpenID Connect.

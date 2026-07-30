@@ -1,0 +1,19 @@
+{
+    "issuer": "https://enterprise.knak.io",
+    "authorization_endpoint": "https://enterprise.knak.io/oauth/authorize",
+    "token_endpoint": "https://enterprise.knak.io/oauth/token",
+    "registration_endpoint": "https://enterprise.knak.io/oauth/register",
+    "response_types_supported": [
+        "code"
+    ],
+    "code_challenge_methods_supported": [
+        "S256"
+    ],
+    "scopes_supported": [
+        "mcp:use"
+    ],
+    "grant_types_supported": [
+        "authorization_code",
+        "refresh_token"
+    ]
+}

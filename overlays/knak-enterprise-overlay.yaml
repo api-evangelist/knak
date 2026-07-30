@@ -1,0 +1,51 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Knak Enterprise API
+  version: 1.0.0
+extends: openapi/knak-enterprise-openapi-original.yml
+x-generated: '2026-07-19'
+x-method: generated
+x-source: API Evangelist enrichment pipeline
+x-notes: >-
+  Captures API Evangelist observations about the Knak Enterprise API without mutating the
+  harvested original. The original spec declares no operationId values and no
+  securitySchemes even though the info description documents Bearer and OAuth2
+  authentication; both gaps are recorded here as extensions rather than patched in, so the
+  provider's contract remains the source of truth.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-artifacts:
+      authentication: authentication/knak-authentication.yml
+      conventions: conventions/knak-conventions.yml
+      errors: errors/knak-problem-types.yml
+      lifecycle: lifecycle/knak-lifecycle.yml
+      data-model: data-model/knak-data-model.yml
+      webhooks: asyncapi/knak-enterprise-webhooks.yml
+      mcp: mcp/knak-mcp.yml
+      skills: skills/_index.yml
+    x-apievangelist-observations:
+    - No operationId is declared on any of the 44 operations, which prevents stable
+      operation references for SDK generation, Arazzo workflows and agent tooling.
+    - components.securitySchemes is absent and no root security requirement is declared,
+      although the info description documents a required Bearer token and an OAuth 2.0
+      authorization code flow.
+    - Errors are signalled by HTTP status alone; no RFC 9457 application/problem+json
+      representation is offered.
+    - No idempotency key is documented for the unsafe operations.
+    - No rate limit values or rate-limit response headers are published.
+- target: $.info
+  update:
+    x-apievangelist-recommended-security-schemes:
+      bearerAuth:
+        type: http
+        scheme: bearer
+        description: Bearer token, obtained as an API key or via the OAuth 2.0
+          authorization code flow.
+      oauth2:
+        type: oauth2
+        flows:
+          authorizationCode:
+            authorizationUrl: https://enterprise.knak.io/oauth/authorize
+            tokenUrl: https://enterprise.knak.io/oauth/token
+            scopes: {}
