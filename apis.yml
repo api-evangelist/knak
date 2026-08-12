@@ -462,13 +462,13 @@ common:
   url: security/knak-vulnerability-disclosure.yml
 - type: OpenAPI
   name: Custom DAM API
-  url: openapi/knak-dam-openapi-original.yml
+  url: openapi/_original/knak-dam-openapi-original.yml
 - type: OpenAPI
   name: Custom Validator API
-  url: openapi/knak-custom-validator-openapi-original.yml
+  url: openapi/_original/knak-custom-validator-openapi-original.yml
 - type: OpenAPI
   name: Custom Sync Location API
-  url: openapi/knak-custom-sync-location-openapi-original.yml
+  url: openapi/_original/knak-custom-sync-location-openapi-original.yml
 - type: MCPServer
   url: mcp/knak-mcp.yml
 - type: Authentication
