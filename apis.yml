@@ -31,7 +31,7 @@ x-backed-by:
 - insight-partners
 specificationVersion: '0.20'
 created: '2026-07-17'
-modified: '2026-07-19'
+modified: '2026-08-13'
 tags:
 - Company
 - Email Marketing
@@ -138,7 +138,7 @@ apis:
   name: Knak Contacts API
   description: Create, retrieve and list contacts in Knak Send.
   humanURL: https://developer.knak.com/api/
-  baseURL: https://enterprise.knak.io/api/published/v1
+  baseURL: https://send.knak.io/api/public/v1
   tags:
   - Contacts
   properties:
@@ -152,11 +152,16 @@ apis:
     url: https://developer.knak.com/api/send/
   - type: Documentation
     url: https://developer.knak.com/api/scim/
+  - type: RateLimits
+    url: rate-limits/knak-rate-limits.yml
+  - type: ErrorCodes
+    url: errors/knak-error-codes.yml
 - aid: knak:knak-dam-assets-api
   name: Knak DAM Assets API
-  description: Endpoints to retrieve DAM Assets
+  description: >-
+    Endpoints to retrieve DAM Assets. This is a contract the CUSTOMER implements so Knak can browse images from their own digital asset management system; the base URL is the placeholder host Knak publishes in its specification (https://yourService.com/yourDamApi) because the real host is the customer's service.
   humanURL: https://developer.knak.com/api/
-  baseURL: https://enterprise.knak.io/api/published/v1
+  baseURL: https://yourService.com/yourDamApi
   tags:
   - DAM Assets
   properties:
@@ -174,7 +179,7 @@ apis:
   name: Knak Fields API
   description: Create and list custom contact fields (schema metadata).
   humanURL: https://developer.knak.com/api/
-  baseURL: https://enterprise.knak.io/api/published/v1
+  baseURL: https://send.knak.io/api/public/v1
   tags:
   - Fields
   properties:
@@ -188,6 +193,10 @@ apis:
     url: https://developer.knak.com/api/send/
   - type: Documentation
     url: https://developer.knak.com/api/scim/
+  - type: RateLimits
+    url: rate-limits/knak-rate-limits.yml
+  - type: ErrorCodes
+    url: errors/knak-error-codes.yml
 - aid: knak:knak-integrations-api
   name: Knak Integrations API
   description: The Integrations API from Knak — 1 operation(s) for integrations.
@@ -262,9 +271,10 @@ apis:
     url: https://developer.knak.com/api/scim/
 - aid: knak:knak-oauth2-api
   name: Knak OAuth2 API
-  description: Endpoints that need to be implemented to support OAuth2
+  description: >-
+    Endpoints that need to be implemented to support OAuth2 — the token and authorize endpoints a CUSTOMER exposes so Knak can authenticate against their Custom DAM or Custom Sync Location service. Not a Knak-hosted API; the base URL is the placeholder host Knak publishes in its specifications.
   humanURL: https://developer.knak.com/api/
-  baseURL: https://enterprise.knak.io/api/published/v1
+  baseURL: https://yourService.com/yourDamApi
   tags:
   - OAuth2
   properties:
@@ -298,9 +308,10 @@ apis:
     url: https://developer.knak.com/api/scim/
 - aid: knak:knak-status-api
   name: Knak Status API
-  description: The Status API from Knak — 1 operation(s) for status.
+  description: >-
+    The health-check ping every Knak customer-implemented contract must expose — 1 operation (GET /v1/ping). Implemented by the CUSTOMER, not by Knak; the base URL is the placeholder host Knak publishes in its Custom Validator and Custom DAM specifications.
   humanURL: https://developer.knak.com/api/
-  baseURL: https://enterprise.knak.io/api/published/v1
+  baseURL: https://yourService.com/yourValidationApi
   tags:
   - Status
   properties:
@@ -316,9 +327,10 @@ apis:
     url: https://developer.knak.com/api/scim/
 - aid: knak:knak-sync-location-api
   name: Knak Sync Location API
-  description: Endpoints to retrieve Sync Location
+  description: >-
+    Endpoints to retrieve Sync Location. This is a contract the CUSTOMER implements so their own logic determines and restricts the sync location for Knak assets; the base URL is the placeholder host Knak publishes in its specification (https://yourService.com/your-sync-location-api).
   humanURL: https://developer.knak.com/api/
-  baseURL: https://enterprise.knak.io/api/published/v1
+  baseURL: https://yourService.com/your-sync-location-api
   tags:
   - Sync Location
   properties:
@@ -406,9 +418,10 @@ apis:
     url: https://developer.knak.com/api/scim/
 - aid: knak:knak-validation-api
   name: Knak Validation API
-  description: The Validation API from Knak — 1 operation(s) for validation.
+  description: >-
+    The Custom Validator contract — 1 operation. This is a contract the CUSTOMER implements so Knak can run assets through their own validation pipeline; the base URL is the placeholder host Knak publishes in its specification (https://yourService.com/yourValidationApi).
   humanURL: https://developer.knak.com/api/
-  baseURL: https://enterprise.knak.io/api/published/v1
+  baseURL: https://yourService.com/yourValidationApi
   tags:
   - Validation
   properties:
@@ -504,8 +517,25 @@ common:
 - type: Overlay
   name: Knak SCIM API overlay
   url: overlays/knak-scim-overlay.yaml
+- type: RateLimits
+  url: rate-limits/knak-rate-limits.yml
+- type: Plans
+  url: plans/knak-plans-pricing.yml
+- type: ToolCrosswalk
+  url: mcp/knak-tool-crosswalk.yml
+- type: ErrorCodes
+  url: errors/knak-error-codes.yml
+- type: Components
+  url: components/knak-components.yml
 x-enrichment:
-  date: '2026-07-19'
-  status: backfilled
+  date: '2026-08-13'
+  status: enriched
+  artifacts_added: 8
   pass: local-v1
-  note: backfilled from .gitignore signal + verified work evidence
+  note: >-
+    Round 2. Added rate limits, plans, packages (honest zero), components, MCP tool
+    crosswalk and the Knak Send error-code registry; upgraded the MCP manifest with the
+    published per-tool input parameters and UI resources. Repaired all 21 refined OpenAPI
+    files, whose servers[] and info blocks had been cross-contaminated by the refine merge
+    with the Custom Sync Location template host. Round 1 (2026-07-19) was backfilled from
+    the .gitignore signal + verified work evidence.
