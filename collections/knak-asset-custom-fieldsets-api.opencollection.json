@@ -1,0 +1,62 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — Asset Custom Fieldsets",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Asset Custom Fieldsets",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all asset custom fieldsets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/asset-custom-fieldsets",
+            "params": [
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "description": "Page number"
+              },
+              {
+                "name": "per_page",
+                "value": "10",
+                "type": "query",
+                "description": "Number of items per page"
+              }
+            ]
+          },
+          "docs": "Retrieve all [asset custom fieldsets](#tag/asset_custom_fieldset)."
+        },
+        {
+          "info": {
+            "name": "List all asset custom fields within an asset custom fieldset",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/asset-custom-fieldsets/:asset_custom_fieldset_id/asset-custom-fields",
+            "params": [
+              {
+                "name": "asset_custom_fieldset_id",
+                "value": "64a4810d4d12b",
+                "type": "path",
+                "description": "ID of asset custom fieldset"
+              }
+            ]
+          },
+          "docs": "Retrieve all asset custom fields within an [asset custom fieldset](#tag/asset_custom_fieldset)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

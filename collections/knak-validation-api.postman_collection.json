@@ -1,0 +1,200 @@
+{
+  "item": [
+    {
+      "id": "f9b53597-2d77-497d-9d7d-abac25870790",
+      "name": "Validation",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "dbf1f784-c3c4-4bf6-b1ad-7503a1f99cf7",
+          "name": "Validate Content",
+          "request": {
+            "name": "Validate Content",
+            "description": {
+              "content": "Run custom validation on the provided Asset content and metadata, and return the result.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "validate"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset\": {\n    \"id\": \"<string>\",\n    \"name\": \"<string>\",\n    \"content\": \"<string>\",\n    \"brand\": \"<string>\",\n    \"language_code\": \"<string>\",\n    \"version\": \"<string>\",\n    \"version_id\": \"<string>\",\n    \"parent_asset_id\": \"<string>\",\n    \"subject\": \"<string>\"\n  },\n  \"user\": {\n    \"id\": \"<string>\",\n    \"name\": \"<string>\",\n    \"email\": \"<string>\",\n    \"roles\": [\n      \"<string>\",\n      \"<string>\"\n    ]\n  },\n  \"company\": {\n    \"id\": \"<string>\",\n    \"name\": \"<string>\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "3cca2fa4-b481-4eb9-b78a-25f371c64ea8",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "validate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset\": {\n    \"id\": \"609d7ce223411\",\n    \"name\": \"Spring Newsletter\",\n    \"content\": \"<html>...</html>\",\n    \"brand\": \"Sample Brand\",\n    \"language_code\": \"en-US\",\n    \"version\": \"1.0\",\n    \"version_id\": \"6560e3cbcfc656.88392489\",\n    \"parent_asset_id\": \"609d7ce22341c\",\n    \"subject\": \"See our Spring deals!\"\n  },\n  \"user\": {\n    \"id\": \"609d7ce223411\",\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@email.com\",\n    \"roles\": [\n      \"Builder\",\n      \"Builder\"\n    ]\n  },\n  \"company\": {\n    \"id\": \"609d7ce223411\",\n    \"name\": \"My Company\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"result\": \"pass\",\n  \"result_url\": \"https://yourService.com/ValidationResults/1234\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d5bec493-f2ec-41b3-abca-b2cfa506286b",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "validate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset\": {\n    \"id\": \"609d7ce223411\",\n    \"name\": \"Spring Newsletter\",\n    \"content\": \"<html>...</html>\",\n    \"brand\": \"Sample Brand\",\n    \"language_code\": \"en-US\",\n    \"version\": \"1.0\",\n    \"version_id\": \"6560e3cbcfc656.88392489\",\n    \"parent_asset_id\": \"609d7ce22341c\",\n    \"subject\": \"See our Spring deals!\"\n  },\n  \"user\": {\n    \"id\": \"609d7ce223411\",\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@email.com\",\n    \"roles\": [\n      \"Builder\",\n      \"Builder\"\n    ]\n  },\n  \"company\": {\n    \"id\": \"609d7ce223411\",\n    \"name\": \"My Company\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "d669fd82-d74d-425b-962c-bb40a013453b",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "validate"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"asset\": {\n    \"id\": \"609d7ce223411\",\n    \"name\": \"Spring Newsletter\",\n    \"content\": \"<html>...</html>\",\n    \"brand\": \"Sample Brand\",\n    \"language_code\": \"en-US\",\n    \"version\": \"1.0\",\n    \"version_id\": \"6560e3cbcfc656.88392489\",\n    \"parent_asset_id\": \"609d7ce22341c\",\n    \"subject\": \"See our Spring deals!\"\n  },\n  \"user\": {\n    \"id\": \"609d7ce223411\",\n    \"name\": \"John Doe\",\n    \"email\": \"john.doe@email.com\",\n    \"roles\": [\n      \"Builder\",\n      \"Builder\"\n    ]\n  },\n  \"company\": {\n    \"id\": \"609d7ce223411\",\n    \"name\": \"My Company\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://yourService.com/yourValidationApi",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "314dbac9-d8e7-4291-8ee3-6ed5d54eee63",
+    "name": "Knak Custom Validator API Reference — Validation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## Overview\nAn API specification to perform custom testing and validation of Knak Asset content.\n\nBy implementing a service conforming to this API specification, you will be able to initiate a content test from the Knak UI, and results from your service will be displayed to the Knak User. For information on how to configure the connection to your custom validator in Knak, see our guide [here](https://help.knak.io/en/articles/8708391-setting-up-a-custom-validator-integration).\n\n## Authentication\nAs part of the Integration Configuration stage in Knak, you are able to specify your own HTTP security header name and value. These values are referred to by `<security-header-name>` and `<security-header-value>` in this specification, and will be present in every request.\n",
+      "type": "text/plain"
+    }
+  }
+}

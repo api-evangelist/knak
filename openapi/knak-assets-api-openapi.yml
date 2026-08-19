@@ -1,42 +1,165 @@
 openapi: 3.1.0
 info:
-  description: '## Overview
+  description: |
+    # Overview
+    Welcome to the developer documentation for the Knak Enterprise API.
+    We provide a RESTful interface to key resources within the Knak platform to enable your own custom integration and automation workflows.
+    This API will allow you to automate processes regarding user management within your Knak environment.
+    You can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.
 
-    An API specification to provide a Custom Sync Location in Knak.
+    ## Endpoint
+    `https://enterprise.knak.io/api/published/v1`
 
-
-    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
-
+    ## Additional APIs
+    - [SCIM API Reference](https://enterprise.knak.io/docs/scim-api)
 
     ## Authentication
+    All requests are authenticated using a Bearer token in the `Authorization` header:
+    ```
+    curl --location --request GET 'http://enterprise.knak.io/api/published/v1/emails' \
+    --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...'
+    ```
+    There are two ways to obtain tokens:
+    ### 1 - API Key
+    A user generates a non-expiring token through the Enterprise UI, via the [API Access menu](https://enterprise.knak.io/account/api-access). This is generally only recommended for testing and development, or if the Oauth2 flow is not applicable to your particular use case.
 
-    Knak provides two options for authentication:
+    ### 2 - OAuth2 via Authorization Code Grant Flow
+    This is the **recommended** method for users to allow your application access to their data in Knak. You can manage your own OAuth2 applications in Knak [**here**](http://enterprise.knak.io/account/oauth-applications). Please contact support to enable this feature if unauthorized, or if you need a specific developer account set up for Knak.
+    - **Authorization URL**
+        - `https://enterprise.knak.io/oauth/authorize`
+    - **Token URL**
+        - `https://enterprise.knak.io/oauth/token`
 
-    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+    Creating an OAuth2 application will provide you with a *client_id*, *client_secret* and a *redirect_uri* of your choosing. Users can then authorize your application to access their Knak account by being directed to the Authorization URL:
 
-    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+    ```
+    http://enterprise.knak.io/oauth/authorize?client_id=<your client ID>&redirect_uri=http://your.redirect.url/callback&response_type=code&state=xyzABC123
+    ```
 
+    | Query Parameter | Description |
+    | ----------------| ----------- |
+    | client_id       | **(Required)** The client ID for your application|
+    | redirect_uri    | **(Required)** The url the client will be redirected to. HTTPS required. Must match the url specified in your OAuth2 application|
+    | response_type   | **(Required)** Only a value of `code` is currently supported|
+    | state           | (Optional) This value will be included as part of the redirect response. Your OAuth2 client library most likely uses this parameter to prevent CSRF attacks|
 
+    The user will be redirected to your `redirect_uri` with the authorization code included as the `code` query parameter:
+    ```http
+    HTTP/1.1 302 Found
+    Location: https://your.redirect.url/callback?code=AUTHORIZATION_CODE&state=xyzABC123
+    ```
+    You can then use this code to request a `(access_token, refresh_token)` pair from the Token URL:
+    ```http
+    POST /oauth/token HTTP/1.1
+    Host: enterprise.knak.io
+    Accept: application/json
+    Authorization: Bearer ...
+    Content-Type: application/x-www-form-urlencoded
+    grant_type=authorization_code&client_id=<client_id>&client_secret=<client_secret>&redirect_uri=<redirect_uri>&code=AUTHORIZATION_CODE
+    ```
+    ## Errors
+    Errors in requests made to the API can be viewed directly from the response code that is returned.
 
-    Knak will use the tokens generated to make requests from your service.
+    Below are a list of the common error responses returned and an explanation of what they mean.
 
+    | Code | Reason |Description |
+    | ----------------| ----------- | ----------- |
+    | **400**      | **Bad Request** | Request is malformed or invalid. |
+    | **401**      | **Unauthenticated** | Need to be signed in with a proper account to make this request. |
+    | **403**    | **Forbidden** | The request cannot be completed because the account that is being used does not have sufficient permissions to perform the action in question. |
+    | **404**  | **Not Found** | The requested resource could not be found. Verify that the resource you are looking for exists and that you are using the proper key to search for it. |
 
-    ## Custom Sync Location
+    ## Pagination
+    Our API supports pagination, allowing you to navigate through large sets of data efficiently. This is particularly useful for endpoints that can return a lot of data, such as listings of users, assets, or other entities. To manage the amount of data returned, we use two query parameters: `page` and `per_page`.
 
-    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+    ### Parameters
+    page (Integer, optional): This parameter specifies the page number in the results set. Each page contains a subset of the total data based on the per_page value. The default value is 1 if not specified.
 
-    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+    per_page (Integer, optional): This parameter controls the number of items returned per page. It allows you to specify the page size, i.e., how many items you want to be included in each page of results. The default value is 10, and the maximum allowable value is 100.
 
+    ### Defaults and Limits
+    If neither page nor per_page is specified, the API will return the first page with the default size of 10 items.
+    The per_page parameter defaults to 10 but can be set to any integer up to a maximum of 100. Requests for more than 100 items per page will be capped at 100.
 
-    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+    ## Filtering
+    Our API supports filtering on specific fields of resources for GET requests. This allows clients to retrieve a subset of records based on certain criteria. Supported filters will be listed in each endpoint.
 
-    '
+    ### Parameters
+    filter[field_name]:To apply filters, add a filter query parameter to your GET request, followed by the field name you wish to filter on.
+    Each filter can have one of the following types:
+
+    #### Exact
+    This filter type is used to match the exact value of a field.
+
+    #### Partial
+    This filter type will return all matches that contain the specified value.
+
+    #### Scope
+    This filter type is used to filtered on a static list of values. Supported items will be listed in each endpoint.
+
+    ## Sorting
+    Our API provides sorting functionality, allowing clients to order the results of a GET request based on specified fields. Sorting makes it easier to organize and navigate through lists of records.
+
+    ### Parameters
+    sort (string, optional): To apply sorting, use the sort query parameter followed by the field name you wish to sort by:
+
+    - updated_at: Sorts records by the last update timestamp.
+
+    - created_at: Sorts records by the creation timestamp.
+
+    ## Webhook Setup
+    Webhooks are a way to notify your application when a specific event occurs in your Knak environment. When the event occurs, Knak sends an HTTP POST request to the webhook's configured URL. You can use webhooks to trigger custom workflows, send notifications, or update external systems based on events that occur in Knak.
+    For information on how to create and manage webhooks, please visit the [Knak Custom Integration Setup](https://help.knak.io/en/articles/7950399-knak-custom-integration-setup) page in the Knak Help Center, and the events section below.
+
+    ## Retry Policy
+    Webhooks will be sent out up to a maximum of three times, with a delay of 60 seconds between each request, until a Successful response status is returned.
+
+    ## Verifying Webhook Signatures
+    Webhooks are signed using a SHA-256 HMAC with the secret generated in Knak. The signature is included in the `knak-signature` header of the request. You can use this signature to verify that the request was sent by Knak, and not a third party.
+
+    Before you can verify the signature, you will need to obtain the secret from Knak. You can do this by navigating to the [Webhooks](https://enterprise.knak.io/account/webhooks) page in the Enterprise UI. Select the webhook you want to obtain the secret for, and click the reveal icon next to the secret. In the code sample below we assume that the secret is stored in an environment variable called `WEBHOOK_SECRET`.
+
+    You can perform this verification in any language that supports HMAC-SHA256. You provide the request body and secret as input to the HMAC-SHA256 algorithm, and then compare the output to the signature provided in the request header.
+
+    View the sample code below for an example of how to verify the signature using Node and express.js.
+    ```javascript
+    const crypto = require('crypto');
+    const express = require("express");
+    const app = express();
+
+    app.post("/sync-requested", express.raw({type: 'application/json'}), (req, res) => {
+        try {
+            // Get the knak-signature header from the request
+            const signature = req.headers['knak-signature'];
+
+            // Generate the hash value from the request body
+            const payload = req.body.toString();
+            const secret = process.env.WEBHOOK_SECRET;
+            const hmac = crypto.createHmac('sha256', secret).update(payload);
+
+            // Generate hexidecimal hash value
+            const calculatedHash = hmac.digest('hex');
+
+            // Compare the calculated hash to the knak-signature header
+            if (crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(signature))) {
+                // continue processing the request
+                res.send("Payload is authentic");
+            } else {
+                // reject the request
+                res.send("Payload has been tampered with");
+            }
+        } catch (err) {
+            res.status(500).send("An error occurred");
+        }
+    });
+    ```
   version: V1
-  title: Custom Sync Location API Reference Asset Custom Fieldsets Assets API
+  title: Knak Enterprise API — Assets
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
-- url: https://yourService.com/your-sync-location-api
+- url: https://enterprise.knak.io/api/published/v1
+  description: production
 tags:
 - name: Assets
 paths:
@@ -94,9 +217,11 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
     post:
-      description: Create an [asset](#tag/asset_model). Can either be a email or landing page, and must be associated with a campaign.
+      description: Create an [asset](#tag/asset_model). Can either be a email or landing page, and must
+        be associated with a campaign.
       summary: Create an asset
       tags:
       - Assets
@@ -209,13 +334,14 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
   /assets/generate:
     post:
-      description: 'Generate an AI-powered email [asset](#tag/asset_model) from a text prompt. The asset is created immediately and returned in the response with `ai_generation_status: started`. AI content generation runs asynchronously in the background. Poll `GET /assets/{asset_id}` to check when `ai_generation_status` changes to `completed` or `failed`.
+      description: |-
+        Generate an AI-powered email [asset](#tag/asset_model) from a text prompt. The asset is created immediately and returned in the response with `ai_generation_status: started`. AI content generation runs asynchronously in the background. Poll `GET /assets/{asset_id}` to check when `ai_generation_status` changes to `completed` or `failed`.
 
-
-        The asset must be associated with a campaign (asset folder). The brand is automatically resolved from the campaign.'
+        The asset must be associated with a campaign (asset folder). The brand is automatically resolved from the campaign.
       summary: Generate an AI email asset
       tags:
       - Assets
@@ -232,7 +358,8 @@ paths:
               properties:
                 prompt:
                   type: string
-                  description: Text instructions describing the email to generate. This is the main input for the AI generation.
+                  description: Text instructions describing the email to generate. This is the main input
+                    for the AI generation.
                   example: Create a promotional email for our spring sale with 20% off all items
                 type:
                   type: string
@@ -243,7 +370,8 @@ paths:
                 campaign_id:
                   type: string
                   maxLength: 13
-                  description: The ID of the campaign (asset folder) where the asset will be created. The brand is automatically resolved from the campaign.
+                  description: The ID of the campaign (asset folder) where the asset will be created.
+                    The brand is automatically resolved from the campaign.
                   example: 609d7ce223411
                 name:
                   type: string
@@ -261,7 +389,8 @@ paths:
                   type: string
                   nullable: true
                   maxLength: 191
-                  description: Optional subject line for the email. If not provided, the AI will generate a subject line automatically.
+                  description: Optional subject line for the email. If not provided, the AI will generate
+                    a subject line automatically.
                   example: Spring Sale - 20% Off Everything
                 from_name:
                   type: string
@@ -334,13 +463,18 @@ paths:
                   type: string
                   nullable: true
                   maxLength: 13
-                  description: Optional. When provided, overwrites the target email asset's content with a new version instead of creating a new asset. Must reference an email asset in your company, and you must have save permission on that asset. `campaign_id` is still required and its brand is used for the regenerated content.
+                  description: Optional. When provided, overwrites the target email asset's content with
+                    a new version instead of creating a new asset. Must reference an email asset in your
+                    company, and you must have save permission on that asset. `campaign_id` is still required
+                    and its brand is used for the regenerated content.
                   example: 609d7ce223411
                 module_ids:
                   type: array
                   nullable: true
                   maxItems: 10
-                  description: Optional module IDs to use as building blocks for the generated email. Each module must belong to your company. Only the latest published version of each module is used; modules without a published version are ignored. Maximum 10 modules.
+                  description: Optional module IDs to use as building blocks for the generated email.
+                    Each module must belong to your company. Only the latest published version of each
+                    module is used; modules without a published version are ignored. Maximum 10 modules.
                   items:
                     type: string
                     maxLength: 13
@@ -348,7 +482,8 @@ paths:
                   - 63eff78889f21
       responses:
         '200':
-          description: Asset created successfully. AI content generation is running asynchronously. Poll GET /assets/{asset_id} to check generation status.
+          description: Asset created successfully. AI content generation is running asynchronously. Poll
+            GET /assets/{asset_id} to check generation status.
           content:
             application/json:
               schema:
@@ -378,7 +513,8 @@ paths:
                 - title: Unauthenticated.
                   detail: Authenticate before continuing.
         '403':
-          description: Forbidden - AI generation is not enabled for this account, or (when `asset_id` is provided) the caller does not have save permission on the target asset.
+          description: Forbidden - AI generation is not enabled for this account, or (when `asset_id`
+            is provided) the caller does not have save permission on the target asset.
           content:
             application/json:
               schema:
@@ -386,7 +522,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '429':
           description: Too Many Requests - Rate limit exceeded (5 requests per minute)
           content:
@@ -437,7 +574,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '404':
           description: Not Found
           content:
@@ -450,7 +588,8 @@ paths:
                   detail: Could not find the email you were looking for.
   /assets/{asset_id}/content:
     get:
-      description: Retrieve a specific asset's html content. Returns a similar response to the /assets/ GET endpoint, but includes field 'html' in the response.
+      description: Retrieve a specific asset's html content. Returns a similar response to the /assets/
+        GET endpoint, but includes field 'html' in the response.
       summary: Retrieve specific asset content
       parameters:
       - name: asset_id
@@ -491,7 +630,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Response'
               example:
-                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                message: This user is not authorized to perform this action. Please adjust permissions
+                  before continuing.
         '404':
           description: Not Found
           content:
@@ -502,10 +642,10 @@ paths:
                 message: Resource not found.
   /assets/{asset_id}/preview:
     get:
-      description: 'Retrieve a rendered preview of a specific asset. The returned `url` is publicly accessible without authentication. A 202 response with `url` set to null means the preview is still being generated; the client should poll this endpoint again until a 200 is returned.
+      description: |-
+        Retrieve a rendered preview of a specific asset. The returned `url` is publicly accessible without authentication. A 202 response with `url` set to null means the preview is still being generated; the client should poll this endpoint again until a 200 is returned.
 
-
-        Use the `client` and `details` query parameters to control how the preview is rendered. `client` applies to both the `png` and `pdf` formats. `details` only takes effect for `format=pdf` with `client=desktop`; it is ignored for `png` and for `pdf` with `client=mobile`.'
+        Use the `client` and `details` query parameters to control how the preview is rendered. `client` applies to both the `png` and `pdf` formats. `details` only takes effect for `format=pdf` with `client=desktop`; it is ignored for `png` and for `pdf` with `client=mobile`.
       summary: Retrieve specific asset preview
       parameters:
       - name: asset_id
@@ -540,7 +680,10 @@ paths:
       - name: details
         in: query
         required: false
-        description: Whether to include the email details header in the preview. Only takes effect for `format=pdf` with `client=desktop`, where `false` omits the details header. Ignored for `png` (any client) and for `pdf` with `client=mobile`, where the details header is always included. Defaults to `true`.
+        description: Whether to include the email details header in the preview. Only takes effect for
+          `format=pdf` with `client=desktop`, where `false` omits the details header. Ignored for `png`
+          (any client) and for `pdf` with `client=mobile`, where the details header is always included.
+          Defaults to `true`.
         example: true
         schema:
           type: boolean
@@ -555,7 +698,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/AssetPreview'
         '202':
-          description: Preview is still being generated. The `url` is null; poll again until a 200 is returned.
+          description: Preview is still being generated. The `url` is null; poll again until a 200 is
+            returned.
           content:
             application/json:
               schema:
@@ -596,7 +740,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '404':
           description: Not Found
           content:
@@ -643,7 +788,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Response'
               example:
-                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                message: This user is not authorized to perform this action. Please adjust permissions
+                  before continuing.
         '404':
           description: Not Found
           content:
@@ -713,7 +859,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Response'
               example:
-                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                message: This user is not authorized to perform this action. Please adjust permissions
+                  before continuing.
         '404':
           description: Not Found
           content:
@@ -724,43 +871,32 @@ paths:
                   message: Resource not found.
   /assets/{asset_id}/marketing-platform-syncs:
     post:
-      description: 'Trigger a sync of an asset to a marketing platform. Returns 202 Accepted with a [marketing platform sync](#tag/marketing_platform_sync) record whose `id` can be polled via `GET /marketing-platform-syncs/{id}`.
-
+      description: |-
+        Trigger a sync of an asset to a marketing platform. Returns 202 Accepted with a [marketing platform sync](#tag/marketing_platform_sync) record whose `id` can be polled via `GET /marketing-platform-syncs/{id}`.
 
         **Platform support:** only integrations with platform `marketing_cloud` (Salesforce Marketing Cloud) are currently supported. Requests targeting other platforms return `422 Unprocessable Entity` with a validation error on `integration_id`. Additional platforms will be enabled in future releases.
 
-
         Returns `409 Conflict` when another sync is already pending or in progress for the same asset + integration pair. The conflict response includes `meta.existing_sync_id` so the caller can poll that sync instead.
-
 
         Returns `422 Unprocessable Entity` when `sync_type` is `resync` but the asset has never been successfully synced to the target integration.
 
-
         ## Pre-sync Audit Validation
-
 
         Before queuing a sync, Knak runs a pre-sync audit against the asset. When the audit finds blocking errors, the request returns `422 Unprocessable Entity` with a `meta.pre_sync_validation` block. When the audit passes (with or without non-blocking warnings), the request returns `202 Accepted` and the same `meta.pre_sync_validation` block is included with details. Privileged callers can opt out of audit enforcement by setting `skip_optimize_validation: true` (requires the `emails_bypass_optimize_sync` permission).
 
-
-        **Note:** "pre-sync audit" refers to Knak''s structural and content checks on the asset (image alt text, email size, expired modules, etc.). It is *not* the LLM-based brand-voice "Optimize Checks" feature, which shares a name in the product UI but does not run on the Sync API today.
-
+        **Note:** "pre-sync audit" refers to Knak's structural and content checks on the asset (image alt text, email size, expired modules, etc.). It is *not* the LLM-based brand-voice "Optimize Checks" feature, which shares a name in the product UI but does not run on the Sync API today.
 
         ### Audit Result Shape
 
-
         Each entry in `errors[]`, `warnings[]`, and `asset_exceptions[]` has the shape `{ id, message, assets }`:
-
 
         - `id` — stable string identifier for the audit rule that fired (for example, `alt-text`). Treat the set as open; Knak may add new IDs over time. Callers that want to filter on specific rules should match against `id`; everyone else should ignore it.
 
-
         - `message` — human-readable description of the violation. Surface this directly to your end users.
-
 
         - `assets` — array of asset IDs the violation applies to.
 
-
-        See the response examples below for concrete payloads.'
+        See the response examples below for concrete payloads.
       summary: Trigger a marketing platform sync
       tags:
       - Assets
@@ -783,7 +919,8 @@ paths:
               properties:
                 integration_id:
                   type: string
-                  description: ID of the target integration. Must belong to the authenticated company and have platform `marketing_cloud`.
+                  description: ID of the target integration. Must belong to the authenticated company
+                    and have platform `marketing_cloud`.
                   example: 609d7ce223def
                 sync_type:
                   type: string
@@ -794,11 +931,13 @@ paths:
                 template_name:
                   type: string
                   nullable: true
-                  description: Optional override for the template/email name surfaced on the target platform. Falls back to the asset's name.
+                  description: Optional override for the template/email name surfaced on the target platform.
+                    Falls back to the asset's name.
                   example: Q2 Newsletter
                 platform_parameters:
                   type: object
-                  description: Platform-specific sync configuration. Required when `sync_type` is `sync`. For `marketing_cloud` integrations, expects `folder_id` and `email_asset_type`.
+                  description: Platform-specific sync configuration. Required when `sync_type` is `sync`.
+                    For `marketing_cloud` integrations, expects `folder_id` and `email_asset_type`.
                   additionalProperties: true
                   example:
                     folder_id: '123456'
@@ -806,11 +945,17 @@ paths:
                 skip_optimize_validation:
                   type: boolean
                   default: false
-                  description: 'When `true`, bypasses the pre-sync audit validation and queues the sync even if the asset has audit errors or warnings. Requires the `emails_bypass_optimize_sync` permission on the authenticated user — callers without this permission will have the flag silently ignored (audit will still run). Use this to retry a sync after reviewing audit results that returned `can_skip_optimize: true`. Defaults to `false`.'
+                  description: 'When `true`, bypasses the pre-sync audit validation and queues the sync
+                    even if the asset has audit errors or warnings. Requires the `emails_bypass_optimize_sync`
+                    permission on the authenticated user — callers without this permission will have the
+                    flag silently ignored (audit will still run). Use this to retry a sync after reviewing
+                    audit results that returned `can_skip_optimize: true`. Defaults to `false`.'
                   example: false
       responses:
         '202':
-          description: Accepted. Sync has been queued. When the pre-sync audit runs, the response includes `meta.pre_sync_validation` with any non-blocking warnings or asset exceptions. The block is omitted when audit was bypassed via `skip_optimize_validation`.
+          description: Accepted. Sync has been queued. When the pre-sync audit runs, the response includes
+            `meta.pre_sync_validation` with any non-blocking warnings or asset exceptions. The block is
+            omitted when audit was bypassed via `skip_optimize_validation`.
           content:
             application/json:
               schema:
@@ -875,7 +1020,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '409':
           description: A sync is already in progress for this asset + integration pair.
           content:
@@ -890,7 +1036,18 @@ paths:
                   meta:
                     existing_sync_id: 609d7ce223411
         '422':
-          description: "Validation failed. Two distinct cases produce this response:\n\n1. **Resync precondition** — `sync_type` was `resync` but the asset\n   has never been successfully synced to the target integration.\n\n\n2. **Pre-sync audit failure** — the asset has audit errors that block\n   the sync. See the `meta.pre_sync_validation` example below.\n\n\nInspect the `errors[].title` field to disambiguate (`Unprocessable Entity` vs. `PreSyncValidationFailed`)."
+          description: |-
+            Validation failed. Two distinct cases produce this response:
+
+            1. **Resync precondition** — `sync_type` was `resync` but the asset
+               has never been successfully synced to the target integration.
+
+
+            2. **Pre-sync audit failure** — the asset has audit errors that block
+               the sync. See the `meta.pre_sync_validation` example below.
+
+
+            Inspect the `errors[].title` field to disambiguate (`Unprocessable Entity` vs. `PreSyncValidationFailed`).
           content:
             application/json:
               schema:
@@ -902,7 +1059,8 @@ paths:
                     errors:
                     - status: '422'
                       title: Unprocessable Entity
-                      detail: This asset has never been synced to the target integration. Use sync_type = "sync" for the first sync.
+                      detail: This asset has never been synced to the target integration. Use sync_type
+                        = "sync" for the first sync.
                       meta:
                         asset_id: 609d7ce223abc
                         integration_id: 609d7ce223def
@@ -912,7 +1070,8 @@ paths:
                     errors:
                     - status: '422'
                       title: PreSyncValidationFailed
-                      detail: Pre-sync audit validation failed. The asset has errors that must be resolved before it can be synced. See `meta.pre_sync_validation` for details.
+                      detail: Pre-sync audit validation failed. The asset has errors that must be resolved
+                        before it can be synced. See `meta.pre_sync_validation` for details.
                       meta:
                         pre_sync_validation:
                           errors:
@@ -968,12 +1127,15 @@ components:
               example: desktop
             details:
               type: boolean
-              description: Whether the email details header is included in the returned preview. Only `false` when the preview was rendered for `format=pdf` with `client=desktop` and `details=false` was requested; `true` in all other cases.
+              description: Whether the email details header is included in the returned preview. Only
+                `false` when the preview was rendered for `format=pdf` with `client=desktop` and `details=false`
+                was requested; `true` in all other cases.
               example: true
             url:
               type: string
               nullable: true
-              description: Publicly accessible preview URL (no authentication required). Null while the preview is still being generated (HTTP 202).
+              description: Publicly accessible preview URL (no authentication required). Null while the
+                preview is still being generated (HTTP 202).
               example: https://cdn.example.com/preview-desktop.png
     AssetContent:
       type: object
@@ -1231,7 +1393,8 @@ components:
               - started
               - completed
               - failed
-              description: Status of AI content generation. Only present on assets created via the /assets/generate endpoint. Null for non-AI assets.
+              description: Status of AI content generation. Only present on assets created via the /assets/generate
+                endpoint. Null for non-AI assets.
               example: null
       additionalProperties: false
     AssetItem:
@@ -1254,7 +1417,8 @@ components:
             properties:
               status:
                 type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API
+                  error shape.
                 example: '409'
               title:
                 type: string
@@ -1262,7 +1426,8 @@ components:
                 type: string
               meta:
                 type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                description: Additional context for the error. Returned by endpoints that use the JSON:API
+                  error shape.
                 additionalProperties: true
     MarketingPlatformSyncAttributes:
       type: object
@@ -1287,7 +1452,8 @@ components:
           example: sync
         status:
           type: string
-          description: Wire value; the database stores `error` for failed syncs but the API response maps that to `failed` for consistency.
+          description: Wire value; the database stores `error` for failed syncs but the API response maps
+            that to `failed` for consistency.
           enum:
           - pending
           - in_progress

@@ -1,0 +1,192 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Send Contacts API Reference — Contacts",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Contacts",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List contacts",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://send.knak.io/api/public/v1/contacts",
+            "params": [
+              {
+                "name": "page[number]",
+                "value": "",
+                "type": "query",
+                "description": "The page of results to return (1-based)."
+              },
+              {
+                "name": "page[size]",
+                "value": "",
+                "type": "query",
+                "description": "The number of records per page."
+              },
+              {
+                "name": "sort[]",
+                "value": "-created_at",
+                "type": "query",
+                "description": "Fields to sort by, passed as a repeated `sort[]` parameter. Prefix a field with `-` for descending order. Allowed fields: `email`, `first_name`, `last_name`, `created_at`."
+              },
+              {
+                "name": "filter[email]",
+                "value": "jane.doe@example.com",
+                "type": "query",
+                "description": "Filter by email address."
+              },
+              {
+                "name": "filter[first_name]",
+                "value": "",
+                "type": "query",
+                "description": "Filter by first name."
+              },
+              {
+                "name": "filter[last_name]",
+                "value": "",
+                "type": "query",
+                "description": "Filter by last name."
+              }
+            ]
+          },
+          "docs": "Returns a paginated list of contacts. Supports pagination, sorting and filtering.\n\n- **Sortable fields:** `email`, `first_name`, `last_name`, `created_at`\n- **Filterable fields:** `email`, `first_name`, `last_name`\n"
+        },
+        {
+          "info": {
+            "name": "Create a contact",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://send.knak.io/api/public/v1/contacts",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a single contact. To create or update many contacts at once, use `POST /contacts/bulk`."
+        },
+        {
+          "info": {
+            "name": "Retrieve a contact",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://send.knak.io/api/public/v1/contacts/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "9b1c2d3e-4f56-7890-abcd-ef1234567890",
+                "type": "path",
+                "description": "The unique identifier of the contact."
+              }
+            ]
+          },
+          "docs": "Returns a single contact by ID, including its field values."
+        },
+        {
+          "info": {
+            "name": "Delete a contact",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://send.knak.io/api/public/v1/contacts/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "9b1c2d3e-4f56-7890-abcd-ef1234567890",
+                "type": "path",
+                "description": "The unique identifier of the contact."
+              }
+            ]
+          },
+          "docs": "Soft-deletes a contact by ID. The contact is removed from listings but retained internally."
+        },
+        {
+          "info": {
+            "name": "List a contact's field values",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://send.knak.io/api/public/v1/contacts/:id/field-values",
+            "params": [
+              {
+                "name": "id",
+                "value": "9b1c2d3e-4f56-7890-abcd-ef1234567890",
+                "type": "path",
+                "description": "The unique identifier of the contact."
+              }
+            ]
+          },
+          "docs": "Returns the field values associated with a single contact."
+        },
+        {
+          "info": {
+            "name": "Replace a contact's field values",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://send.knak.io/api/public/v1/contacts/:id/field-values",
+            "params": [
+              {
+                "name": "id",
+                "value": "9b1c2d3e-4f56-7890-abcd-ef1234567890",
+                "type": "path",
+                "description": "The unique identifier of the contact."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Replaces the field values for a single contact. Each key in `field_values` must match the `key` of an\nexisting field (see `GET /fields`) and its value is validated against the field's type. Between 1 and 20\nfield values may be provided.\n"
+        },
+        {
+          "info": {
+            "name": "Bulk upsert contacts",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://send.knak.io/api/public/v1/contacts/bulk",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates or updates up to 1000 contacts in a single request, matching existing contacts by email.\n\nValidation is performed per contact. The request as a whole succeeds with a `200` response even when\nsome individual contacts fail; the response body reports counts of `created`, `updated` and `failed`\ncontacts, along with an `errors` array describing each failure by its index in the submitted array.\n\nThis endpoint is subject to the stricter bulk rate limit (60 requests per minute).\n"
+        },
+        {
+          "info": {
+            "name": "Bulk delete contacts",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://send.knak.io/api/public/v1/contacts/bulk",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Deletes up to 1000 contacts in a single request, identified by their IDs. The response reports the\nnumber of contacts actually deleted; IDs that do not match an existing contact are ignored rather than\ncausing the request to fail.\n\nThis endpoint is subject to the stricter bulk rate limit (60 requests per minute).\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

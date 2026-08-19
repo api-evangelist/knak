@@ -1,0 +1,55 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — Integrations",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Integrations",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List integrations",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/integrations",
+            "params": [
+              {
+                "name": "filter[platform]",
+                "value": "",
+                "type": "query",
+                "description": "Filter by platform identifier. Commonly supported values include `marketing_cloud`, `marketo`, `eloqua`, `pardot`, `hubspot`, `adobe_journey_optimizer`, `iterable`, `sendgrid`, `responsys`, `acoustic`. This list is not exhaustive and new platforms are added over time."
+              },
+              {
+                "name": "filter[category]",
+                "value": "",
+                "type": "query",
+                "description": "Filter by integration category."
+              },
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "description": "Page number"
+              },
+              {
+                "name": "per_page",
+                "value": "10",
+                "type": "query",
+                "description": "Number of items per page"
+              }
+            ]
+          },
+          "docs": "List all [integrations](#tag/integration) configured for your company. Supports optional filtering by platform and category."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

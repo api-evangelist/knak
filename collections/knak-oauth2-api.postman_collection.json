@@ -1,0 +1,559 @@
+{
+  "item": [
+    {
+      "id": "382a0b79-85c1-45c9-aaa4-8962af7eec6e",
+      "name": "OAuth2",
+      "description": {
+        "content": "Endpoints that need to be implemented to support OAuth2",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "689ff362-cbd7-40cd-b730-fc20f25f94a2",
+          "name": "Provide an Access Token",
+          "request": {
+            "name": "Provide an Access Token",
+            "description": {
+              "content": "If using an Oauth2 configured custom sync location integration Knak will call this endpoint to get an access token for your service. This is used to authenticate requests from Knak to your service.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "oauth",
+                "token"
+              ],
+              "host": [
+                "{{v1-oauth-token-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "disabled": false,
+                  "key": "grant_type",
+                  "value": "<string>",
+                  "description": "The grant type. This should be `authorization_code`."
+                },
+                {
+                  "disabled": false,
+                  "key": "code",
+                  "value": "<string>",
+                  "description": "The authorization code."
+                },
+                {
+                  "disabled": false,
+                  "key": "redirect_uri",
+                  "value": "<string>",
+                  "description": "The redirect URI."
+                },
+                {
+                  "disabled": false,
+                  "key": "client_id",
+                  "value": "<string>",
+                  "description": "The client ID."
+                },
+                {
+                  "disabled": false,
+                  "key": "client_secret",
+                  "value": "<string>",
+                  "description": "The client secret."
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "717adfd8-a2c4-44ba-b051-b9adfd6bc0a1",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "oauth",
+                    "token"
+                  ],
+                  "host": [
+                    "{{v1-oauth-token-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The grant type. This should be `authorization_code`.",
+                        "type": "text/plain"
+                      },
+                      "key": "grant_type",
+                      "value": "authorization_code"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The authorization code.",
+                        "type": "text/plain"
+                      },
+                      "key": "code",
+                      "value": "123456"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The redirect URI.",
+                        "type": "text/plain"
+                      },
+                      "key": "redirect_uri",
+                      "value": "https://yourService.com/oauth/callback"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The client ID.",
+                        "type": "text/plain"
+                      },
+                      "key": "client_id",
+                      "value": "your-client-id"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The client secret.",
+                        "type": "text/plain"
+                      },
+                      "key": "client_secret",
+                      "value": "your-client-secret"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\",\n  \"token_type\": \"Bearer\",\n  \"expires_in\": 3600\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b5c48389-9f50-45b8-97bf-1368f1504aa0",
+              "name": "Bad Request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "oauth",
+                    "token"
+                  ],
+                  "host": [
+                    "{{v1-oauth-token-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The grant type. This should be `authorization_code`.",
+                        "type": "text/plain"
+                      },
+                      "key": "grant_type",
+                      "value": "authorization_code"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The authorization code.",
+                        "type": "text/plain"
+                      },
+                      "key": "code",
+                      "value": "123456"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The redirect URI.",
+                        "type": "text/plain"
+                      },
+                      "key": "redirect_uri",
+                      "value": "https://yourService.com/oauth/callback"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The client ID.",
+                        "type": "text/plain"
+                      },
+                      "key": "client_id",
+                      "value": "your-client-id"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The client secret.",
+                        "type": "text/plain"
+                      },
+                      "key": "client_secret",
+                      "value": "your-client-secret"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"error\": \"invalid_request\",\n  \"error_description\": \"The request is missing a required parameter.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bfe48028-3d9c-421e-a1f2-5888c7320ff0",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "oauth",
+                    "token"
+                  ],
+                  "host": [
+                    "{{v1-oauth-token-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The grant type. This should be `authorization_code`.",
+                        "type": "text/plain"
+                      },
+                      "key": "grant_type",
+                      "value": "authorization_code"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The authorization code.",
+                        "type": "text/plain"
+                      },
+                      "key": "code",
+                      "value": "123456"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The redirect URI.",
+                        "type": "text/plain"
+                      },
+                      "key": "redirect_uri",
+                      "value": "https://yourService.com/oauth/callback"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The client ID.",
+                        "type": "text/plain"
+                      },
+                      "key": "client_id",
+                      "value": "your-client-id"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "The client secret.",
+                        "type": "text/plain"
+                      },
+                      "key": "client_secret",
+                      "value": "your-client-secret"
+                    }
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9ab7dfd9-537f-4c8e-a60f-b887d6bad2c7",
+          "name": "OAuth2 Authorization",
+          "request": {
+            "name": "OAuth2 Authorization",
+            "description": {
+              "content": "<p> <a href='https://tools.ietf.org/html/rfc6749#section-3.1'>OAuth2 Authorize</a> endpoint. Will need to be configured in Knak. </p>",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "oauth2",
+                "authorize"
+              ],
+              "host": [
+                "{{oauth2-authorize-Url}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "response_type",
+                  "value": "<string>",
+                  "description": "(Required) The expected response type. This field should be `code`"
+                },
+                {
+                  "disabled": false,
+                  "key": "client_id",
+                  "value": "<string>",
+                  "description": "(Required) The client ID (will need to be configured in Knak)"
+                },
+                {
+                  "disabled": false,
+                  "key": "redirect_uri",
+                  "value": "<string>",
+                  "description": "(Required) The URI that expected authorization code should be sent to."
+                },
+                {
+                  "disabled": false,
+                  "key": "state",
+                  "value": "<string>",
+                  "description": "(Required) State"
+                },
+                {
+                  "disabled": false,
+                  "key": "scope",
+                  "value": "<string>",
+                  "description": "Optional: if your application requires a set of scopes, they can be configured in Knak"
+                }
+              ],
+              "variable": []
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "352b59a9-b661-4209-bb67-1f5f490c2759",
+              "name": "success",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "oauth2",
+                    "authorize"
+                  ],
+                  "host": [
+                    "{{oauth2-authorize-Url}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "response_type",
+                      "value": "code"
+                    },
+                    {
+                      "key": "client_id",
+                      "value": "1948194"
+                    },
+                    {
+                      "key": "redirect_uri",
+                      "value": "https://enterprise.knak.io/account/integrations/custom-dam/authorize"
+                    },
+                    {
+                      "key": "state",
+                      "value": "za81js910s"
+                    },
+                    {
+                      "key": "scope",
+                      "value": "read:assets"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "76814caf-3a19-4239-81f1-4c66c93dc6d2",
+          "name": "OAuth2 Token",
+          "request": {
+            "name": "OAuth2 Token",
+            "description": {
+              "content": "<p>\n<a href='https://tools.ietf.org/html/rfc6749#section-3.2'>OAuth2 Token</a>\nendpoint. Please note that this authorization url is configured in Knak.\nThe required parameters depend on the grant type requested:\n</p>\n\n<p>Authorization Code:</p>\n<ul>\n  <li>grant_type: authorization_code</li>\n  <li>client_id</li>\n  <li>client_secret</li>\n  <li>code</li>\n  <li>redirect_uri</li>\n</ul>\n\n<p>Refresh Token</p>\n<ul>\n  <li>grant_type: refresh_token</li>\n  <li>client_id </li>\n  <li>client_secret </li>\n  <li>refresh_token </li>\n</ul>\n",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "oauth2",
+                "token"
+              ],
+              "host": [
+                "{{oauth2-token-Url}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "9976c702-513b-44b6-ae44-0de54bc91396",
+              "name": "success",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "oauth2",
+                    "token"
+                  ],
+                  "host": [
+                    "{{oauth2-token-Url}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"access_token\": \"wj1ds92jdowk132\",\n  \"refresh_token\": \"ai298dj2od01kde\",\n  \"expires_in\": \"7200\",\n  \"token_type\": \"ai298dj2od01kde\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://yourService.com/yourDamApi",
+      "key": "baseUrl"
+    },
+    {
+      "type": "string",
+      "value": "https://yourService.com/your-sync-location-api",
+      "key": "v1-oauth-token-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://yourService.com/yourDamApi",
+      "key": "oauth2-authorize-Url"
+    },
+    {
+      "type": "string",
+      "value": "https://yourService.com/yourDamApi",
+      "key": "oauth2-token-Url"
+    }
+  ],
+  "info": {
+    "_postman_id": "27fa49bc-e682-439f-b8e7-5fe085b180e2",
+    "name": "Custom Digital Asset Management (DAM) API Reference — OAuth2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## Overview\nAn API specification to search and use DAM content in Knak.\n\nBy implementing a service conforming to this API specification, you will be able to search for and use\ncontent in your custom DAM in Knak.\n\n## Authentication\nKnak can use OAuth 2.0 or HTTP Basic to authenticate with your API.\n\n### OAuth 2.0\nFor OAuth 2.0, you will need to implement the necessary endpoints under the\n`/oauth2` path to support this. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).\n\nKnak will use the tokens generated to make requests to your service on behalf of the current authenticated user.\n\n### HTTP Basic\nFor HTTP Basic, Knak will include a valid username and password that are base64 encoded in the Authorization\nheader for the request to your service. The credentials can be set in Knak when creating a new custom DAM integration.\n\n## DAM Assets\nKnak will call the `/dam-assets` and `/search` endpoints to retrieve assets from your DAM. The two main use cases are:\n- reading all assets and folders in a given folder\n- searching for assets matching a given search term, within a selected path\n\nNote that Knak will use the URL\\'s of the fetched assets for both preview and final deployment,\nand will never transfer any asset content from your DAM to Knak directly.\n",
+      "type": "text/plain"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: searched
 source: https://developer.knak.com/api/
 derived_from:
@@ -6,6 +6,13 @@ derived_from:
 - openapi/knak-send-openapi-original.yml
 format: http-status
 rfc9457: false
+related:
+  error_code_registry: errors/knak-error-codes.yml
+  note: >-
+    The statuses below are the Knak Enterprise API and SCIM API error surface, which is
+    HTTP-status-only. The Knak Send Contacts API is different: it publishes a named
+    error-code registry (UNAUTHENTICATED, ACCESS_DENIED, CONTACT_NOT_FOUND and five more)
+    across three distinct JSON envelopes, catalogued in errors/knak-error-codes.yml.
 envelope:
   notes: Knak signals errors with the HTTP status code. Responses are application/json;
     no application/problem+json media type is published and no machine-readable error

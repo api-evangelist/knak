@@ -1,0 +1,108 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Custom Digital Asset Management (DAM) API Reference — OAuth2",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "OAuth2",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Provide an Access Token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourService.com/yourDamApi/v1/oauth/token",
+            "body": {
+              "type": "form-urlencoded",
+              "data": [
+                {
+                  "name": "grant_type",
+                  "value": ""
+                },
+                {
+                  "name": "code",
+                  "value": ""
+                },
+                {
+                  "name": "redirect_uri",
+                  "value": ""
+                },
+                {
+                  "name": "client_id",
+                  "value": ""
+                },
+                {
+                  "name": "client_secret",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "If using an Oauth2 configured custom sync location integration Knak will call this endpoint to get an access token for your service. This is used to authenticate requests from Knak to your service."
+        },
+        {
+          "info": {
+            "name": "OAuth2 Authorization",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourService.com/yourDamApi/oauth2/authorize",
+            "params": [
+              {
+                "name": "response_type",
+                "value": "code",
+                "type": "query",
+                "description": "The expected response type. This field should be `code`"
+              },
+              {
+                "name": "client_id",
+                "value": "1948194",
+                "type": "query",
+                "description": "The client ID (will need to be configured in Knak)"
+              },
+              {
+                "name": "redirect_uri",
+                "value": "https://enterprise.knak.io/account/integrations/custom-dam/authorize",
+                "type": "query",
+                "description": "The URI that expected authorization code should be sent to."
+              },
+              {
+                "name": "state",
+                "value": "za81js910s",
+                "type": "query",
+                "description": "State"
+              },
+              {
+                "name": "scope",
+                "value": "read:assets",
+                "type": "query",
+                "description": "Optional: if your application requires a set of scopes, they can be configured in Knak"
+              }
+            ]
+          },
+          "docs": "<p> <a href='https://tools.ietf.org/html/rfc6749#section-3.1'>OAuth2 Authorize</a> endpoint. Will need to be configured in Knak. </p>"
+        },
+        {
+          "info": {
+            "name": "OAuth2 Token",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourService.com/yourDamApi/oauth2/token"
+          },
+          "docs": "<p>\n<a href='https://tools.ietf.org/html/rfc6749#section-3.2'>OAuth2 Token</a>\nendpoint. Please note that this authorization url is configured in Knak.\nThe required parameters depend on the grant type requested:\n</p>\n\n<p>Authorization Code:</p>\n<ul>\n  <li>grant_type: authorization_code</li>\n  <li>client_id</li>\n  <li>client_secret</li>\n  <li>code</li>\n  <li>redirect_uri</li>\n</ul>\n\n<p>Refresh Token</p>\n<ul>\n  <li>grant_type: refresh_token</li>\n  <li>client_id </li>\n  <li>client_secret </li>\n  <l"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

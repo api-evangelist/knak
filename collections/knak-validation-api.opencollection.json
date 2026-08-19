@@ -1,0 +1,33 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Custom Validator API Reference — Validation",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Validation",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Validate Content",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourService.com/yourValidationApi/v1/validate",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Run custom validation on the provided Asset content and metadata, and return the result."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

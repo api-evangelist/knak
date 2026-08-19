@@ -1,0 +1,83 @@
+generated: '2026-08-13'
+method: searched
+source: https://developer.knak.com/knak-send/contacts-api/
+sources:
+- https://developer.knak.com/knak-send/contacts-api/
+- https://developer.knak.com/ai-integrations/mcp/
+limit_count: 4
+summary: >-
+  Knak publishes numeric rate limits for the Knak Send Contacts API and describes the limit
+  classes enforced by the hosted MCP server. No rate limits are published for the Knak
+  Enterprise API or the SCIM API, and Knak documents no RateLimit-* / X-RateLimit-* response
+  headers and no Retry-After header on any surface — the only runtime signal an agent
+  receives is the HTTP status code.
+rate_limits:
+- id: send-contacts-standard
+  api: knak:send-contacts
+  scope: per-api-client
+  endpoints: All Knak Send Contacts API endpoints except the bulk endpoints.
+  limit: 1000
+  unit: requests
+  window: 1m
+  burst: null
+  status_on_exhaustion: 429
+  source: https://developer.knak.com/knak-send/contacts-api/
+- id: send-contacts-bulk
+  api: knak:send-contacts
+  scope: per-api-client
+  endpoints:
+  - POST /contacts/bulk
+  - DELETE /contacts/bulk
+  limit: 60
+  unit: requests
+  window: 1m
+  burst: null
+  status_on_exhaustion: 429
+  guidance: Knak advises using the bulk endpoints to keep large synchronization jobs well
+    within the standard limit.
+  source: https://developer.knak.com/knak-send/contacts-api/
+- id: mcp-dynamic-client-registration
+  api: knak:mcp
+  scope: per-ip
+  endpoints:
+  - POST https://enterprise.knak.io/oauth/register
+  limit: 10
+  unit: registrations
+  window: 1m
+  burst: null
+  status_on_exhaustion: null
+  note: Stated as an abuse-prevention limit on Dynamic Client Registration. Knak does not
+    publish the status code returned on exhaustion.
+  source: https://developer.knak.com/ai-integrations/mcp/
+- id: mcp-asset-generation
+  api: knak:mcp
+  scope: per-user-and-per-company
+  endpoints:
+  - generate-asset
+  limit: null
+  unit: asset generations
+  window: 1d
+  burst: null
+  status_on_exhaustion: null
+  note: >-
+    Knak documents two asset-generation limits without publishing their values: a per-user
+    velocity limit ("generating assets too quickly returns a rate-limit error") and a
+    per-company daily generation quota that customer support can raise. The numbers are not
+    published, so the value is recorded as null rather than guessed.
+  source: https://developer.knak.com/ai-integrations/mcp/
+headers:
+  documented: false
+  request_id: null
+  ratelimit_standard: null
+  x_ratelimit: null
+  retry_after: null
+  notes: >-
+    No rate-limit response headers are documented on any Knak surface. On the Send Contacts
+    API the 429 body is a plain envelope — {"message": "Too Many Attempts.", "type":
+    "HttpException"} — which carries no reset or remaining information, so a client cannot
+    compute a backoff from the response and must fall back to a fixed retry delay.
+not_published:
+- api: knak:enterprise
+  note: The Knak Enterprise API reference and developer portal publish no rate limits.
+- api: knak:scim
+  note: The SCIM 2.0 API reference publishes no rate limits.

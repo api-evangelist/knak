@@ -1,0 +1,105 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — Modules",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Modules",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all modules",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/modules",
+            "params": [
+              {
+                "name": "filter[name]",
+                "value": "",
+                "type": "query",
+                "description": "Filter modules by name. Exact match filter."
+              },
+              {
+                "name": "filter[type]",
+                "value": "",
+                "type": "query",
+                "description": "Filter modules by type. Exact match filter."
+              },
+              {
+                "name": "filter[brand_id]",
+                "value": "",
+                "type": "query",
+                "description": "Filter modules by associated brand. Accepts one or more comma-separated brand IDs and returns modules associated with any of the given brands."
+              },
+              {
+                "name": "sort",
+                "value": "",
+                "type": "query",
+                "description": "Sort modules by field (created_at, updated_at)."
+              },
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "description": "Page number"
+              },
+              {
+                "name": "per_page",
+                "value": "10",
+                "type": "query",
+                "description": "Number of items per page"
+              }
+            ]
+          },
+          "docs": "Retrieve all [modules](#tag/module_model) in your organization that have at least one published version. Modules without a published version are not returned."
+        },
+        {
+          "info": {
+            "name": "Retrieve specific module",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/modules/:module_id",
+            "params": [
+              {
+                "name": "module_id",
+                "value": "63eff78889f21",
+                "type": "path",
+                "description": "ID of module"
+              }
+            ]
+          },
+          "docs": "Retrieve a specific [module](#tag/module_model)'s metadata, given its module ID. Only modules with at least one published version are returned."
+        },
+        {
+          "info": {
+            "name": "Retrieve module content",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/modules/:module_id/content",
+            "params": [
+              {
+                "name": "module_id",
+                "value": "63eff78889f21",
+                "type": "path",
+                "description": "ID of module"
+              }
+            ]
+          },
+          "docs": "Retrieve the HTML content of a [module](#tag/module_model)'s latest published version. Draft versions are never returned. Returns a 422 error if the module has no published version."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,42 +1,20 @@
 openapi: 3.1.0
 info:
-  description: '## Overview
+  description: |
+    ## Overview
+    An API specification to perform custom testing and validation of Knak Asset content.
 
-    An API specification to provide a Custom Sync Location in Knak.
-
-
-    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
-
+    By implementing a service conforming to this API specification, you will be able to initiate a content test from the Knak UI, and results from your service will be displayed to the Knak User. For information on how to configure the connection to your custom validator in Knak, see our guide [here](https://help.knak.io/en/articles/8708391-setting-up-a-custom-validator-integration).
 
     ## Authentication
-
-    Knak provides two options for authentication:
-
-    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
-
-    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
-
-
-
-    Knak will use the tokens generated to make requests from your service.
-
-
-    ## Custom Sync Location
-
-    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
-
-    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
-
-
-    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
-
-    '
+    As part of the Integration Configuration stage in Knak, you are able to specify your own HTTP security header name and value. These values are referred to by `<security-header-name>` and `<security-header-value>` in this specification, and will be present in every request.
   version: V1
-  title: Custom Sync Location API Reference Asset Custom Fieldsets Status API
+  title: Knak Custom Validator API Reference — Status
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
-- url: https://yourService.com/your-sync-location-api
+- url: https://yourService.com/yourValidationApi
+- url: https://example.com
 tags:
 - name: Status
 paths:
@@ -45,7 +23,8 @@ paths:
       tags:
       - Status
       summary: Status check
-      description: Check to see that the service is responsive, indicating to the User that the service is available. Any 200 response will be considered a success.
+      description: Check to see that the service is responsive, indicating to the User that the service
+        is available. Any 200 response will be considered a success.
       security:
       - customSecurityHeader: []
       responses:

@@ -1,0 +1,474 @@
+{
+  "item": [
+    {
+      "id": "d433093a-fd46-4531-b143-1aefe6d513f5",
+      "name": "DAM Assets",
+      "description": {
+        "content": "Endpoints to retrieve DAM Assets",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "3400153b-2f22-49fd-82f3-d4a5a4667d5e",
+          "name": "Retrieve DAM Assets",
+          "request": {
+            "name": "Retrieve DAM Assets",
+            "description": {
+              "content": "Retrieve all DAM Assets in the folder specified. If no path is given, the app should return the contents of the base folder available to the authorized user. Results are paginated, with a default page size of 10",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "dam-assets"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "path",
+                  "value": "<string>",
+                  "description": "The path of to the folder to retrieve"
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "<integer>",
+                  "description": "(pagination) The offset of the first result to return. Default is 0."
+                },
+                {
+                  "disabled": false,
+                  "key": "per_page",
+                  "value": "<integer>",
+                  "description": "(pagination) The Number of items to return per page. Default is 10."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "8be92be0-c491-4c12-b436-9307c449f202",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "dam-assets"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "path",
+                      "value": "folder1/folder2"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "Oauth2 bearer token",
+                    "key": "Authorization",
+                    "value": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"24fa00d8-211a-4a5f-aa53-f1e30dca86b9\",\n      \"name\": \"folder2\",\n      \"type\": \"folder\",\n      \"path\": \"/folder1/folder2\"\n    },\n    {\n      \"id\": \"c9ccdf9f-a876-47db-bdc7-1ce828d60d86\",\n      \"name\": \"image1.png\",\n      \"type\": \"image\",\n      \"path\": \"/folder1/image1.png\",\n      \"url\": \"https://my.cdn.com/images/c9ccdf9f-a876-47db-bdc7-1ce828d60d86.png\",\n      \"thumbnail_url\": \"https://my.cdn.com/previews/c9ccdf9f-a876-47db-bdc7-1ce828d60d86.png\\\\\",\n      \"metadata\": {\n        \"width\": 1920,\n        \"height\": 1080,\n        \"size\": 1024,\n        \"mime_type\": \"image/png\"\n      }\n    },\n    {\n      \"id\": \"b9f22f78-be85-47f8-bff4-8d0b0152669c\",\n      \"name\": \"image2.png\",\n      \"type\": \"image\",\n      \"path\": \"/folder1/image2.png\",\n      \"url\": \"https://my.cdn.com/images/b9f22f78-be85-47f8-bff4-8d0b0152669c.png\",\n      \"thumbnail_url\": \"https://my.cdn.com/previews/b9f22f78-be85-47f8-bff4-8d0b0152669c.png\",\n      \"metadata\": {\n        \"width\": 1920,\n        \"height\": 1080,\n        \"size\": 1024,\n        \"mime_type\": \"image/png\"\n      }\n    }\n  ],\n  \"messages\": [\n    {\n      \"message\": \"Search for asset by their name or ID\",\n      \"type\": \"search\",\n      \"level\": \"info\"\n    },\n    {\n      \"message\": \"No results found for the search, verify the name or ID used\",\n      \"type\": \"empty\",\n      \"level\": \"error\"\n    }\n  ],\n  \"meta\": {\n    \"offset\": 0,\n    \"per_page\": 3,\n    \"total\": 40\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "49d10367-e251-4c97-ab4f-feff4a035829",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "dam-assets"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "path",
+                      "value": "folder1/folder2"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "Oauth2 bearer token",
+                    "key": "Authorization",
+                    "value": ""
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "d42f9a93-6ead-488b-a931-b1cca8fec5c8",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "dam-assets"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "path",
+                      "value": "folder1/folder2"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "Oauth2 bearer token",
+                    "key": "Authorization",
+                    "value": ""
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "a205880c-9c7b-4f37-8ae5-7fca68efcd2e",
+          "name": "Search DAM Assets",
+          "request": {
+            "name": "Search DAM Assets",
+            "description": {
+              "content": "Retrieve all DAM Assets matching the search criteria. Results should be paginated with per_page items per page. The most relevant results should be provided first",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "search"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "path",
+                  "value": "<string>",
+                  "description": "Restrict the search to Assets in the specified folder and all child folders. If no path is given, the app should search globally"
+                },
+                {
+                  "disabled": false,
+                  "key": "term",
+                  "value": "<string>",
+                  "description": "(Required) Search query term or phrase."
+                },
+                {
+                  "disabled": false,
+                  "key": "offset",
+                  "value": "<integer>",
+                  "description": "(pagination) The offset of the first result to return. Default is 0."
+                },
+                {
+                  "disabled": false,
+                  "key": "per_page",
+                  "value": "<integer>",
+                  "description": "(pagination) The Number of items to return per page. Default is 10."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "f9fe49ab-82fe-44cd-8e95-c15fc43c3753",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "path",
+                      "value": "folderX/folderY"
+                    },
+                    {
+                      "key": "term",
+                      "value": "my_product*"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "Oauth2 bearer token",
+                    "key": "Authorization",
+                    "value": ""
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"id\": \"99816c53-62b1-484d-89b9-35d4453ef770\",\n      \"name\": \"myImage.jpg\",\n      \"type\": \"folder\",\n      \"path\": \"path/to/myimage/folder/myImage.jpg\",\n      \"url\": \"https://my.cdn.com/images/99816c53-62b1-484d-89b9-35d4453ef770.jpg\",\n      \"thumbnail_url\": \"https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg\",\n      \"metadata\": {\n        \"width\": 1920,\n        \"height\": 1080,\n        \"size\": 1024,\n        \"mime_type\": \"image/jpeg\"\n      }\n    },\n    {\n      \"id\": \"99816c53-62b1-484d-89b9-35d4453ef770\",\n      \"name\": \"myImage.jpg\",\n      \"type\": \"image\",\n      \"path\": \"path/to/myimage/folder/myImage.jpg\",\n      \"url\": \"https://my.cdn.com/images/99816c53-62b1-484d-89b9-35d4453ef770.jpg\",\n      \"thumbnail_url\": \"https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg\",\n      \"metadata\": {\n        \"width\": 1920,\n        \"height\": 1080,\n        \"size\": 1024,\n        \"mime_type\": \"image/jpeg\"\n      }\n    }\n  ],\n  \"meta\": {\n    \"offset\": 0,\n    \"total\": 40,\n    \"per_page\": 1\n  },\n  \"messages\": [\n    {\n      \"message\": \"Search for asset by their name or ID\",\n      \"type\": \"search\",\n      \"level\": \"error\"\n    },\n    {\n      \"message\": \"Search for asset by their name or ID\",\n      \"type\": \"empty\",\n      \"level\": \"warning\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "b497e8f1-e2e4-4fbb-8d98-0182ca0e3fe8",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "path",
+                      "value": "folderX/folderY"
+                    },
+                    {
+                      "key": "term",
+                      "value": "my_product*"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "Oauth2 bearer token",
+                    "key": "Authorization",
+                    "value": ""
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "dbd3f614-72bc-4e33-b64a-a74fa40a6783",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "search"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "path",
+                      "value": "folderX/folderY"
+                    },
+                    {
+                      "key": "term",
+                      "value": "my_product*"
+                    },
+                    {
+                      "key": "offset",
+                      "value": "<integer>"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "<integer>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "disabled": false,
+                    "description": "Oauth2 bearer token",
+                    "key": "Authorization",
+                    "value": ""
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://yourService.com/yourDamApi",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "e10b189d-5915-4744-b517-0ae77f29fc1a",
+    "name": "Custom Digital Asset Management (DAM) API Reference — DAM Assets",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## Overview\nAn API specification to search and use DAM content in Knak.\n\nBy implementing a service conforming to this API specification, you will be able to search for and use\ncontent in your custom DAM in Knak.\n\n## Authentication\nKnak can use OAuth 2.0 or HTTP Basic to authenticate with your API.\n\n### OAuth 2.0\nFor OAuth 2.0, you will need to implement the necessary endpoints under the\n`/oauth2` path to support this. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).\n\nKnak will use the tokens generated to make requests to your service on behalf of the current authenticated user.\n\n### HTTP Basic\nFor HTTP Basic, Knak will include a valid username and password that are base64 encoded in the Authorization\nheader for the request to your service. The credentials can be set in Knak when creating a new custom DAM integration.\n\n## DAM Assets\nKnak will call the `/dam-assets` and `/search` endpoints to retrieve assets from your DAM. The two main use cases are:\n- reading all assets and folders in a given folder\n- searching for assets matching a given search term, within a selected path\n\nNote that Knak will use the URL\\'s of the fetched assets for both preview and final deployment,\nand will never transfer any asset content from your DAM to Knak directly.\n",
+      "type": "text/plain"
+    }
+  }
+}

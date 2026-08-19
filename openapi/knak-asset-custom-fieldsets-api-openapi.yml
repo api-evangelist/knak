@@ -1,42 +1,165 @@
 openapi: 3.1.0
 info:
-  description: '## Overview
+  description: |
+    # Overview
+    Welcome to the developer documentation for the Knak Enterprise API.
+    We provide a RESTful interface to key resources within the Knak platform to enable your own custom integration and automation workflows.
+    This API will allow you to automate processes regarding user management within your Knak environment.
+    You can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.
 
-    An API specification to provide a Custom Sync Location in Knak.
+    ## Endpoint
+    `https://enterprise.knak.io/api/published/v1`
 
-
-    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
-
+    ## Additional APIs
+    - [SCIM API Reference](https://enterprise.knak.io/docs/scim-api)
 
     ## Authentication
+    All requests are authenticated using a Bearer token in the `Authorization` header:
+    ```
+    curl --location --request GET 'http://enterprise.knak.io/api/published/v1/emails' \
+    --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...'
+    ```
+    There are two ways to obtain tokens:
+    ### 1 - API Key
+    A user generates a non-expiring token through the Enterprise UI, via the [API Access menu](https://enterprise.knak.io/account/api-access). This is generally only recommended for testing and development, or if the Oauth2 flow is not applicable to your particular use case.
 
-    Knak provides two options for authentication:
+    ### 2 - OAuth2 via Authorization Code Grant Flow
+    This is the **recommended** method for users to allow your application access to their data in Knak. You can manage your own OAuth2 applications in Knak [**here**](http://enterprise.knak.io/account/oauth-applications). Please contact support to enable this feature if unauthorized, or if you need a specific developer account set up for Knak.
+    - **Authorization URL**
+        - `https://enterprise.knak.io/oauth/authorize`
+    - **Token URL**
+        - `https://enterprise.knak.io/oauth/token`
 
-    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+    Creating an OAuth2 application will provide you with a *client_id*, *client_secret* and a *redirect_uri* of your choosing. Users can then authorize your application to access their Knak account by being directed to the Authorization URL:
 
-    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+    ```
+    http://enterprise.knak.io/oauth/authorize?client_id=<your client ID>&redirect_uri=http://your.redirect.url/callback&response_type=code&state=xyzABC123
+    ```
 
+    | Query Parameter | Description |
+    | ----------------| ----------- |
+    | client_id       | **(Required)** The client ID for your application|
+    | redirect_uri    | **(Required)** The url the client will be redirected to. HTTPS required. Must match the url specified in your OAuth2 application|
+    | response_type   | **(Required)** Only a value of `code` is currently supported|
+    | state           | (Optional) This value will be included as part of the redirect response. Your OAuth2 client library most likely uses this parameter to prevent CSRF attacks|
 
+    The user will be redirected to your `redirect_uri` with the authorization code included as the `code` query parameter:
+    ```http
+    HTTP/1.1 302 Found
+    Location: https://your.redirect.url/callback?code=AUTHORIZATION_CODE&state=xyzABC123
+    ```
+    You can then use this code to request a `(access_token, refresh_token)` pair from the Token URL:
+    ```http
+    POST /oauth/token HTTP/1.1
+    Host: enterprise.knak.io
+    Accept: application/json
+    Authorization: Bearer ...
+    Content-Type: application/x-www-form-urlencoded
+    grant_type=authorization_code&client_id=<client_id>&client_secret=<client_secret>&redirect_uri=<redirect_uri>&code=AUTHORIZATION_CODE
+    ```
+    ## Errors
+    Errors in requests made to the API can be viewed directly from the response code that is returned.
 
-    Knak will use the tokens generated to make requests from your service.
+    Below are a list of the common error responses returned and an explanation of what they mean.
 
+    | Code | Reason |Description |
+    | ----------------| ----------- | ----------- |
+    | **400**      | **Bad Request** | Request is malformed or invalid. |
+    | **401**      | **Unauthenticated** | Need to be signed in with a proper account to make this request. |
+    | **403**    | **Forbidden** | The request cannot be completed because the account that is being used does not have sufficient permissions to perform the action in question. |
+    | **404**  | **Not Found** | The requested resource could not be found. Verify that the resource you are looking for exists and that you are using the proper key to search for it. |
 
-    ## Custom Sync Location
+    ## Pagination
+    Our API supports pagination, allowing you to navigate through large sets of data efficiently. This is particularly useful for endpoints that can return a lot of data, such as listings of users, assets, or other entities. To manage the amount of data returned, we use two query parameters: `page` and `per_page`.
 
-    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+    ### Parameters
+    page (Integer, optional): This parameter specifies the page number in the results set. Each page contains a subset of the total data based on the per_page value. The default value is 1 if not specified.
 
-    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+    per_page (Integer, optional): This parameter controls the number of items returned per page. It allows you to specify the page size, i.e., how many items you want to be included in each page of results. The default value is 10, and the maximum allowable value is 100.
 
+    ### Defaults and Limits
+    If neither page nor per_page is specified, the API will return the first page with the default size of 10 items.
+    The per_page parameter defaults to 10 but can be set to any integer up to a maximum of 100. Requests for more than 100 items per page will be capped at 100.
 
-    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+    ## Filtering
+    Our API supports filtering on specific fields of resources for GET requests. This allows clients to retrieve a subset of records based on certain criteria. Supported filters will be listed in each endpoint.
 
-    '
+    ### Parameters
+    filter[field_name]:To apply filters, add a filter query parameter to your GET request, followed by the field name you wish to filter on.
+    Each filter can have one of the following types:
+
+    #### Exact
+    This filter type is used to match the exact value of a field.
+
+    #### Partial
+    This filter type will return all matches that contain the specified value.
+
+    #### Scope
+    This filter type is used to filtered on a static list of values. Supported items will be listed in each endpoint.
+
+    ## Sorting
+    Our API provides sorting functionality, allowing clients to order the results of a GET request based on specified fields. Sorting makes it easier to organize and navigate through lists of records.
+
+    ### Parameters
+    sort (string, optional): To apply sorting, use the sort query parameter followed by the field name you wish to sort by:
+
+    - updated_at: Sorts records by the last update timestamp.
+
+    - created_at: Sorts records by the creation timestamp.
+
+    ## Webhook Setup
+    Webhooks are a way to notify your application when a specific event occurs in your Knak environment. When the event occurs, Knak sends an HTTP POST request to the webhook's configured URL. You can use webhooks to trigger custom workflows, send notifications, or update external systems based on events that occur in Knak.
+    For information on how to create and manage webhooks, please visit the [Knak Custom Integration Setup](https://help.knak.io/en/articles/7950399-knak-custom-integration-setup) page in the Knak Help Center, and the events section below.
+
+    ## Retry Policy
+    Webhooks will be sent out up to a maximum of three times, with a delay of 60 seconds between each request, until a Successful response status is returned.
+
+    ## Verifying Webhook Signatures
+    Webhooks are signed using a SHA-256 HMAC with the secret generated in Knak. The signature is included in the `knak-signature` header of the request. You can use this signature to verify that the request was sent by Knak, and not a third party.
+
+    Before you can verify the signature, you will need to obtain the secret from Knak. You can do this by navigating to the [Webhooks](https://enterprise.knak.io/account/webhooks) page in the Enterprise UI. Select the webhook you want to obtain the secret for, and click the reveal icon next to the secret. In the code sample below we assume that the secret is stored in an environment variable called `WEBHOOK_SECRET`.
+
+    You can perform this verification in any language that supports HMAC-SHA256. You provide the request body and secret as input to the HMAC-SHA256 algorithm, and then compare the output to the signature provided in the request header.
+
+    View the sample code below for an example of how to verify the signature using Node and express.js.
+    ```javascript
+    const crypto = require('crypto');
+    const express = require("express");
+    const app = express();
+
+    app.post("/sync-requested", express.raw({type: 'application/json'}), (req, res) => {
+        try {
+            // Get the knak-signature header from the request
+            const signature = req.headers['knak-signature'];
+
+            // Generate the hash value from the request body
+            const payload = req.body.toString();
+            const secret = process.env.WEBHOOK_SECRET;
+            const hmac = crypto.createHmac('sha256', secret).update(payload);
+
+            // Generate hexidecimal hash value
+            const calculatedHash = hmac.digest('hex');
+
+            // Compare the calculated hash to the knak-signature header
+            if (crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(signature))) {
+                // continue processing the request
+                res.send("Payload is authentic");
+            } else {
+                // reject the request
+                res.send("Payload has been tampered with");
+            }
+        } catch (err) {
+            res.status(500).send("An error occurred");
+        }
+    });
+    ```
   version: V1
-  title: Custom Sync Location API Reference Asset Custom Fieldsets API
+  title: Knak Enterprise API — Asset Custom Fieldsets
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
-- url: https://yourService.com/your-sync-location-api
+- url: https://enterprise.knak.io/api/published/v1
+  description: production
 tags:
 - name: Asset Custom Fieldsets
 paths:
@@ -83,7 +206,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/Response'
               example:
-                message: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                message: This user is not authorized to perform this action. Please adjust permissions
+                  before continuing.
         '404':
           description: Not Found
           content:
@@ -137,7 +261,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '404':
           description: Not Found
           content:
@@ -309,7 +434,8 @@ components:
             properties:
               status:
                 type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API
+                  error shape.
                 example: '409'
               title:
                 type: string
@@ -317,5 +443,6 @@ components:
                 type: string
               meta:
                 type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                description: Additional context for the error. Returned by endpoints that use the JSON:API
+                  error shape.
                 additionalProperties: true

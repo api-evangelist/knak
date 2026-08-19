@@ -1,0 +1,98 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Custom Digital Asset Management (DAM) API Reference — DAM Assets",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "DAM Assets",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Retrieve DAM Assets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourService.com/yourDamApi/v1/dam-assets",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer xxxxxxxxx"
+              }
+            ],
+            "params": [
+              {
+                "name": "path",
+                "value": "folder1/folder2",
+                "type": "query",
+                "description": "The path of to the folder to retrieve"
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "(pagination) The offset of the first result to return. Default is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "(pagination) The Number of items to return per page. Default is 10."
+              }
+            ]
+          },
+          "docs": "Retrieve all DAM Assets in the folder specified. If no path is given, the app should return the contents of the base folder available to the authorized user. Results are paginated, with a default page size of 10"
+        },
+        {
+          "info": {
+            "name": "Search DAM Assets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourService.com/yourDamApi/v1/search",
+            "headers": [
+              {
+                "name": "Authorization",
+                "value": "Bearer xxxxxxxxx"
+              }
+            ],
+            "params": [
+              {
+                "name": "path",
+                "value": "folderX/folderY",
+                "type": "query",
+                "description": "Restrict the search to Assets in the specified folder and all child folders. If no path is given, the app should search globally"
+              },
+              {
+                "name": "term",
+                "value": "my_product*",
+                "type": "query",
+                "description": "Search query term or phrase."
+              },
+              {
+                "name": "offset",
+                "value": "",
+                "type": "query",
+                "description": "(pagination) The offset of the first result to return. Default is 0."
+              },
+              {
+                "name": "per_page",
+                "value": "",
+                "type": "query",
+                "description": "(pagination) The Number of items to return per page. Default is 10."
+              }
+            ]
+          },
+          "docs": "Retrieve all DAM Assets matching the search criteria. Results should be paginated with per_page items per page. The most relevant results should be provided first"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

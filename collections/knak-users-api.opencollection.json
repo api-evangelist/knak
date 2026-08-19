@@ -1,0 +1,210 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — Users",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Users",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all users",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/users",
+            "params": [
+              {
+                "name": "filter[email]",
+                "value": "",
+                "type": "query",
+                "description": "Filter users by email. Partial match filter."
+              },
+              {
+                "name": "sort",
+                "value": "",
+                "type": "query",
+                "description": "Sort users by field (created_at, updated_at)."
+              },
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "description": "Page number"
+              },
+              {
+                "name": "per_page",
+                "value": "10",
+                "type": "query",
+                "description": "Number of items per page"
+              }
+            ]
+          },
+          "docs": "Retrieve a page of [users](#tag/user_model) in the organization."
+        },
+        {
+          "info": {
+            "name": "Retrieve a specific user's information.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/users/:user_id",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of user"
+              }
+            ]
+          },
+          "docs": "Retrieve a specific [user](#tag/user_model)'s information."
+        },
+        {
+          "info": {
+            "name": "Delete user",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://enterprise.knak.io/api/published/v1/users/:user_id",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of user to delete"
+              },
+              {
+                "name": "user_to_reassign",
+                "value": "507b9de116822",
+                "type": "query",
+                "description": "ID of user to reassign approvals to if deleted user is currently a reviewer"
+              }
+            ]
+          },
+          "docs": "Delete [user](#tag/user_model) via their ID (if permissions allow)."
+        },
+        {
+          "info": {
+            "name": "Retrieve users",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/Users",
+            "params": [
+              {
+                "name": "count",
+                "value": "10",
+                "type": "query",
+                "description": "For pagination, used to specify number of items for the page"
+              },
+              {
+                "name": "startIndex",
+                "value": "",
+                "type": "query",
+                "description": "For pagination, used to specify what index to start looking at"
+              },
+              {
+                "name": "filter",
+                "value": "",
+                "type": "query",
+                "description": "Specify an attribute to filter results by. Currently only support the userName field, which maps to an email"
+              }
+            ]
+          },
+          "docs": "Returns a list of user resources"
+        },
+        {
+          "info": {
+            "name": "Create a user",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://enterprise.knak.io/api/published/v1/Users",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a user."
+        },
+        {
+          "info": {
+            "name": "Retrieve a user",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/Users/:user_id",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of user to retrieve"
+              }
+            ]
+          },
+          "docs": "Returns a single user resource"
+        },
+        {
+          "info": {
+            "name": "Update a user",
+            "type": "http"
+          },
+          "http": {
+            "method": "PUT",
+            "url": "https://enterprise.knak.io/api/published/v1/Users/:user_id",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of user to update"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates an existing user resource, used specifically for updating user's active status."
+        },
+        {
+          "info": {
+            "name": "Update a user",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://enterprise.knak.io/api/published/v1/Users/:user_id",
+            "params": [
+              {
+                "name": "user_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of user to update"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Updates an existing user resource, specifically for updating user's active status."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

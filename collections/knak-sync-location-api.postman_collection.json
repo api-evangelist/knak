@@ -1,0 +1,244 @@
+{
+  "item": [
+    {
+      "id": "3d317f37-27ce-4a2c-ba79-352bd94768ae",
+      "name": "Sync Location",
+      "description": {
+        "content": "Endpoints to retrieve Sync Location",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "48bf00fa-e159-496f-a71f-d8ec9b49df56",
+          "name": "Provide Sync Location for Asset",
+          "request": {
+            "name": "Provide Sync Location for Asset",
+            "description": {
+              "content": "Knak will call this endpoint to get the sync location for the asset. This is used to determine the sync location for the asset in Knak.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "knak-sync-location"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"data\": [\n    {\n      \"type\": \"<string>\",\n      \"id\": \"<string>\",\n      \"custom_field_example_1\": \"<string>\"\n    },\n    {\n      \"type\": \"<string>\",\n      \"id\": \"<string>\",\n      \"custom_field_example_1\": \"<string>\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "a8e6766b-ccda-4c66-9619-d8f5f392a0e6",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "knak-sync-location"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": [\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"custom_field_example_1\": \"newsletter\"\n    },\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"custom_field_example_1\": \"newsletter\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"folder\": {\n        \"id\": \"1256\",\n        \"title\": \"My Favourite Program\",\n        \"is_root\": false,\n        \"status\": null,\n        \"parent_id\": \"48\",\n        \"folder_type\": \"Program\"\n      }\n    },\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"folder\": {\n        \"id\": \"1256\",\n        \"title\": \"My Favourite Program\",\n        \"is_root\": false,\n        \"status\": null,\n        \"parent_id\": \"48\",\n        \"folder_type\": \"Program\"\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d710de05-6b79-4608-bb74-26ecd3b5ed08",
+              "name": "Bad Request",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "knak-sync-location"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": [\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"custom_field_example_1\": \"newsletter\"\n    },\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"custom_field_example_1\": \"newsletter\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\"\n    },\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\"\n    }\n  ],\n  \"messages\": [\n    {\n      \"message\": \"Invalid Custom Field\",\n      \"type\": \"invalid\",\n      \"level\": \"error\",\n      \"email_id\": \"66154fd1e9704\"\n    },\n    {\n      \"message\": \"Invalid Custom Field\",\n      \"type\": \"invalid\",\n      \"level\": \"error\",\n      \"email_id\": \"66154fd1e9704\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "ec6e0e76-c261-4523-9704-fafff2bdd717",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "knak-sync-location"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": [\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"custom_field_example_1\": \"newsletter\"\n    },\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"custom_field_example_1\": \"newsletter\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "47833037-11f2-4c36-8f7c-c39b2dd95471",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "knak-sync-location"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": [\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"custom_field_example_1\": \"newsletter\"\n    },\n    {\n      \"type\": \"email\",\n      \"id\": \"66154fd1e9704\",\n      \"custom_field_example_1\": \"newsletter\"\n    }\n  ]\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://yourService.com/your-sync-location-api",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "3abdfc1e-0067-43c2-bb54-d678a9582450",
+    "name": "Custom Sync Location API Reference — Sync Location",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## Overview\nAn API specification to provide a Custom Sync Location in Knak.\n\nBy implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.\n\n## Authentication\nKnak provides two options for authentication:\n- **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.\n- **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).\n\n\nKnak will use the tokens generated to make requests from your service.\n\n## Custom Sync Location\nWhen a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.\nKnak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.\n\nWhen your service provides a sync location, Knak will use that location to display only the available sync location to the user.\n",
+      "type": "text/plain"
+    }
+  }
+}

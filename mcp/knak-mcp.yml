@@ -1,39 +1,210 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: searched
 status: published
 source: https://developer.knak.com/ai-integrations/mcp/
+sources:
+- https://developer.knak.com/ai-integrations/mcp/
+- https://enterprise.knak.io/.well-known/oauth-authorization-server
+- https://enterprise.knak.io/.well-known/oauth-protected-resource/mcp/public
 server:
   name: knak
   transport: http
   url: https://enterprise.knak.io/mcp/public
   docs: https://developer.knak.com/ai-integrations/mcp/
+  environments:
+  - name: Production
+    url: https://enterprise.knak.io/mcp/public
+  enablement: A Knak company administrator must enable the MCP integration for the
+    organization before any client can connect.
+deployment:
+  mode: remote
+  endpoint: https://enterprise.knak.io/mcp/public
+  install: null
+  package: null
+  auth: oauth
+  verified: probed
+  probe: gated
+  probe_detail: 'POST tools/list with Accept: application/json, text/event-stream returned
+    HTTP 401 {"error":"Unauthenticated."} — the server is live and reachable but the tool
+    manifest requires an OAuth 2.1 access token, so the tool list below is transcribed from
+    the provider''s published tool reference rather than from live introspection.'
+  checked: '2026-08-13'
 authentication:
   type: oauth2.1
   flow: authorization_code
   pkce: S256
   dynamic_client_registration: true
   discovery: https://enterprise.knak.io/.well-known/oauth-authorization-server
+  protected_resource_metadata: https://enterprise.knak.io/.well-known/oauth-protected-resource/mcp/public
   authorization_endpoint: https://enterprise.knak.io/oauth/authorize
   token_endpoint: https://enterprise.knak.io/oauth/token
   registration_endpoint: https://enterprise.knak.io/oauth/register
+  grant_types:
+  - authorization_code
+  - refresh_token
   scopes:
   - mcp:use
-  notes: No client secrets are exposed; all authentication uses proof keys (PKCE).
+  notes: No client secrets are exposed; all authentication uses proof keys (PKCE). Stale
+    dynamic client registrations are cleaned up after 30 days of inactivity. Access is scoped
+    to the authenticated user's Knak account permissions.
 clients:
 - Claude Desktop
 - ChatGPT
+tool_count: 7
 tools:
 - name: list-brands
-  description: Retrieve the brand profiles accessible to the authenticated user.
+  description: List all brands (profiles) accessible to the authenticated account.
+  parameters: []
+  returns: brands[] with id, name (slug) and display_name.
 - name: list-campaigns
-  description: Discover campaigns within a brand.
+  description: List campaigns within a brand. Used after selecting a brand.
+  parameters:
+  - name: brand_name
+    type: string
+    required: false
+    description: Brand name to filter by. Use name from list-brands, not display_name.
+  returns: campaigns[] with id, name, brand_id and brand_name.
 - name: list-themes
-  description: Browse the design themes available for asset generation.
+  description: Discover available themes for asset generation. Optional — used only when the
+    user explicitly requests a theme.
+  parameters:
+  - name: name
+    type: string
+    required: false
+    description: Exact theme name match.
+  - name: search
+    type: string
+    required: false
+    description: Partial name search.
+  - name: published
+    type: boolean
+    required: false
+    description: Filter by published status.
 - name: generate-asset
-  description: Create a new email asset from an AI-driven prompt.
+  description: Create a new email asset inside a campaign folder with AI. Generation is
+    asynchronous; the caller receives a link to the asset immediately.
+  parameters:
+  - name: prompt
+    type: string
+    required: true
+    description: Creative prompt describing the desired asset content.
+  - name: campaign_name
+    type: string
+    required: true
+    description: Name of the campaign folder to create the asset in.
+  - name: brand_name
+    type: string
+    required: false
+    description: Brand to scope the asset to. Required only to disambiguate when multiple
+      campaigns across brands share the same name.
+  - name: asset_name
+    type: string
+    required: false
+    description: Display name for the asset. Auto-generated if omitted.
+  - name: subject
+    type: string
+    required: false
+    description: Email subject line.
+  - name: theme_id
+    type: string
+    required: false
+    description: Theme ID from list-themes.
+  - name: from_name
+    type: string
+    required: false
+    description: Sender display name.
+  - name: from_email
+    type: string
+    required: false
+    description: Sender email address.
+  - name: reply_email
+    type: string
+    required: false
+    description: Reply-to email address.
+  - name: tags
+    type: array
+    required: false
+    description: List of tags to apply.
+  - name: images
+    type: array
+    required: false
+    description: Image attachments, maximum 10. Each entry is {url, filename}.
+  - name: files
+    type: array
+    required: false
+    description: File attachments, maximum 2. Each entry is {url, filename}.
+  returns: '{assetId, status, campaignUrl, assetUrl, statusUrl, message} — statusUrl is a
+    signed polling URL under https://enterprise.knak.io/api/v2/open/assets/{id}/generation-status.'
 - name: get-asset-preview
-  description: Return a rendered visual preview of an asset.
+  description: Return a rendered visual preview of a generated asset. Typically called
+    automatically once generation completes. Returns a PNG screenshot URL, or an inline HTML
+    fallback of up to 100 KB if screenshotting fails. Errors if the asset is still generating
+    or generation failed.
+  parameters:
+  - name: asset_id
+    type: string
+    required: true
+    description: The asset ID returned by generate-asset or list-assets.
 - name: list-assets
-  description: Search existing assets with filtering.
+  description: Search and filter existing assets with pagination.
+  parameters:
+  - name: brand_name
+    type: string
+    required: false
+    description: Filter by brand name.
+  - name: campaign_name
+    type: string
+    required: false
+    description: Filter by campaign name.
+  - name: search
+    type: string
+    required: false
+    description: Search assets by name.
+  - name: type
+    type: string
+    required: false
+    description: email or landing.
+  - name: limit
+    type: integer
+    required: false
+    description: Results per page, 1 to 25, default 10.
+  - name: offset
+    type: integer
+    required: false
+    description: Pagination offset, default 0.
 - name: get-asset
-  description: Fetch metadata for an individual asset.
+  description: Fetch full metadata for a single asset by ID.
+  parameters:
+  - name: asset_id
+    type: string
+    required: true
+    description: The asset ID, from list-assets or generate-asset.
+ui_resources:
+- uri: ui://knak/asset-progress
+  name: Progress widget
+  description: Appears automatically after generate-asset and polls the signed statusUrl
+    until the asset is ready. Times out after about five minutes.
+- uri: ui://knak/asset-preview
+  name: Preview widget
+  description: Appears when get-asset-preview is called, rendering the screenshot or HTML
+    fallback inline.
+ui_notes: Clients that do not support MCP UI resources fall back to the structured text tool
+  responses, which contain the same URLs.
+limits:
+  detail: rate-limits/knak-rate-limits.yml
+  documented:
+  - Asset generation is velocity-limited per user.
+  - Each organization has a daily asset generation quota; customer support can raise it.
+  - Dynamic Client Registration is limited to 10 registrations per minute per IP.
+  - Standard API rate limits apply to all other MCP requests.
+workflow:
+  typical_order:
+  - list-brands
+  - list-campaigns
+  - list-themes
+  - generate-asset
+  - get-asset-preview
+  notes: Content is generated inside the Knak platform using the brand's themes and design
+    system. The AI assistant orchestrates the workflow; it does not write the email content
+    itself. Generation typically takes one to two minutes.
+crosswalk: mcp/knak-tool-crosswalk.yml

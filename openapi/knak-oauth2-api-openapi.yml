@@ -1,42 +1,38 @@
 openapi: 3.1.0
 info:
-  description: '## Overview
+  description: |
+    ## Overview
+    An API specification to search and use DAM content in Knak.
 
-    An API specification to provide a Custom Sync Location in Knak.
-
-
-    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
-
+    By implementing a service conforming to this API specification, you will be able to search for and use
+    content in your custom DAM in Knak.
 
     ## Authentication
+    Knak can use OAuth 2.0 or HTTP Basic to authenticate with your API.
 
-    Knak provides two options for authentication:
+    ### OAuth 2.0
+    For OAuth 2.0, you will need to implement the necessary endpoints under the
+    `/oauth2` path to support this. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
 
-    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+    Knak will use the tokens generated to make requests to your service on behalf of the current authenticated user.
 
-    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+    ### HTTP Basic
+    For HTTP Basic, Knak will include a valid username and password that are base64 encoded in the Authorization
+    header for the request to your service. The credentials can be set in Knak when creating a new custom DAM integration.
 
+    ## DAM Assets
+    Knak will call the `/dam-assets` and `/search` endpoints to retrieve assets from your DAM. The two main use cases are:
+    - reading all assets and folders in a given folder
+    - searching for assets matching a given search term, within a selected path
 
-
-    Knak will use the tokens generated to make requests from your service.
-
-
-    ## Custom Sync Location
-
-    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
-
-    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
-
-
-    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
-
-    '
+    Note that Knak will use the URL\'s of the fetched assets for both preview and final deployment,
+    and will never transfer any asset content from your DAM to Knak directly.
   version: V1
-  title: Custom Sync Location API Reference Asset Custom Fieldsets OAuth2 API
+  title: Custom Digital Asset Management (DAM) API Reference — OAuth2
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
-- url: https://yourService.com/your-sync-location-api
+- url: https://yourService.com/yourDamApi
 tags:
 - name: OAuth2
   description: Endpoints that need to be implemented to support OAuth2
@@ -46,7 +42,9 @@ paths:
       tags:
       - OAuth2
       summary: Provide an Access Token
-      description: If using an Oauth2 configured custom sync location integration Knak will call this endpoint to get an access token for your service. This is used to authenticate requests from Knak to your service.
+      description: If using an Oauth2 configured custom sync location integration Knak will call this
+        endpoint to get an access token for your service. This is used to authenticate requests from Knak
+        to your service.
       requestBody:
         required: true
         content:
@@ -111,12 +109,15 @@ paths:
                     example: The request is missing a required parameter.
         401:
           description: Unauthorized
+    servers:
+    - url: https://yourService.com/your-sync-location-api
   /oauth2/authorize:
     get:
       tags:
       - OAuth2
       summary: OAuth2 Authorization
-      description: <p> <a href='https://tools.ietf.org/html/rfc6749#section-3.1'>OAuth2 Authorize</a> endpoint. Will need to be configured in Knak. </p>
+      description: <p> <a href='https://tools.ietf.org/html/rfc6749#section-3.1'>OAuth2 Authorize</a>
+        endpoint. Will need to be configured in Knak. </p>
       parameters:
       - name: response_type
         in: query
@@ -151,17 +152,42 @@ paths:
         required: false
         schema:
           type: string
-        description: 'Optional: if your application requires a set of scopes, they can be configured in Knak'
+        description: 'Optional: if your application requires a set of scopes, they can be configured in
+          Knak'
         example: read:assets
       responses:
         200:
           description: success
+    servers:
+    - url: https://yourService.com/yourDamApi
   /oauth2/token:
     post:
       tags:
       - OAuth2
       summary: OAuth2 Token
-      description: "<p>\n<a href='https://tools.ietf.org/html/rfc6749#section-3.2'>OAuth2 Token</a>\nendpoint. Please note that this authorization url is configured in Knak.\nThe required parameters depend on the grant type requested:\n</p>\n\n<p>Authorization Code:</p>\n<ul>\n  <li>grant_type: authorization_code</li>\n  <li>client_id</li>\n  <li>client_secret</li>\n  <li>code</li>\n  <li>redirect_uri</li>\n</ul>\n\n<p>Refresh Token</p>\n<ul>\n  <li>grant_type: refresh_token</li>\n  <li>client_id </li>\n  <li>client_secret </li>\n  <li>refresh_token </li>\n</ul>\n"
+      description: |
+        <p>
+        <a href='https://tools.ietf.org/html/rfc6749#section-3.2'>OAuth2 Token</a>
+        endpoint. Please note that this authorization url is configured in Knak.
+        The required parameters depend on the grant type requested:
+        </p>
+
+        <p>Authorization Code:</p>
+        <ul>
+          <li>grant_type: authorization_code</li>
+          <li>client_id</li>
+          <li>client_secret</li>
+          <li>code</li>
+          <li>redirect_uri</li>
+        </ul>
+
+        <p>Refresh Token</p>
+        <ul>
+          <li>grant_type: refresh_token</li>
+          <li>client_id </li>
+          <li>client_secret </li>
+          <li>refresh_token </li>
+        </ul>
       parameters:
       - name: tokenRequest
         in: body
@@ -174,6 +200,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OAuth2TokenResponse'
+    servers:
+    - url: https://yourService.com/yourDamApi
 components:
   schemas:
     OAuth2TokenRequest:
@@ -203,7 +231,8 @@ components:
           example: https://enterprise.knak.io/account/integrations/custom-dam/authorize
         refresh_token:
           type: string
-          description: 'The refresh token for the member that needs its token to be refreshed. Used with grant type: refresh_token'
+          description: 'The refresh token for the member that needs its token to be refreshed. Used with
+            grant type: refresh_token'
           example: 'null'
     OAuth2TokenResponse:
       type: object

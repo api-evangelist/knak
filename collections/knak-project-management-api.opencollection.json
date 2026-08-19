@@ -1,0 +1,76 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — Project Management",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Project Management",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Retrieve a project management link for an asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/:asset_id/project-management-link",
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "609d7ce223411",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Retrieve the most recently created project management link for an asset."
+        },
+        {
+          "info": {
+            "name": "Update/Create a project management link for an asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/:asset_id/project-management-link",
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "609d7ce223411",
+                "type": "path"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the most recently created project management link for an asset or create a new one if one does not exist."
+        },
+        {
+          "info": {
+            "name": "Delete a project management link for an asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/:asset_id/project-management-link",
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "609d7ce223411",
+                "type": "path"
+              }
+            ]
+          },
+          "docs": "Delete the most recently created project management link for an asset."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

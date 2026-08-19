@@ -1,0 +1,108 @@
+generated: '2026-08-13'
+method: searched
+source: https://developer.knak.com/knak-send/contacts-api/
+api: knak:send-contacts
+scope: Knak Send Contacts API (https://send.knak.io/api/public/v1)
+notes: >-
+  The Knak Send Contacts API is the only Knak surface that publishes a machine-readable
+  error-code registry. It is the non-payments sibling of a decline-code catalogue: branch on
+  the code, not on the message text, which Knak states is subject to change. The Knak
+  Enterprise API and SCIM API signal errors by HTTP status alone — those are catalogued in
+  errors/knak-problem-types.yml.
+format: vendor-code
+rfc9457: false
+envelopes:
+- id: error-object
+  applies_to:
+  - 400
+  - 401
+  - 403
+  - 404
+  - 409
+  - 503
+  media_type: application/json
+  shape: '{"error": {"code": "<CODE>", "message": "<human readable>"}}'
+  machine_readable_field: error.code
+  example: |
+    {
+      "error": {
+        "code": "CONTACT_NOT_FOUND",
+        "message": "Contact not found."
+      }
+    }
+- id: validation-errors
+  applies_to:
+  - 422
+  media_type: application/json
+  shape: '{"error_at": "<ISO 8601>", "errors": [{"identifier": "ValidationError", "details":
+    "...", "meta": {"<field>": ["<message>"]}}]}'
+  machine_readable_field: errors[].identifier
+  note: Validation failures use a top-level errors ARRAY rather than the single error object,
+    so a client must branch on the response shape as well as the status code. meta lists the
+    offending fields and their messages.
+  example: |
+    {
+      "error_at": "2026-01-15T10:30:45+00:00",
+      "errors": [
+        {
+          "identifier": "ValidationError",
+          "details": "One or more of the given request fields failed backend validation.",
+          "meta": {
+            "email": ["The email field is required."]
+          }
+        }
+      ]
+    }
+- id: rate-limit
+  applies_to:
+  - 429
+  media_type: application/json
+  shape: '{"message": "Too Many Attempts.", "type": "HttpException"}'
+  machine_readable_field: type
+  note: A third distinct envelope. It carries no code, no reset time and no Retry-After
+    header, so a client cannot compute a backoff from the response.
+error_code_count: 8
+error_codes:
+- code: UNAUTHENTICATED
+  status: 401
+  meaning: Missing, invalid, or expired bearer token.
+  action: Send a valid bearer token in the Authorization header. Keys are generated for an
+    API user at https://enterprise.knak.io/account/api-access.
+- code: ACCESS_DENIED
+  status: 403
+  meaning: Knak Send access is not enabled for the account.
+  action: Have an administrator enable Knak Send on the account and grant the "Knak Send
+    Contacts API" role to the user under Admin > Users.
+- code: EMAIL_DOMAIN_NOT_ALLOWED
+  status: 400
+  meaning: The email's domain is not on the recipient domain allowlist.
+  action: Add the domain to the account's recipient domain allowlist, or drop the contact
+    from the batch.
+- code: CONTACT_NOT_FOUND
+  status: 404
+  meaning: No contact with the given ID exists for the company.
+  action: Re-read the contact list with GET /contacts; do not retry with the same ID.
+- code: FIELD_NOT_FOUND
+  status: 404
+  meaning: No field with the given ID exists for the company.
+  action: Call GET /fields to discover the current field keys and IDs in the API directory.
+- code: CONTACT_ALREADY_EXISTS
+  status: 409
+  meaning: An active contact with the given email already exists. Raised on single create.
+  action: Use POST /contacts/bulk, which matches on email and upserts, instead of POST
+    /contacts.
+- code: FIELD_ALREADY_EXISTS
+  status: 409
+  meaning: A field with the given key already exists in the API directory.
+  action: Reuse the existing field key. Knak derives the key from the name — a single word is
+    lowercased, a multi-word name becomes camel case.
+- code: SERVICE_UNAVAILABLE
+  status: 503
+  meaning: A dependent Knak service is temporarily unavailable.
+  action: Retry with backoff. This is the only code Knak documents as transient.
+guidance:
+- Branch on error.code programmatically; Knak states the message text is subject to change.
+- Three different error envelopes are in play across statuses (error object, errors array,
+  rate-limit message/type). Detect the shape before reading a code.
+- Only SERVICE_UNAVAILABLE and 429 are retryable. Every other documented code is a client
+  error that will recur on retry.

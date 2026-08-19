@@ -1,0 +1,196 @@
+generated: '2026-08-13'
+method: derived
+source: mcp/knak-mcp.yml, openapi/_original/knak-enterprise-openapi-original.yml
+docs:
+- https://developer.knak.com/ai-integrations/mcp/
+- https://developer.knak.com/api/
+notes: >-
+  Binds each published Knak MCP tool to the Knak Enterprise API operation(s) that back it.
+  The Knak Enterprise OpenAPI declares NO operationId on any of its 44 operations, so REST
+  operations are identified here by METHOD + path, which is the only stable identifier the
+  published contract offers. The live MCP tools/list manifest is OAuth-gated (HTTP 401
+  Unauthenticated on an anonymous POST), so the tool side is transcribed from Knak's
+  published tool reference — including its documented parameters — rather than from live
+  introspection. Bindings are therefore semantic, and confidence is recorded honestly per
+  row.
+surfaces:
+  openapi:
+    file: openapi/_original/knak-enterprise-openapi-original.yml
+    base: https://enterprise.knak.io/api/published/v1
+    operations: 44
+    gated: false
+    note: Specification is public. Calling it requires a bearer token.
+  mcp:
+    url: https://enterprise.knak.io/mcp/public
+    tools: 7
+    gated: true
+    note: tools/list requires an OAuth 2.1 access token with scope mcp:use; anonymous POST
+      returns 401.
+  graphql:
+    endpoint: null
+    note: Knak publishes no GraphQL surface.
+  other_rest:
+  - file: openapi/_original/knak-send-openapi-original.yml
+    base: https://send.knak.io/api/public/v1
+    operations: 11
+    note: Knak Send Contacts API. No MCP tool touches it.
+  - file: openapi/_original/knak-scim-openapi-original.yml
+    base: https://enterprise.knak.io/scim/v2
+    operations: 5
+    note: SCIM 2.0 user provisioning. No MCP tool touches it.
+crosswalk:
+- tool: list-brands
+  category: discovery
+  rest:
+  - GET /brands
+  binding: direct
+  confidence: high
+  note: The MCP tool returns id, name and display_name; the REST operation lists all brands
+    visible to the token.
+- tool: list-campaigns
+  category: discovery
+  rest:
+  - GET /asset-folders
+  binding: semantic
+  confidence: medium
+  note: >-
+    "Campaign" is the MCP-facing name for the campaign folder that assets are created in —
+    the generate-asset response returns a campaignUrl pointing at
+    /account/folder-studio/..., the Knak folder surface. The REST equivalent is the asset
+    folder listing. Recorded as medium because Knak does not state the mapping explicitly.
+- tool: list-themes
+  category: discovery
+  rest:
+  - GET /themes
+  binding: direct
+  confidence: high
+  note: The tool adds name / search / published filters over the REST list; the REST
+    operation exposes theme listing without documented filter parameters.
+- tool: generate-asset
+  category: write
+  rest:
+  - POST /assets/generate
+  binding: direct
+  confidence: high
+  note: >-
+    The REST operation is "Generate an AI email asset". The MCP tool wraps it with
+    name-based resolution (campaign_name, brand_name, theme_id) instead of IDs, and returns
+    a signed statusUrl for asynchronous polling that the REST contract does not document.
+- tool: get-asset
+  category: read
+  rest:
+  - GET /assets/{asset_id}
+  binding: direct
+  confidence: high
+- tool: get-asset-preview
+  category: read
+  rest:
+  - GET /assets/{asset_id}/preview
+  binding: direct
+  confidence: high
+  note: The MCP tool returns a PNG screenshot URL or an inline HTML fallback of up to 100 KB;
+    the REST operation returns the asset preview.
+- tool: list-assets
+  category: discovery
+  rest:
+  - GET /assets
+  binding: direct
+  confidence: high
+  note: The tool exposes brand_name, campaign_name, search, type, limit and offset. The REST
+    operation uses the platform-wide filter[field]/page/per_page convention documented in
+    conventions/knak-conventions.yml, so parameter names differ.
+mcp_only:
+- tool: generate-asset
+  reason: The asynchronous statusUrl polling contract — a signed
+    /api/v2/open/assets/{id}/generation-status URL — is returned only by the MCP tool and is
+    not part of any published REST operation.
+- tool: get-asset-preview
+  reason: The 100 KB inline HTML fallback behaviour and the ui://knak/asset-preview widget
+    rendering exist only on the MCP surface.
+- tool: list-campaigns
+  reason: Campaign-name resolution (name-to-ID lookup across brands) is an MCP convenience
+    with no dedicated REST operation.
+rest_only:
+- operations:
+  - GET /users
+  - GET /users/{user_id}
+  - DELETE /users/{user_id}
+  reason: User administration is not exposed to agents through MCP.
+- operations:
+  - POST /assets
+  - GET /assets/{asset_id}/content
+  reason: Creating an asset from supplied content, and downloading rendered asset HTML, have
+    no MCP tool. Content download is the operation a marketing-platform sync integration
+    depends on.
+- operations:
+  - GET /assets/{asset_id}/custom-fields
+  - PATCH /assets/{asset_id}/custom-fields
+  - GET /asset-custom-fieldsets
+  - GET /asset-custom-fieldsets/{asset_custom_fieldset_id}/asset-custom-fields
+  reason: Asset custom fields and fieldsets are REST-only.
+- operations:
+  - GET /assets/{asset_id}/project-management-link
+  - PATCH /assets/{asset_id}/project-management-link
+  - DELETE /assets/{asset_id}/project-management-link
+  reason: Project-management linking is REST-only.
+- operations:
+  - GET /modules
+  - GET /modules/{module_id}
+  - GET /modules/{module_id}/content
+  reason: Module browsing and module content are REST-only.
+- operations:
+  - POST /asset-folders
+  - PATCH /asset-folders/{asset_folder_id}
+  - DELETE /asset-folders/{asset_folder_id}
+  reason: Creating, updating and deleting campaign folders is REST-only; MCP can only list
+    them.
+- operations:
+  - GET /integrations
+  - GET /available-platforms
+  - POST /assets/{asset_id}/marketing-platform-syncs
+  - GET /marketing-platform-syncs/{sync_history}
+  - GET /sync-statuses/{sync_status_id}
+  - PATCH /sync-statuses/{sync_status_id}
+  reason: >-
+    The entire marketing-platform sync surface — the step that actually delivers a Knak
+    asset into Marketo, Eloqua, SFMC or Braze — has no MCP tool. An agent can generate an
+    email through MCP but cannot ship it.
+- operations:
+  - GET /merge-tags
+  - POST /merge-tags
+  - GET /merge-tags/{merge_tag_id}
+  - PATCH /merge-tags/{merge_tag_id}
+  - DELETE /merge-tags/{merge_tag_id}
+  reason: Merge tag management is REST-only.
+- operations:
+  - GET /translation-requests
+  - POST /translation-requests
+  - GET /translation-requests/{id}
+  - PATCH /translation-requests/{id}
+  - GET /translation-requests/{id}/download-source
+  - POST /translation-requests/{id}/upload-translation
+  - GET /translation-languages
+  reason: The translation request lifecycle is REST-only.
+- operations:
+  - GET /themes/{theme_id}
+  reason: Retrieving a single theme has no MCP tool; MCP exposes listing only.
+- spec: openapi/_original/knak-send-openapi-original.yml
+  reason: The Knak Send Contacts API (contacts, bulk contacts, fields, field values) is a
+    separate product on send.knak.io with no MCP coverage at all.
+- spec: openapi/_original/knak-scim-openapi-original.yml
+  reason: SCIM 2.0 provisioning is identity-provider driven and has no MCP coverage.
+coverage:
+  mcp_tools: 7
+  mcp_tools_bound: 7
+  mcp_tools_unbound: 0
+  rest_operations_enterprise: 44
+  rest_operations_covered_by_mcp: 6
+  rest_operations_uncovered_enterprise: 38
+  rest_operations_other_specs: 16
+  percent_enterprise_rest_reachable_by_agent: 14
+  summary: >-
+    Every MCP tool maps to a Knak Enterprise REST operation, but the MCP surface is a narrow
+    read-and-generate projection: six of 44 Enterprise operations are reachable by an agent,
+    and none of the Send Contacts or SCIM operations are. The largest gap is the
+    marketing-platform sync chain, which is what turns a generated asset into a delivered
+    campaign.

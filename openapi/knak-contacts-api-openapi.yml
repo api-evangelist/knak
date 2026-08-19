@@ -1,42 +1,99 @@
 openapi: 3.1.0
 info:
-  description: '## Overview
+  description: |
+    # Overview
+    Welcome to the developer documentation for the Knak Send API.
+    We provide a RESTful interface to key resources within Knak Send to enable your own automation workflows.
+    This API will allow you to automate processes regarding contact and field management within your Knak Send environment.
+    You can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.
 
-    An API specification to provide a Custom Sync Location in Knak.
-
-
-    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
-
+    ## Endpoint
+    `https://send.knak.io/api/public/v1`
 
     ## Authentication
+    All requests are authenticated using a Bearer token in the `Authorization` header:
+    ```
+    curl --location --request GET 'https://send.knak.io/api/public/v1/contacts' \
+    --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...'
+    ```
+    A token can be created as a non-expiring token through the Enterprise UI, via the [API Access menu](https://enterprise.knak.io/account/api-access). The account associated with the token must have Knak Send access enabled.
 
-    Knak provides two options for authentication:
+    ## Errors
+    Errors in requests made to the API can be viewed directly from the response code that is returned.
 
-    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+    Below are a list of the common error responses returned and an explanation of what they mean.
 
-    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+    | Code | Reason |Description |
+    | ----------------| ----------- | ----------- |
+    | **400**  | **Bad Request** | The request was rejected (for example, a contact's email domain is not in the account's allow list). |
+    | **401**      | **Unauthenticated** | The access token is missing, invalid, or expired. |
+    | **403**    | **Forbidden** | The account does not have Knak Send access enabled, or the token lacks the required scope. |
+    | **404**  | **Not Found** | The requested resource could not be found. Verify that the resource exists and that you are using the correct identifier. |
+    | **409**  | **Conflict** | The resource could not be created because it already exists (for example, a field with the same generated key). |
+    | **422**  | **Unprocessable Entity** | One or more request fields failed backend validation. The `meta` object lists the offending fields. |
+    | **429**  | **Too Many Requests** | The rate limit for the endpoint has been exceeded. |
+    | **503**  | **Service Unavailable** | An upstream authentication service is temporarily unavailable. This can occur on any request; retry after a short delay. |
 
+    Three error response shapes are used. Where an error `code` (or `identifier`) is present, branch on it
+    programmatically; the human-readable `message`/`details` text is subject to change.
 
+    Authentication, authorization, bad-request, not-found, conflict and service errors
+    (400, 401, 403, 404, 409, 503) return a compact `error` object with a machine-readable `code`:
+    ```json
+    { "error": { "code": "UNAUTHENTICATED", "message": "Invalid or expired access token." } }
+    ```
+    Validation errors (422) return an `errors` array:
+    ```json
+    {
+      "error_at": "2026-06-02T13:56:31+00:00",
+      "errors": [
+        {
+          "identifier": "ValidationError",
+          "details": "One or more of the given request fields failed backend validation.",
+          "meta": { "email": ["The email field is required."] }
+        }
+      ]
+    }
+    ```
+    Rate-limit (429) errors return a `message`/`type` object:
+    ```json
+    { "message": "Too Many Attempts.", "type": "HttpException" }
+    ```
 
-    Knak will use the tokens generated to make requests from your service.
+    ## Rate limiting
+    Requests are rate limited per API client. Standard endpoints allow up to **1000 requests per minute**.
+    Bulk endpoints (such as `POST /contacts/bulk`) are limited to **60 requests per minute**. Exceeding a limit
+    returns a `429 Too Many Requests` response.
 
+    ## Pagination
+    List endpoints that can return large result sets are paginated using the `page` query parameter:
 
-    ## Custom Sync Location
+    - `page[number]` — the page to return (1-based, default `1`).
+    - `page[size]` — the number of records per page (default `25`, maximum `100`).
 
-    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+    Paginated responses include a `meta` object describing the result window (`total`, `current_page`,
+    `last_page`, `per_page`, `from`, `to`).
 
-    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+    ## Filtering
+    List endpoints support filtering on specific fields using the `filter` query parameter, in the form
+    `filter[field_name]=value`. The fields that can be filtered are listed on each endpoint.
 
+    For simple equality, pass the value directly: `filter[first_name]=Jane`. For other comparisons, pass an
+    `operator` and `value`: `filter[first_name][operator]=startsWith&filter[first_name][value]=Ja`. Supported
+    operators include `=`, `!=`, `>`, `<`, `~`, `contains`, `notContains`, `startsWith`, `between`, `exists`
+    and `notExists`.
 
-    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
-
-    '
+    ## Sorting
+    List endpoints support sorting via the `sort` query parameter. Pass one or more field names; prefix a field
+    with `-` for descending order. For example `sort[]=last_name&sort[]=-created_at`. The fields that can be
+    sorted are listed on each endpoint.
   version: V1
-  title: Custom Sync Location API Reference Asset Custom Fieldsets Contacts API
+  title: Knak Send Contacts API Reference — Contacts
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
-- url: https://yourService.com/your-sync-location-api
+- url: https://send.knak.io/api/public/v1
+  description: production
 tags:
 - name: Contacts
   description: Create, retrieve and list contacts in Knak Send.
@@ -46,14 +103,11 @@ paths:
       tags:
       - Contacts
       summary: List contacts
-      description: 'Returns a paginated list of contacts. Supports pagination, sorting and filtering.
-
+      description: |
+        Returns a paginated list of contacts. Supports pagination, sorting and filtering.
 
         - **Sortable fields:** `email`, `first_name`, `last_name`, `created_at`
-
         - **Filterable fields:** `email`, `first_name`, `last_name`
-
-        '
       operationId: listContacts
       parameters:
       - $ref: '#/components/parameters/PageNumber'
@@ -61,7 +115,8 @@ paths:
       - name: sort[]
         in: query
         required: false
-        description: 'Fields to sort by, passed as a repeated `sort[]` parameter. Prefix a field with `-` for descending order. Allowed fields: `email`, `first_name`, `last_name`, `created_at`.'
+        description: 'Fields to sort by, passed as a repeated `sort[]` parameter. Prefix a field with
+          `-` for descending order. Allowed fields: `email`, `first_name`, `last_name`, `created_at`.'
         style: form
         explode: true
         schema:
@@ -294,13 +349,10 @@ paths:
       tags:
       - Contacts
       summary: Replace a contact's field values
-      description: 'Replaces the field values for a single contact. Each key in `field_values` must match the `key` of an
-
-        existing field (see `GET /fields`) and its value is validated against the field''s type. Between 1 and 20
-
+      description: |
+        Replaces the field values for a single contact. Each key in `field_values` must match the `key` of an
+        existing field (see `GET /fields`) and its value is validated against the field's type. Between 1 and 20
         field values may be provided.
-
-        '
       operationId: replaceContactFieldValues
       parameters:
       - $ref: '#/components/parameters/ContactId'
@@ -343,19 +395,14 @@ paths:
       tags:
       - Contacts
       summary: Bulk upsert contacts
-      description: 'Creates or updates up to 1000 contacts in a single request, matching existing contacts by email.
-
+      description: |
+        Creates or updates up to 1000 contacts in a single request, matching existing contacts by email.
 
         Validation is performed per contact. The request as a whole succeeds with a `200` response even when
-
         some individual contacts fail; the response body reports counts of `created`, `updated` and `failed`
-
         contacts, along with an `errors` array describing each failure by its index in the submitted array.
 
-
         This endpoint is subject to the stricter bulk rate limit (60 requests per minute).
-
-        '
       operationId: bulkUpsertContacts
       requestBody:
         required: true
@@ -386,11 +433,9 @@ paths:
                     last_name: Smith
       responses:
         '200':
-          description: 'The bulk operation was processed. Inspect `created`, `updated`, `failed` and `errors` to determine
-
+          description: |
+            The bulk operation was processed. Inspect `created`, `updated`, `failed` and `errors` to determine
             the outcome of each contact.
-
-            '
           content:
             application/json:
               schema:
@@ -423,16 +468,12 @@ paths:
       tags:
       - Contacts
       summary: Bulk delete contacts
-      description: 'Deletes up to 1000 contacts in a single request, identified by their IDs. The response reports the
-
+      description: |
+        Deletes up to 1000 contacts in a single request, identified by their IDs. The response reports the
         number of contacts actually deleted; IDs that do not match an existing contact are ignored rather than
-
         causing the request to fail.
 
-
         This endpoint is subject to the stricter bulk rate limit (60 requests per minute).
-
-        '
       operationId: bulkDeleteContacts
       requestBody:
         required: true
@@ -496,11 +537,9 @@ components:
               code: ACCESS_DENIED
               message: Knak Send access is not enabled for this account.
     TooManyRequests:
-      description: 'The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
-
+      description: |
+        The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
         to wait before retrying.
-
-        '
       content:
         application/json:
           schema:
@@ -679,13 +718,10 @@ components:
           type: object
           minProperties: 1
           maxProperties: 20
-          description: 'A map of field key to scalar value. Each key must match the `key` of an existing field
-
-            (see `GET /fields`). Between 1 and 20 entries may be provided. Replaces the contact''s existing
-
+          description: |
+            A map of field key to scalar value. Each key must match the `key` of an existing field
+            (see `GET /fields`). Between 1 and 20 entries may be provided. Replaces the contact's existing
             field values.
-
-            '
           additionalProperties:
             type:
             - string
@@ -718,20 +754,15 @@ components:
           - string
           - 'null'
           format: uri
-          description: 'URL of the contact''s avatar image. For `POST /contacts` this must be a valid HTTP(S) URL.
-
+          description: |
+            URL of the contact's avatar image. For `POST /contacts` this must be a valid HTTP(S) URL.
             For bulk upserts (`POST /contacts/bulk`) the value is accepted as any string and is not validated
-
             as a URL.
-
-            '
         field_values:
           type: object
-          description: 'A map of field key to scalar value. Each key must match the `key` of an existing field
-
-            (see `GET /fields`). Values are validated against the field''s type.
-
-            '
+          description: |
+            A map of field key to scalar value. Each key must match the `key` of an existing field
+            (see `GET /fields`). Values are validated against the field's type.
           additionalProperties:
             type:
             - string
@@ -817,7 +848,8 @@ components:
                 description: A human-readable description of the error.
               meta:
                 type: object
-                description: Additional context. For validation errors, a map of field name to validation messages.
+                description: Additional context. For validation errors, a map of field name to validation
+                  messages.
   parameters:
     PageNumber:
       name: page[number]

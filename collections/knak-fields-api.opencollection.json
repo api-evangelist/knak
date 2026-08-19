@@ -1,0 +1,81 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Send Contacts API Reference — Fields",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Fields",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List fields",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://send.knak.io/api/public/v1/fields"
+          },
+          "docs": "Returns all custom contact fields for the authenticated company. Fields are schema metadata sourced\nfrom connected systems and created via this API; the list is not paginated.\n"
+        },
+        {
+          "info": {
+            "name": "Create a field",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://send.knak.io/api/public/v1/fields",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Creates a new custom contact field. The field's `key` is generated automatically from its `name`\n(for example `Start Date` becomes `startDate`). Attempting to create a field whose generated key\nalready exists returns a `409 Conflict`.\n"
+        },
+        {
+          "info": {
+            "name": "List a field's values",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://send.knak.io/api/public/v1/fields/:id/values",
+            "params": [
+              {
+                "name": "id",
+                "value": "f1e2d3c4-b5a6-7890-abcd-ef1234567890",
+                "type": "path",
+                "description": "The unique identifier of the field."
+              },
+              {
+                "name": "page[number]",
+                "value": "",
+                "type": "query",
+                "description": "The page of results to return (1-based)."
+              },
+              {
+                "name": "page[size]",
+                "value": "",
+                "type": "query",
+                "description": "The number of records per page."
+              },
+              {
+                "name": "sort[]",
+                "value": "value",
+                "type": "query",
+                "description": "Sort by value, passed as a repeated `sort[]` parameter. Prefix with `-` for descending order. Defaults to ascending by value."
+              }
+            ]
+          },
+          "docs": "Returns the distinct values stored for a single field across the company's contacts. Results are\npaginated and sorted alphabetically by value by default.\n"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

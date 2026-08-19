@@ -1,0 +1,58 @@
+generated: '2026-08-13'
+method: searched
+source: registry searches (npm, PyPI, RubyGems, Packagist, crates.io, NuGet, Maven Central,
+  pkg.go.dev) + https://developer.knak.com/
+package_count: 0
+official_count: 0
+packages: []
+summary: >-
+  Knak ships no first-party client libraries. There is no Knak GitHub organization, no SDK
+  or client-library section in the developer documentation, and no package under the Knak
+  name in any public registry. Integrators call the REST APIs directly over HTTP with a
+  bearer token, or reach the platform through the hosted MCP server. Recorded as an honest
+  zero rather than omitted.
+searches:
+- registry: npm
+  query: https://registry.npmjs.org/-/v1/search?text=knak
+  status: 200
+  results: 0
+  checked: '2026-08-13'
+- registry: pypi
+  query: https://pypi.org/pypi/knak/json
+  status: 404
+  results: 0
+  checked: '2026-08-13'
+- registry: rubygems
+  query: https://rubygems.org/api/v1/gems/knak.json
+  status: 404
+  results: 0
+  checked: '2026-08-13'
+- registry: packagist
+  query: https://packagist.org/search.json?q=knak
+  status: 200
+  results: 0
+  checked: '2026-08-13'
+  note: Matches returned were unrelated packages (knapsack solvers, ccxt); none published
+    by Knak.
+- registry: github
+  query: https://api.github.com/orgs/knak
+  status: 404
+  results: 0
+  checked: '2026-08-13'
+  note: No Knak GitHub organization exists, so there is no first-party source repository to
+    derive a package from.
+docs_checked:
+- url: https://developer.knak.com/
+  status: 200
+  finding: Developer portal lists Docs and API Reference only. No SDKs, client libraries,
+    CLI or code-generation section.
+- url: https://developer.knak.com/welcome/getting-started/
+  status: 200
+  finding: Getting Started describes the REST interfaces and the customer-implemented
+    contracts; no client library is offered or referenced.
+distribution:
+  cdn: none
+  note: Knak distributes no browser build or script-tag component library either; the only
+    client-side surface it publishes is the pair of MCP UI widget resources recorded in
+    components/knak-components.yml, which are served by the MCP server rather than from a
+    package registry or CDN.

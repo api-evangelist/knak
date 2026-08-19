@@ -1,0 +1,90 @@
+{
+  "item": [
+    {
+      "id": "c1bfd040-f4df-4a36-b276-9bd3e440e4fc",
+      "name": "Status",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "3d486a6f-1377-473e-a0a4-e1bb17d72702",
+          "name": "Status check",
+          "request": {
+            "name": "Status check",
+            "description": {
+              "content": "Check to see that the service is responsive, indicating to the User that the service is available. Any 200 response will be considered a success.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "v1",
+                "ping"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET"
+          },
+          "response": [
+            {
+              "id": "447ffde0-f7c3-4463-8302-9a88553c593c",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "v1",
+                    "ping"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://yourService.com/yourValidationApi",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "a2ec1dae-9d54-4d16-96e7-70f409732ac1",
+    "name": "Knak Custom Validator API Reference — Status",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "## Overview\nAn API specification to perform custom testing and validation of Knak Asset content.\n\nBy implementing a service conforming to this API specification, you will be able to initiate a content test from the Knak UI, and results from your service will be displayed to the Knak User. For information on how to configure the connection to your custom validator in Knak, see our guide [here](https://help.knak.io/en/articles/8708391-setting-up-a-custom-validator-integration).\n\n## Authentication\nAs part of the Integration Configuration stage in Knak, you are able to specify your own HTTP security header name and value. These values are referred to by `<security-header-name>` and `<security-header-value>` in this specification, and will be present in every request.\n",
+      "type": "text/plain"
+    }
+  }
+}

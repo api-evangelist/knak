@@ -1,0 +1,112 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — AssetFolders",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "AssetFolders",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List asset folders",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/asset-folders",
+            "params": [
+              {
+                "name": "filter[brand_id]",
+                "value": "609d7ce223411",
+                "type": "query",
+                "description": "ID of brand to filter by. Exact match filter."
+              },
+              {
+                "name": "filter[parent_folder_id]",
+                "value": "609d7ce223411",
+                "type": "query",
+                "description": "ID of parent folder to filter by. Exact match filter."
+              },
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "description": "Page number"
+              },
+              {
+                "name": "per_page",
+                "value": "10",
+                "type": "query",
+                "description": "Number of items per page"
+              }
+            ]
+          },
+          "docs": "Retrieve company [asset folders](#tag/asset_folder_model)."
+        },
+        {
+          "info": {
+            "name": "Create asset folder",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://enterprise.knak.io/api/published/v1/asset-folders",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an [asset folders](#tag/asset_folder_model)."
+        },
+        {
+          "info": {
+            "name": "Update asset folder",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://enterprise.knak.io/api/published/v1/asset-folders/:asset_folder_id",
+            "params": [
+              {
+                "name": "asset_folder_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of asset folder"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update an [asset folders](#tag/asset_folder_model)."
+        },
+        {
+          "info": {
+            "name": "Delete an asset folder",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://enterprise.knak.io/api/published/v1/asset-folders/:asset_folder_id",
+            "params": [
+              {
+                "name": "asset_folder_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of asset folder"
+              }
+            ]
+          },
+          "docs": "Delete an [asset folders](#tag/asset_folder_model) and all its sub-content including folders, campaigns and assets."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,60 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — SyncStatuses",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "SyncStatuses",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Retrieve specific sync status",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/sync-statuses/:sync_status_id",
+            "params": [
+              {
+                "name": "sync_status_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the sync status to retrieve"
+              }
+            ]
+          },
+          "docs": "Retrieve a specific [sync status](#tag/sync_status)."
+        },
+        {
+          "info": {
+            "name": "Update a specific sync status",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://enterprise.knak.io/api/published/v1/sync-statuses/:sync_status_id",
+            "params": [
+              {
+                "name": "sync_status_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the sync status to update"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a specific [sync status](#tag/sync_status)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,4 +1,4 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: searched
 source: live probes of Knak base hosts
 hosts:
@@ -9,6 +9,16 @@ hosts:
     file: knak-oauth-authorization-server.json
     note: RFC 8414 authorization server metadata backing the Knak MCP server. Advertises
       dynamic client registration and PKCE S256, with a single mcp:use scope.
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    file: knak-oauth-protected-resource.json
+    note: RFC 9728 protected resource metadata for enterprise.knak.io. Names
+      enterprise.knak.io as its own authorization server and advertises a single supported
+      scope, mcp:use. Probed 2026-08-13.
+  - path: /.well-known/oauth-protected-resource/mcp/public
+    status: 200
+    file: knak-oauth-protected-resource-mcp-public.json
+    note: RFC 9728 resource-specific metadata for the hosted MCP server. Probed 2026-08-13.
   - path: /.well-known/openid-configuration
     status: 404
   - path: /.well-known/security.txt
@@ -27,7 +37,27 @@ hosts:
     status: 404
   - path: /llms.txt
     status: 404
+- host: https://send.knak.io
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    file: null
+    note: SOFT 200. The Knak Send single-page app answers 200 with its HTML shell for every
+      /.well-known/* path, including /.well-known/agent-card.json and
+      /.well-known/agent.json. No document is served — treated as a miss, not a hit.
+  - path: /.well-known/agent-card.json
+    status: 200
+    file: null
+    note: SOFT 200 (HTML SPA shell). Not an agent card.
+  - path: /.well-known/agent.json
+    status: 200
+    file: null
+    note: SOFT 200 (HTML SPA shell). Not an agent card.
 notes:
+- Knak publishes no A2A agent card. /.well-known/agent-card.json and /.well-known/agent.json
+  return 404 on enterprise.knak.io, knak.com and developer.knak.com, and the only 200s come
+  from the send.knak.io SPA catch-all, which returns an HTML shell for every path. No a2a/
+  artifact is written.
 - Knak publishes no RFC 9116 security.txt on any probed host, although a responsible
   disclosure process and a security@knak.com contact are documented at https://knak.com/security/.
 - The only well-known document served is the OAuth 2.1 authorization server metadata

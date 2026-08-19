@@ -1,0 +1,564 @@
+{
+  "item": [
+    {
+      "id": "2d99ae44-34b6-4949-82c8-a3690da30e4e",
+      "name": "Themes",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "9c38fec8-a7c7-4639-9bc6-fdef1ce85a58",
+          "name": "List all themes",
+          "request": {
+            "name": "List all themes",
+            "description": {
+              "content": "Retrieve all [themes](#tag/theme_model) in organization.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "themes"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "filter[name]",
+                  "value": "<string>",
+                  "description": "Filter themes by name. Exact match filter."
+                },
+                {
+                  "disabled": false,
+                  "key": "filter[tags]",
+                  "value": "<string>",
+                  "description": "Filter themes by tags. Scope match filter."
+                },
+                {
+                  "disabled": false,
+                  "key": "filter[published]",
+                  "value": "<boolean>",
+                  "description": "Filter themes by published status. Scope match filter."
+                },
+                {
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>",
+                  "description": "Sort themes by field (created_at, updated_at)."
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<integer>",
+                  "description": "Page number"
+                },
+                {
+                  "disabled": false,
+                  "key": "per_page",
+                  "value": "<integer>",
+                  "description": "Number of items per page"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "cf02a8fd-9691-4374-92b6-046d62747760",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "themes"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "filter[name]",
+                      "value": "Spring Newsletter"
+                    },
+                    {
+                      "key": "filter[tags]",
+                      "value": "Newsletter,Outreach"
+                    },
+                    {
+                      "key": "filter[published]",
+                      "value": "true"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "created_at"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "10"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"theme\",\n      \"id\": \"63eff78889f21\",\n      \"attributes\": {\n        \"id\": \"63eff78889f21\",\n        \"name\": \"Spring Newsletter\",\n        \"description\": \"Sample description\",\n        \"published\": true,\n        \"tags\": [\n          \"Newsletter\",\n          \"Outreach\"\n        ],\n        \"created_at\": \"2023-05-17T21:54:19.000000Z\",\n        \"updated_at\": \"2023-05-18T19:55:21.000000Z\"\n      }\n    },\n    {\n      \"type\": \"theme\",\n      \"id\": \"63eff78889f21\",\n      \"attributes\": {\n        \"id\": \"63eff78889f21\",\n        \"name\": \"Spring Newsletter\",\n        \"description\": \"Sample description\",\n        \"published\": true,\n        \"tags\": [\n          \"Newsletter\",\n          \"Outreach\"\n        ],\n        \"created_at\": \"2023-05-17T21:54:19.000000Z\",\n        \"updated_at\": \"2023-05-18T19:55:21.000000Z\"\n      }\n    }\n  ],\n  \"links\": {\n    \"first\": \"https://enterprise.knak.io/api/published/v1/themes?page=1\",\n    \"last\": \"https://enterprise.knak.io/api/published/v1/themes?page=3\",\n    \"prev\": \"https://enterprise.knak.io/api/published/v1/themes?page=1\",\n    \"next\": \"https://enterprise.knak.io/api/published/v1/themes?page=3\"\n  },\n  \"meta\": {\n    \"current_page\": 1,\n    \"from\": 1,\n    \"last_page\": 3,\n    \"links\": [\n      {\n        \"url\": \"https://enterprise.knak.io/api/published/v1/themes?page=2\",\n        \"label\": \"Next\",\n        \"active\": true\n      },\n      {\n        \"url\": \"https://enterprise.knak.io/api/published/v1/themes?page=2\",\n        \"label\": \"Next\",\n        \"active\": true\n      }\n    ],\n    \"path\": \"https://enterprise.knak.io/api/published/v1/themes?page=2\",\n    \"per_page\": 10,\n    \"to\": 2,\n    \"total\": 2\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e23c279a-1d43-49be-9c96-3d77f4651ee2",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "themes"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "filter[name]",
+                      "value": "Spring Newsletter"
+                    },
+                    {
+                      "key": "filter[tags]",
+                      "value": "Newsletter,Outreach"
+                    },
+                    {
+                      "key": "filter[published]",
+                      "value": "true"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "created_at"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "10"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"Authenticate before continuing.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "28716e5b-5e65-4a53-a350-a67daf6e2a57",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "themes"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "filter[name]",
+                      "value": "Spring Newsletter"
+                    },
+                    {
+                      "key": "filter[tags]",
+                      "value": "Newsletter,Outreach"
+                    },
+                    {
+                      "key": "filter[published]",
+                      "value": "true"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "created_at"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "10"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"This user is not authorized to perform this action. Please adjust permissions before continuing.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "09f09748-67fe-40ac-8a63-a6f5d683e799",
+              "name": "Not Found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "themes"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "filter[name]",
+                      "value": "Spring Newsletter"
+                    },
+                    {
+                      "key": "filter[tags]",
+                      "value": "Newsletter,Outreach"
+                    },
+                    {
+                      "key": "filter[published]",
+                      "value": "true"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "created_at"
+                    },
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "10"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"Resource not found.\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "57894a36-85a9-427e-b545-cf5b8b288706",
+          "name": "Retrieve specific theme",
+          "request": {
+            "name": "Retrieve specific theme",
+            "description": {
+              "content": "Retrieve a specific [themes](#tag/theme_model)'s information, given their theme ID.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "themes",
+                ":theme_id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "theme_id",
+                  "description": "(Required) ID of theme"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "db128d23-90ad-4ec6-b0b8-fc086ba854ee",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "themes",
+                    ":theme_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "theme_id",
+                      "description": "(Required) ID of theme"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"type\": \"theme\",\n  \"id\": \"63eff78889f21\",\n  \"attributes\": {\n    \"id\": \"63eff78889f21\",\n    \"name\": \"Spring Newsletter\",\n    \"description\": \"Sample description\",\n    \"published\": true,\n    \"tags\": [\n      \"Newsletter\",\n      \"Outreach\"\n    ],\n    \"created_at\": \"2023-05-17T21:54:19.000000Z\",\n    \"updated_at\": \"2023-05-18T19:55:21.000000Z\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8b3ed358-577c-4765-97f9-28e867d43931",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "themes",
+                    ":theme_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "theme_id",
+                      "description": "(Required) ID of theme"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Unauthenticated.\",\n      \"detail\": \"Authenticate before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a1f56618-cb54-477f-952a-0a88ad8d9c0a",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "themes",
+                    ":theme_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "theme_id",
+                      "description": "(Required) ID of theme"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Forbidden.\",\n      \"detail\": \"This user is not authorized to perform this action. Please adjust permissions before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "52d4a500-3f11-4c80-af03-2fa544c48f51",
+              "name": "Not Found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "themes",
+                    ":theme_id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "theme_id",
+                      "description": "(Required) ID of theme"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Resource Not Found.\",\n      \"detail\": \"Could not find the email you were looking for.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://enterprise.knak.io/api/published/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "6027d98b-087d-4f4f-9574-8ab880a5e308",
+    "name": "Knak Enterprise API — Themes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "# Overview\nWelcome to the developer documentation for the Knak Enterprise API.\nWe provide a RESTful interface to key resources within the Knak platform to enable your own custom integration and automation workflows.\nThis API will allow you to automate processes regarding user management within your Knak environment.\nYou can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.\n\n## Endpoint\n`https://enterprise.knak.io/api/published/v1`\n\n## Additional APIs\n- [SCIM API Reference](https://enterprise.knak.io/docs/scim-api)\n\n## Authentication\nAll requests are authenticated using a Bearer token in the `Authorization` header:\n```\ncurl --location --request GET 'http://enterprise.knak.io/api/published/v1/emails' \\\n--header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...'\n```\nThere are two ways to obtain tokens:\n### 1 - API Key\nA user generates a non-expiring token through the Enterprise UI, via the [API Access menu](https://enterprise.knak.io/account/api-access). This is generally only recommended for testing and development, or if the Oauth2 flow is not applicable to your particular use case.\n\n### 2 - OAuth2 via Authorization Code Grant Flow\nThis is the **recommended** method for users to allow your application access to their data in Knak. You can manage your own OAuth2 applications in Knak [**here**](http://enterprise.knak.io/account/oauth-applications). Please contact support to enable this feature if unauthorized, or if you need a specific developer account set up for Knak.\n- **Authorization URL**\n    - `https://enterprise.knak.io/oauth/authorize`\n- **Token URL**\n    - `https://enterprise.knak.io/oauth/token`\n\nCreating an OAuth2 application will provide you with a *client_id*, *client_secret* and a *redirect_uri* of your choosing. Users can then authorize your application to access their Knak account by being directed to the Authorization URL:\n\n```\nhttp://enterprise.knak.io/oauth/authorize?client_id=<your client ID>&redirect_uri=http://your.redirect.url/callback&response_type=code&state=xyzABC123\n```\n\n| Query Parameter | Description |\n| ----------------| ----------- |\n| client_id       | **(Required)** The client ID for your application|\n| redirect_uri    | **(Required)** The url the client will be redirected to. HTTPS required. Must match the url specified in your OAuth2 application|\n| response_type   | **(Required)** Only a value of `code` is currently supported|\n| state           | (Optional) This value will be included as part of the redirect response. Your OAuth2 client library most likely uses this parameter to prevent CSRF attacks|\n\nThe user will be redirected to your `redirect_uri` with the authorization code included as the `code` query parameter:\n```http\nHTTP/1.1 302 Found\nLocation: https://your.redirect.url/callback?code=AUTHORIZATION_CODE&state=xyzABC123\n```\nYou can then use this code to request a `(access_token, refresh_token)` pair from the Token URL:\n```http\nPOST /oauth/token HTTP/1.1\nHost: enterprise.knak.io\nAccept: application/json\nAuthorization: Bearer ...\nContent-Type: application/x-www-form-urlencoded\ngrant_type=authorization_code&client_id=<client_id>&client_secret=<client_secret>&redirect_uri=<redirect_uri>&code=AUTHORIZATION_CODE\n```\n## Errors\nErrors in requests made to the API can be viewed directly from the response code that is returned.\n\nBelow are a list of the common error responses returned and an explanation of what they mean.\n\n| Code | Reason |Description |\n| ----------------| ----------- | ----------- |\n| **400**      | **Bad Request** | Request is malformed or invalid. |\n| **401**      | **Unauthenticated** | Need to be signed in with a proper account to make this request. |\n| **403**    | **Forbidden** | The request cannot be completed because the account that is being used does not have sufficient permissions to perform the action in question. |\n| **404**  | **Not Found** | The requested resource could not be found. Verify that the resource you are looking for exists and that you are using the proper key to search for it. |\n\n## Pagination\nOur API supports pagination, allowing you to navigate through large sets of data efficiently. This is particularly useful for endpoints that can return a lot of data, such as listings of users, assets, or other entities. To manage the amount of data returned, we use two query parameters: `page` and `per_page`.\n\n### Parameters\npage (Integer, optional): This parameter specifies the page number in the results set. Each page contains a subset of the total data based on the per_page value. The default value is 1 if not specified.\n\nper_page (Integer, optional): This parameter controls the number of items returned per page. It allows you to specify the page size, i.e., how many items you want to be included in each page of results. The default value is 10, and the maximum allowable value is 100.\n\n### Defaults and Limits\nIf neither page nor per_page is specified, the API will return the first page with the default size of 10 items.\nThe per_page parameter defaults to 10 but can be set to any integer up to a maximum of 100. Requests for more than 100 items per page will be capped at 100.\n\n## Filtering\nOur API supports filtering on specific fields of resources for GET requests. This allows clients to retrieve a subset of records based on certain criteria. Supported filters will be listed in each endpoint.\n\n### Parameters\nfilter[field_name]:To apply filters, add a filter query parameter to your GET request, followed by the field name you wish to filter on.\nEach filter can have one of the following types:\n\n#### Exact\nThis filter type is used to match the exact value of a field.\n\n#### Partial\nThis filter type will return all matches that contain the specified value.\n\n#### Scope\nThis filter type is used to filtered on a static list of values. Supported items will be listed in each endpoint.\n\n## Sorting\nOur API provides sorting functionality, allowing clients to order the results of a GET request based on specified fields. Sorting makes it easier to organize and navigate through lists of records.\n\n### Parameters\nsort (string, optional): To apply sorting, use the sort query parameter followed by the field name you wish to sort by:\n\n- updated_at: Sorts records by the last update timestamp.\n\n- created_at: Sorts records by the creation timestamp.\n\n## Webhook Setup\nWebhooks are a way to notify your application when a specific event occurs in your Knak environment. When the event occurs, Knak sends an HTTP POST request to the webhook's configured URL. You can use webhooks to trigger custom workflows, send notifications, or update external systems based on events that occur in Knak.\nFor information on how to create and manage webhooks, please visit the [Knak Custom Integration Setup](https://help.knak.io/en/articles/7950399-knak-custom-integration-setup) page in the Knak Help Center, and the events section below.\n\n## Retry Policy\nWebhooks will be sent out up to a maximum of three times, with a delay of 60 seconds between each request, until a Successful response status is returned.\n\n## Verifying Webhook Signatures\nWebhooks are signed using a SHA-256 HMAC with the secret generated in Knak. The signature is included in the `knak-signature` header of the request. You can use this signature to verify that the request was sent by Knak, and not a third party.\n\nBefore you can verify the signature, you will need to obtain the secret from Knak. You can do this by navigating to the [Webhooks](https://enterprise.knak.io/account/webhooks) page in the Enterprise UI. Select the webhook you want to obtain the secret for, and click the reveal icon next to the secret. In the code sample below we assume that the secret is stored in an environment variable called `WEBHOOK_SECRET`.\n\nYou can perform this verification in any language that supports HMAC-SHA256. You provide the request body and secret as input to the HMAC-SHA256 algorithm, and then compare the output to the signature provided in the request header.\n\nView the sample code below for an example of how to verify the signature using Node and express.js.\n```javascript\nconst crypto = require('crypto');\nconst express = require(\"express\");\nconst app = express();\n\napp.post(\"/sync-requested\", express.raw({type: 'application/json'}), (req, res) => {\n    try {\n        // Get the knak-signature header from the request\n        const signature = req.headers['knak-signature'];\n\n        // Generate the hash value from the request body\n        const payload = req.body.toString();\n        const secret = process.env.WEBHOOK_SECRET;\n        const hmac = crypto.createHmac('sha256', secret).update(payload);\n\n        // Generate hexidecimal hash value\n        const calculatedHash = hmac.digest('hex');\n\n        // Compare the calculated hash to the knak-signature header\n        if (crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(signature))) {\n            // continue processing the request\n            res.send(\"Payload is authentic\");\n        } else {\n            // reject the request\n            res.send(\"Payload has been tampered with\");\n        }\n    } catch (err) {\n        res.status(500).send(\"An error occurred\");\n    }\n});\n```\n",
+      "type": "text/plain"
+    }
+  }
+}

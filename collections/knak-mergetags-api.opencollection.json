@@ -1,0 +1,131 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — MergeTags",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "MergeTags",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all merge tags",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/merge-tags",
+            "params": [
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "description": "Page number"
+              },
+              {
+                "name": "per_page",
+                "value": "10",
+                "type": "query",
+                "description": "Number of items per page"
+              },
+              {
+                "name": "filter[name]",
+                "value": "City",
+                "type": "query",
+                "description": "Filter by name. Exact match filter."
+              },
+              {
+                "name": "filter[platform_id]",
+                "value": "marketo",
+                "type": "query",
+                "description": "Filter by platform ID. Exact match filter."
+              }
+            ]
+          },
+          "docs": "Retrieve all [merge tags](#tag/merge_tag) for your company."
+        },
+        {
+          "info": {
+            "name": "Create a merge tag",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://enterprise.knak.io/api/published/v1/merge-tags",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create a [merge tag](#tag/merge_tag). Requires permission to manage merge tags."
+        },
+        {
+          "info": {
+            "name": "Retrieve a merge tag",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/merge-tags/:merge_tag_id",
+            "params": [
+              {
+                "name": "id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of merge tag to get"
+              }
+            ]
+          },
+          "docs": "Retrieve a specific [merge tag](#tag/merge_tag) via their ID."
+        },
+        {
+          "info": {
+            "name": "Update a merge tag",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://enterprise.knak.io/api/published/v1/merge-tags/:merge_tag_id",
+            "params": [
+              {
+                "name": "id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of merge tag to update"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update a specific [merge tag](#tag/merge_tag) via their ID (if user has manage merge tags permission). This endpoint allows partial updates - only the fields provided in the request body will be updated."
+        },
+        {
+          "info": {
+            "name": "Delete a merge tag",
+            "type": "http"
+          },
+          "http": {
+            "method": "DELETE",
+            "url": "https://enterprise.knak.io/api/published/v1/merge-tags/:merge_tag_id",
+            "params": [
+              {
+                "name": "id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of merge tag to delete"
+              }
+            ]
+          },
+          "docs": "Delete a [merge tag](#tag/merge_tag) via their ID (if user has manage merge tags permission)."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

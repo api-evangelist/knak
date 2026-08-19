@@ -1,48 +1,174 @@
 openapi: 3.1.0
 info:
-  description: '## Overview
+  description: |
+    # Overview
+    Welcome to the developer documentation for the Knak Enterprise API.
+    We provide a RESTful interface to key resources within the Knak platform to enable your own custom integration and automation workflows.
+    This API will allow you to automate processes regarding user management within your Knak environment.
+    You can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.
 
-    An API specification to provide a Custom Sync Location in Knak.
+    ## Endpoint
+    `https://enterprise.knak.io/api/published/v1`
 
-
-    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
-
+    ## Additional APIs
+    - [SCIM API Reference](https://enterprise.knak.io/docs/scim-api)
 
     ## Authentication
+    All requests are authenticated using a Bearer token in the `Authorization` header:
+    ```
+    curl --location --request GET 'http://enterprise.knak.io/api/published/v1/emails' \
+    --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...'
+    ```
+    There are two ways to obtain tokens:
+    ### 1 - API Key
+    A user generates a non-expiring token through the Enterprise UI, via the [API Access menu](https://enterprise.knak.io/account/api-access). This is generally only recommended for testing and development, or if the Oauth2 flow is not applicable to your particular use case.
 
-    Knak provides two options for authentication:
+    ### 2 - OAuth2 via Authorization Code Grant Flow
+    This is the **recommended** method for users to allow your application access to their data in Knak. You can manage your own OAuth2 applications in Knak [**here**](http://enterprise.knak.io/account/oauth-applications). Please contact support to enable this feature if unauthorized, or if you need a specific developer account set up for Knak.
+    - **Authorization URL**
+        - `https://enterprise.knak.io/oauth/authorize`
+    - **Token URL**
+        - `https://enterprise.knak.io/oauth/token`
 
-    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+    Creating an OAuth2 application will provide you with a *client_id*, *client_secret* and a *redirect_uri* of your choosing. Users can then authorize your application to access their Knak account by being directed to the Authorization URL:
 
-    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+    ```
+    http://enterprise.knak.io/oauth/authorize?client_id=<your client ID>&redirect_uri=http://your.redirect.url/callback&response_type=code&state=xyzABC123
+    ```
 
+    | Query Parameter | Description |
+    | ----------------| ----------- |
+    | client_id       | **(Required)** The client ID for your application|
+    | redirect_uri    | **(Required)** The url the client will be redirected to. HTTPS required. Must match the url specified in your OAuth2 application|
+    | response_type   | **(Required)** Only a value of `code` is currently supported|
+    | state           | (Optional) This value will be included as part of the redirect response. Your OAuth2 client library most likely uses this parameter to prevent CSRF attacks|
 
+    The user will be redirected to your `redirect_uri` with the authorization code included as the `code` query parameter:
+    ```http
+    HTTP/1.1 302 Found
+    Location: https://your.redirect.url/callback?code=AUTHORIZATION_CODE&state=xyzABC123
+    ```
+    You can then use this code to request a `(access_token, refresh_token)` pair from the Token URL:
+    ```http
+    POST /oauth/token HTTP/1.1
+    Host: enterprise.knak.io
+    Accept: application/json
+    Authorization: Bearer ...
+    Content-Type: application/x-www-form-urlencoded
+    grant_type=authorization_code&client_id=<client_id>&client_secret=<client_secret>&redirect_uri=<redirect_uri>&code=AUTHORIZATION_CODE
+    ```
+    ## Errors
+    Errors in requests made to the API can be viewed directly from the response code that is returned.
 
-    Knak will use the tokens generated to make requests from your service.
+    Below are a list of the common error responses returned and an explanation of what they mean.
 
+    | Code | Reason |Description |
+    | ----------------| ----------- | ----------- |
+    | **400**      | **Bad Request** | Request is malformed or invalid. |
+    | **401**      | **Unauthenticated** | Need to be signed in with a proper account to make this request. |
+    | **403**    | **Forbidden** | The request cannot be completed because the account that is being used does not have sufficient permissions to perform the action in question. |
+    | **404**  | **Not Found** | The requested resource could not be found. Verify that the resource you are looking for exists and that you are using the proper key to search for it. |
 
-    ## Custom Sync Location
+    ## Pagination
+    Our API supports pagination, allowing you to navigate through large sets of data efficiently. This is particularly useful for endpoints that can return a lot of data, such as listings of users, assets, or other entities. To manage the amount of data returned, we use two query parameters: `page` and `per_page`.
 
-    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+    ### Parameters
+    page (Integer, optional): This parameter specifies the page number in the results set. Each page contains a subset of the total data based on the per_page value. The default value is 1 if not specified.
 
-    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
+    per_page (Integer, optional): This parameter controls the number of items returned per page. It allows you to specify the page size, i.e., how many items you want to be included in each page of results. The default value is 10, and the maximum allowable value is 100.
 
+    ### Defaults and Limits
+    If neither page nor per_page is specified, the API will return the first page with the default size of 10 items.
+    The per_page parameter defaults to 10 but can be set to any integer up to a maximum of 100. Requests for more than 100 items per page will be capped at 100.
 
-    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+    ## Filtering
+    Our API supports filtering on specific fields of resources for GET requests. This allows clients to retrieve a subset of records based on certain criteria. Supported filters will be listed in each endpoint.
 
-    '
+    ### Parameters
+    filter[field_name]:To apply filters, add a filter query parameter to your GET request, followed by the field name you wish to filter on.
+    Each filter can have one of the following types:
+
+    #### Exact
+    This filter type is used to match the exact value of a field.
+
+    #### Partial
+    This filter type will return all matches that contain the specified value.
+
+    #### Scope
+    This filter type is used to filtered on a static list of values. Supported items will be listed in each endpoint.
+
+    ## Sorting
+    Our API provides sorting functionality, allowing clients to order the results of a GET request based on specified fields. Sorting makes it easier to organize and navigate through lists of records.
+
+    ### Parameters
+    sort (string, optional): To apply sorting, use the sort query parameter followed by the field name you wish to sort by:
+
+    - updated_at: Sorts records by the last update timestamp.
+
+    - created_at: Sorts records by the creation timestamp.
+
+    ## Webhook Setup
+    Webhooks are a way to notify your application when a specific event occurs in your Knak environment. When the event occurs, Knak sends an HTTP POST request to the webhook's configured URL. You can use webhooks to trigger custom workflows, send notifications, or update external systems based on events that occur in Knak.
+    For information on how to create and manage webhooks, please visit the [Knak Custom Integration Setup](https://help.knak.io/en/articles/7950399-knak-custom-integration-setup) page in the Knak Help Center, and the events section below.
+
+    ## Retry Policy
+    Webhooks will be sent out up to a maximum of three times, with a delay of 60 seconds between each request, until a Successful response status is returned.
+
+    ## Verifying Webhook Signatures
+    Webhooks are signed using a SHA-256 HMAC with the secret generated in Knak. The signature is included in the `knak-signature` header of the request. You can use this signature to verify that the request was sent by Knak, and not a third party.
+
+    Before you can verify the signature, you will need to obtain the secret from Knak. You can do this by navigating to the [Webhooks](https://enterprise.knak.io/account/webhooks) page in the Enterprise UI. Select the webhook you want to obtain the secret for, and click the reveal icon next to the secret. In the code sample below we assume that the secret is stored in an environment variable called `WEBHOOK_SECRET`.
+
+    You can perform this verification in any language that supports HMAC-SHA256. You provide the request body and secret as input to the HMAC-SHA256 algorithm, and then compare the output to the signature provided in the request header.
+
+    View the sample code below for an example of how to verify the signature using Node and express.js.
+    ```javascript
+    const crypto = require('crypto');
+    const express = require("express");
+    const app = express();
+
+    app.post("/sync-requested", express.raw({type: 'application/json'}), (req, res) => {
+        try {
+            // Get the knak-signature header from the request
+            const signature = req.headers['knak-signature'];
+
+            // Generate the hash value from the request body
+            const payload = req.body.toString();
+            const secret = process.env.WEBHOOK_SECRET;
+            const hmac = crypto.createHmac('sha256', secret).update(payload);
+
+            // Generate hexidecimal hash value
+            const calculatedHash = hmac.digest('hex');
+
+            // Compare the calculated hash to the knak-signature header
+            if (crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(signature))) {
+                // continue processing the request
+                res.send("Payload is authentic");
+            } else {
+                // reject the request
+                res.send("Payload has been tampered with");
+            }
+        } catch (err) {
+            res.status(500).send("An error occurred");
+        }
+    });
+    ```
   version: V1
-  title: Custom Sync Location API Reference Asset Custom Fieldsets TranslationRequests API
+  title: Knak Enterprise API — TranslationRequests
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
-- url: https://yourService.com/your-sync-location-api
+- url: https://enterprise.knak.io/api/published/v1
+  description: production
 tags:
 - name: TranslationRequests
 paths:
   /translation-requests:
     get:
-      description: "Retrieve all [translation requests](#tag/translation_request) that the API user has access to based on their brand scopes.\n\n  **NOTE:** Only translation requests created from custom translation integrations will be visible. Steps to set up a custom translation integration can be found [here](https://help.knak.io/en/articles/9687639-knak-custom-translation-integration-setup-guide)."
+      description: |-
+        Retrieve all [translation requests](#tag/translation_request) that the API user has access to based on their brand scopes.
+
+          **NOTE:** Only translation requests created from custom translation integrations will be visible. Steps to set up a custom translation integration can be found [here](https://help.knak.io/en/articles/9687639-knak-custom-translation-integration-setup-guide).
       summary: List all translation requests
       parameters:
       - name: page
@@ -75,21 +201,24 @@ paths:
           example: 609ca344d1b1b
       - name: filter[created_at_before]
         in: query
-        description: Filter translation requests created before a specific date, formatted in ISO 8601 format. Can be used in conjunction with `created_at_after` filter
+        description: Filter translation requests created before a specific date, formatted in ISO 8601
+          format. Can be used in conjunction with `created_at_after` filter
         required: false
         schema:
           type: string
           example: '2023-04-01T00:00:00Z'
       - name: filter[created_at_after]
         in: query
-        description: Filter translation requests created after a specific date, formatted in ISO 8601 format. Can be used in conjunction with `created_at_before` filter
+        description: Filter translation requests created after a specific date, formatted in ISO 8601
+          format. Can be used in conjunction with `created_at_before` filter
         required: false
         schema:
           type: string
           example: '2023-04-03T00:00:00Z'
       - name: sort
         in: query
-        description: Sort by field (`created_at`, `updated_at`), use '-' to reverse order of sort (e.g. -created_at).
+        description: Sort by field (`created_at`, `updated_at`), use '-' to reverse order of sort (e.g.
+          -created_at).
         required: false
         schema:
           type: string
@@ -122,15 +251,15 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
     post:
-      description: 'Create one or more [translation requests](#tag/translation_request) for an asset using a custom translation integration. One translation request is created per code supplied in `language_codes`, and newly created requests start with a `status` of `requested`.
+      description: |-
+        Create one or more [translation requests](#tag/translation_request) for an asset using a custom translation integration. One translation request is created per code supplied in `language_codes`, and newly created requests start with a `status` of `requested`.
 
+        The `integration_id` must reference a `custom_translation` integration that belongs to your company. Every code in `language_codes` must be one of your company's supported translation languages — call `GET /translation-languages` first to retrieve the valid set.
 
-        The `integration_id` must reference a `custom_translation` integration that belongs to your company. Every code in `language_codes` must be one of your company''s supported translation languages — call `GET /translation-languages` first to retrieve the valid set.
-
-
-        **NOTE:** Only `custom_translation` integrations are supported by this endpoint. Integrations for marketing platforms or other translation providers (Smartling, TransPerfect, Lazarus) are rejected with `422 Unprocessable Entity`. Steps to set up a custom translation integration can be found [here](https://help.knak.io/en/articles/9687639-knak-custom-translation-integration-setup-guide).'
+        **NOTE:** Only `custom_translation` integrations are supported by this endpoint. Integrations for marketing platforms or other translation providers (Smartling, TransPerfect, Lazarus) are rejected with `422 Unprocessable Entity`. Steps to set up a custom translation integration can be found [here](https://help.knak.io/en/articles/9687639-knak-custom-translation-integration-setup-guide).
       summary: Create translation requests
       tags:
       - TranslationRequests
@@ -147,7 +276,8 @@ paths:
               properties:
                 integration_id:
                   type: string
-                  description: ID of the `custom_translation` integration to use. Must belong to your company.
+                  description: ID of the `custom_translation` integration to use. Must belong to your
+                    company.
                   example: 609ca344d1caa
                 asset_id:
                   type: string
@@ -155,7 +285,9 @@ paths:
                   example: 609ca344d1b1b
                 language_codes:
                   type: array
-                  description: One or more target language codes. Each must be a supported translation language for your company (see `GET /translation-languages`). Values must be unique; one translation request is created per code.
+                  description: One or more target language codes. Each must be a supported translation
+                    language for your company (see `GET /translation-languages`). Values must be unique;
+                    one translation request is created per code.
                   minItems: 1
                   items:
                     type: string
@@ -165,12 +297,14 @@ paths:
                 notes:
                   type: string
                   nullable: true
-                  description: Optional notes or context stored on each created request. If omitted, the value will be null.
+                  description: Optional notes or context stored on each created request. If omitted, the
+                    value will be null.
                   example: Please prioritize this campaign
                 due_date:
                   type: string
                   nullable: true
-                  description: Optional due date for the translation, in ISO 8601 format. If omitted, the value will be null.
+                  description: Optional due date for the translation, in ISO 8601 format. If omitted,
+                    the value will be null.
                   example: '2026-07-01'
       responses:
         '201':
@@ -248,7 +382,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '404':
           description: Not Found
           content:
@@ -260,7 +395,9 @@ paths:
                 - title: Resource Not Found.
                   detail: Could not find the asset you were looking for.
         '422':
-          description: Unprocessable Entity. Returned when `integration_id` is not a `custom_translation` integration belonging to your company, or when one or more `language_codes` are not supported for your company.
+          description: Unprocessable Entity. Returned when `integration_id` is not a `custom_translation`
+            integration belonging to your company, or when one or more `language_codes` are not supported
+            for your company.
           content:
             application/json:
               schema:
@@ -272,7 +409,8 @@ paths:
                     errors:
                     - status: '422'
                       title: Unprocessable Entity
-                      detail: The integration_id is not a custom_translation integration belonging to your company.
+                      detail: The integration_id is not a custom_translation integration belonging to
+                        your company.
                       meta:
                         integration_id: 609ca344d1caa
                 unsupported_language_code:
@@ -281,14 +419,16 @@ paths:
                     errors:
                     - status: '422'
                       title: Unprocessable Entity
-                      detail: 'These language codes are not supported for your company: zz-ZZ, ja-JP. Use GET /v1/translation-languages to list supported codes.'
+                      detail: 'These language codes are not supported for your company: zz-ZZ, ja-JP.
+                        Use GET /v1/translation-languages to list supported codes.'
                       meta:
                         unsupported_language_codes:
                         - zz-ZZ
                         - ja-JP
   /translation-requests/{id}:
     get:
-      description: Retrieve a [translation request](#tag/translation_request) created from a custom translation integration.
+      description: Retrieve a [translation request](#tag/translation_request) created from a custom translation
+        integration.
       summary: Retrieve a translation request
       tags:
       - TranslationRequests
@@ -325,7 +465,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '404':
           description: Not Found
           content:
@@ -388,7 +529,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '404':
           description: Not Found
           content:
@@ -401,7 +543,8 @@ paths:
                   detail: Could not find the translation request you were looking for.
   /translation-requests/{id}/download-source:
     get:
-      description: Download the source file for a [translation request](#tag/translation_request)  in the specified format. The `content-type` of the response will change depending on the format requested.
+      description: Download the source file for a [translation request](#tag/translation_request)  in
+        the specified format. The `content-type` of the response will change depending on the format requested.
       summary: Download source file for translation request
       tags:
       - TranslationRequests
@@ -449,7 +592,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '404':
           description: Not Found
           content:
@@ -462,7 +606,11 @@ paths:
                   detail: Could not find the translation request you were looking for.
   /translation-requests/{id}/upload-translation:
     post:
-      description: Upload a completed translation file for a [translation request](#tag/translation_request). The file is validated synchronously and the result of the validation is given by the response. If the file is valid (indicated by a 200 response), then the translation will be applied in Knak asynchronously. Once applied, the `status` of the translation request will be updated to `completed` automatically.
+      description: Upload a completed translation file for a [translation request](#tag/translation_request).
+        The file is validated synchronously and the result of the validation is given by the response.
+        If the file is valid (indicated by a 200 response), then the translation will be applied in Knak
+        asynchronously. Once applied, the `status` of the translation request will be updated to `completed`
+        automatically.
       summary: Upload translated file
       tags:
       - TranslationRequests
@@ -516,7 +664,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
         '404':
           description: Not Found
           content:
@@ -529,7 +678,9 @@ paths:
                   detail: Could not find the translation request you were looking for.
   /translation-languages:
     get:
-      description: Retrieve the translation languages supported for your company, ordered by ISO code. Each `iso_code` returned is a valid value for the `language_codes` field when creating a [translation request](#tag/translation_request) via `POST /translation-requests`.
+      description: Retrieve the translation languages supported for your company, ordered by ISO code.
+        Each `iso_code` returned is a valid value for the `language_codes` field when creating a [translation
+        request](#tag/translation_request) via `POST /translation-requests`.
       summary: List supported translation languages
       tags:
       - TranslationRequests
@@ -576,7 +727,8 @@ paths:
               example:
                 errors:
                 - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+                  detail: This user is not authorized to perform this action. Please adjust permissions
+                    before continuing.
 components:
   schemas:
     TranslationRequestItem:
@@ -699,7 +851,8 @@ components:
           - email
         notes:
           type: string
-          description: Any notes or context relating to the translation request. If not set, the value will be null
+          description: Any notes or context relating to the translation request. If not set, the value
+            will be null
           nullable: true
           example: Need a translation for this asset soon
         due_date:
@@ -759,7 +912,8 @@ components:
           example: 609ca344d1b1b
         notes:
           type: string
-          description: Any notes or context relating to the translation request. If not set, the value will be null
+          description: Any notes or context relating to the translation request. If not set, the value
+            will be null
           nullable: true
           example: Need a translation for this asset soon
         due_date:
@@ -790,7 +944,8 @@ components:
           example:
           - Email Creator
           - Collaborator
-          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
+          description: The roles for the user. Can be any of the roles defined for the company including
+            custom roles.
           items:
             type: string
     TranslationRequestCreatedList:
@@ -809,7 +964,8 @@ components:
           example: translation_language
         id:
           type: string
-          description: The ISO language code. Used as the resource id and as a value for `language_codes` when creating a translation request.
+          description: The ISO language code. Used as the resource id and as a value for `language_codes`
+            when creating a translation request.
           example: fr-CA
         attributes:
           type: object
@@ -839,7 +995,8 @@ components:
             properties:
               status:
                 type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API
+                  error shape.
                 example: '409'
               title:
                 type: string
@@ -847,7 +1004,8 @@ components:
                 type: string
               meta:
                 type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                description: Additional context for the error. Returned by endpoints that use the JSON:API
+                  error shape.
                 additionalProperties: true
     TranslationRequest:
       type: object

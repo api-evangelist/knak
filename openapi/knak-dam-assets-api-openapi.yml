@@ -1,42 +1,38 @@
 openapi: 3.1.0
 info:
-  description: '## Overview
+  description: |
+    ## Overview
+    An API specification to search and use DAM content in Knak.
 
-    An API specification to provide a Custom Sync Location in Knak.
-
-
-    By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
-
+    By implementing a service conforming to this API specification, you will be able to search for and use
+    content in your custom DAM in Knak.
 
     ## Authentication
+    Knak can use OAuth 2.0 or HTTP Basic to authenticate with your API.
 
-    Knak provides two options for authentication:
+    ### OAuth 2.0
+    For OAuth 2.0, you will need to implement the necessary endpoints under the
+    `/oauth2` path to support this. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
 
-    - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+    Knak will use the tokens generated to make requests to your service on behalf of the current authenticated user.
 
-    - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+    ### HTTP Basic
+    For HTTP Basic, Knak will include a valid username and password that are base64 encoded in the Authorization
+    header for the request to your service. The credentials can be set in Knak when creating a new custom DAM integration.
 
+    ## DAM Assets
+    Knak will call the `/dam-assets` and `/search` endpoints to retrieve assets from your DAM. The two main use cases are:
+    - reading all assets and folders in a given folder
+    - searching for assets matching a given search term, within a selected path
 
-
-    Knak will use the tokens generated to make requests from your service.
-
-
-    ## Custom Sync Location
-
-    When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
-
-    Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
-
-
-    When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
-
-    '
+    Note that Knak will use the URL\'s of the fetched assets for both preview and final deployment,
+    and will never transfer any asset content from your DAM to Knak directly.
   version: V1
-  title: Custom Sync Location API Reference Asset Custom Fieldsets DAM Assets API
+  title: Custom Digital Asset Management (DAM) API Reference — DAM Assets
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
-- url: https://yourService.com/your-sync-location-api
+- url: https://yourService.com/yourDamApi
 tags:
 - name: DAM Assets
   description: Endpoints to retrieve DAM Assets
@@ -46,7 +42,9 @@ paths:
       tags:
       - DAM Assets
       summary: Retrieve DAM Assets
-      description: Retrieve all DAM Assets in the folder specified. If no path is given, the app should return the contents of the base folder available to the authorized user. Results are paginated, with a default page size of 10
+      description: Retrieve all DAM Assets in the folder specified. If no path is given, the app should
+        return the contents of the base folder available to the authorized user. Results are paginated,
+        with a default page size of 10
       parameters:
       - in: query
         name: path
@@ -131,12 +129,14 @@ paths:
       tags:
       - DAM Assets
       summary: Search DAM Assets
-      description: Retrieve all DAM Assets matching the search criteria. Results should be paginated with per_page items per page. The most relevant results should be provided first
+      description: Retrieve all DAM Assets matching the search criteria. Results should be paginated with
+        per_page items per page. The most relevant results should be provided first
       parameters:
       - in: query
         name: path
         required: false
-        description: Restrict the search to Assets in the specified folder and all child folders. If no path is given, the app should search globally
+        description: Restrict the search to Assets in the specified folder and all child folders. If no
+          path is given, the app should search globally
         example: folderX/folderY
         schema:
           type: string

@@ -1,4 +1,4 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: searched
 source: https://developer.knak.com/api/
 derived_from:
@@ -60,14 +60,30 @@ versioning:
   current: v1
   detail: lifecycle/knak-lifecycle.yml
 error_envelope:
-  format: http-status
+  format: mixed
   rfc9457: false
-  notes: Errors are signalled by HTTP status code; Knak documents 400, 401, 403 and 404
-    with plain-language reasons. No application/problem+json media type is used.
+  notes: >-
+    Enterprise and SCIM errors are signalled by HTTP status code alone; Knak documents 400,
+    401, 403 and 404 with plain-language reasons. The Knak Send Contacts API is different: it
+    returns a named machine-readable code in three different envelope shapes — {"error":
+    {"code", "message"}} for 400/401/403/404/409/503, a top-level errors ARRAY with
+    identifier/details/meta for 422 validation failures, and {"message", "type"} for 429.
+    A client must therefore detect the shape before reading a code. No application/problem+json
+    media type is used anywhere.
   detail: errors/knak-problem-types.yml
+  error_codes: errors/knak-error-codes.yml
 rate_limiting:
-  documented: false
-  notes: Knak publishes no rate limit values or rate-limit response headers.
+  documented: true
+  detail: rate-limits/knak-rate-limits.yml
+  headers: null
+  status_on_exhaustion: 429
+  notes: >-
+    Knak publishes numeric limits for the Knak Send Contacts API only — 1000 requests per
+    minute per API client on standard endpoints and 60 per minute on the bulk endpoints —
+    plus unquantified per-user and per-company asset generation limits and a 10-per-minute
+    per-IP cap on MCP dynamic client registration. No limits are published for the Enterprise
+    or SCIM APIs. No RateLimit-*, X-RateLimit-* or Retry-After response headers are
+    documented on any surface, so a client cannot compute a backoff from the response.
 webhooks:
   signing: hmac-sha256
   signature_header: knak-signature

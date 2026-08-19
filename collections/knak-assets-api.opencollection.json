@@ -1,0 +1,225 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — Assets",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Assets",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all assets",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/assets",
+            "params": [
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "description": "Page number"
+              },
+              {
+                "name": "per_page",
+                "value": "10",
+                "type": "query",
+                "description": "Number of items per page"
+              },
+              {
+                "name": "filter[parent_asset_id]",
+                "value": "609ca344d1b1b",
+                "type": "query",
+                "description": "Filter assets by parent asset ID. Exact match filter."
+              }
+            ]
+          },
+          "docs": "Retrieve all [assets](#tag/asset_model)  in organization."
+        },
+        {
+          "info": {
+            "name": "Create an asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://enterprise.knak.io/api/published/v1/assets",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create an [asset](#tag/asset_model). Can either be a email or landing page, and must be associated with a campaign."
+        },
+        {
+          "info": {
+            "name": "Generate an AI email asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/generate",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Generate an AI-powered email [asset](#tag/asset_model) from a text prompt. The asset is created immediately and returned in the response with `ai_generation_status: started`. AI content generation runs asynchronously in the background. Poll `GET /assets/{asset_id}` to check when `ai_generation_status` changes to `completed` or `failed`.\n\nThe asset must be associated with a campaign (asset folder). The brand is automatically resolved from the campaign."
+        },
+        {
+          "info": {
+            "name": "Retrieve specific asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/:asset_id",
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of asset"
+              }
+            ]
+          },
+          "docs": "Retrieve a specific [asset](#tag/asset_model)'s information, given their asset ID."
+        },
+        {
+          "info": {
+            "name": "Retrieve specific asset content",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/:asset_id/content",
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of asset"
+              },
+              {
+                "name": "platform",
+                "value": "marketo",
+                "type": "query",
+                "description": "name of platform"
+              }
+            ]
+          },
+          "docs": "Retrieve a specific asset's html content. Returns a similar response to the /assets/ GET endpoint, but includes field 'html' in the response."
+        },
+        {
+          "info": {
+            "name": "Retrieve specific asset preview",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/:asset_id/preview",
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of asset"
+              },
+              {
+                "name": "format",
+                "value": "png",
+                "type": "query",
+                "description": "Preview format"
+              },
+              {
+                "name": "client",
+                "value": "desktop",
+                "type": "query",
+                "description": "The client to render the preview for. Applies to both `png` and `pdf` formats."
+              },
+              {
+                "name": "details",
+                "value": "true",
+                "type": "query",
+                "description": "Whether to include the email details header in the preview. Only takes effect for `format=pdf` with `client=desktop`, where `false` omits the details header. Ignored for `png` (any client) and for `pdf` with `client=mobile`, where the details header is always included. Defaults to `true`."
+              }
+            ]
+          },
+          "docs": "Retrieve a rendered preview of a specific asset. The returned `url` is publicly accessible without authentication. A 202 response with `url` set to null means the preview is still being generated; the client should poll this endpoint again until a 200 is returned.\n\nUse the `client` and `details` query parameters to control how the preview is rendered. `client` applies to both the `png` and `pdf` formats. `details` only takes effect for `format=pdf` with `client=desktop`; it is ignored for `png` "
+        },
+        {
+          "info": {
+            "name": "Retrieve custom fields of an asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/:asset_id/custom-fields",
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of asset"
+              }
+            ]
+          },
+          "docs": "Retrieve the custom fields that are defined on a specific asset."
+        },
+        {
+          "info": {
+            "name": "Edit custom fields of an asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/:asset_id/custom-fields",
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "609d7ce223411",
+                "type": "path",
+                "description": "ID of asset"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Edit the custom field values of a specific asset."
+        },
+        {
+          "info": {
+            "name": "Trigger a marketing platform sync",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://enterprise.knak.io/api/published/v1/assets/:asset_id/marketing-platform-syncs",
+            "params": [
+              {
+                "name": "asset_id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the asset to sync."
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Trigger a sync of an asset to a marketing platform. Returns 202 Accepted with a [marketing platform sync](#tag/marketing_platform_sync) record whose `id` can be polled via `GET /marketing-platform-syncs/{id}`.\n\n**Platform support:** only integrations with platform `marketing_cloud` (Salesforce Marketing Cloud) are currently supported. Requests targeting other platforms return `422 Unprocessable Entity` with a validation error on `integration_id`. Additional platforms will be enabled in future re"
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

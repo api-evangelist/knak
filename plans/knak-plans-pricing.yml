@@ -1,0 +1,37 @@
+generated: '2026-08-13'
+method: searched
+source: https://knak.com/pricing/
+plan_count: 0
+model: quote-only
+currency: null
+billing_periods: []
+plans: []
+summary: >-
+  Knak publishes no priced plans. The pricing page is a quote request form — "Let's prepare
+  a customized quote, just for you. Our pricing depends on your campaign creation needs" —
+  with a "Send me pricing" / "Get pricing" call to action and no tiers, list prices, seat
+  prices, quotas or overage rates anywhere on the site. Knak sells enterprise contracts
+  through sales.
+signals:
+- claim: "5x less than the cost of a developer"
+  context: Comparative marketing claim on the pricing page, described as measured against
+    the "Knak base price". No absolute price is given.
+  source: https://knak.com/pricing/
+- claim: "50x less than the cost of an agency"
+  context: Comparative marketing claim on the pricing page. No absolute price is given.
+  source: https://knak.com/pricing/
+api_access:
+  metered: false
+  notes: >-
+    API access is not sold or metered separately. The Enterprise REST API, SCIM API and
+    webhooks are part of the Knak Enterprise product; the Knak Send Contacts API requires
+    Knak Send to be enabled on the account and the "Knak Send Contacts API" role on the
+    user; the MCP server must be switched on for the company by a Knak administrator.
+    Knak's only published quantitative allowance is a per-company daily asset generation
+    quota for MCP-driven generation, whose value is not published and which customer
+    support can raise.
+  source: https://developer.knak.com/ai-integrations/mcp/
+evidence:
+- url: https://knak.com/pricing/
+  status: 200
+  finding: Quote request form, no tiers or prices published.

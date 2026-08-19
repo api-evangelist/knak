@@ -1,0 +1,33 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Custom Sync Location API Reference — Sync Location",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Sync Location",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Provide Sync Location for Asset",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://yourService.com/your-sync-location-api/v1/knak-sync-location",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Knak will call this endpoint to get the sync location for the asset. This is used to determine the sync location for the asset in Knak."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

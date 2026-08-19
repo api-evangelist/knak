@@ -1,4 +1,4 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: searched
 source: https://developer.knak.com/api/
 versioning:
@@ -29,12 +29,41 @@ sla:
   notes: No public SLA or uptime target is published; availability commitments are made in
     enterprise contracts. SOC 2 Type II coverage includes Availability.
 status_page: https://status.knak.io/
-status_page_notes: Realtime and historical uptime, published as "Knak Status".
+status_page_notes: Realtime and historical uptime, published as "Knak Status". Hosted on
+  Atlassian Statuspage, so the machine-readable Statuspage v2 endpoints are served and were
+  probed live on 2026-08-13.
+status_page_api:
+  summary: https://status.knak.io/api/v2/summary.json
+  summary_status: 200
+  history_feed: https://status.knak.io/history.rss
+  history_feed_status: 200
+  components:
+  - Knak App
+  - Knak Website
+  checked: '2026-08-13'
+  notes: summary.json returns page metadata plus per-component status, which is the only
+    machine-readable operational signal Knak publishes. It is not a changelog — it carries
+    incidents, not API versions.
 changelog:
   published: false
+  rechecked: '2026-08-13'
+  probes:
+  - url: https://knak.com/changelog/
+    status: 404
+  - url: https://knak.com/release-notes/
+    status: 404
+  - url: https://knak.com/whats-new/
+    status: 404
+  - url: https://knak.com/product-updates/
+    status: 404
+  - url: https://developer.knak.com/changelog/
+    status: 404
   notes: No dated public changelog or release-notes feed was found on knak.com,
-    developer.knak.com or help.knak.io. Product updates are communicated through the Knak
-    blog and webinars rather than a versioned changelog.
+    developer.knak.com or help.knak.io, and the developer sitemap
+    (https://developer.knak.com/sitemap-0.xml, 13 pages) contains no changelog page. Product
+    updates are communicated through the Knak blog and webinars rather than a versioned
+    changelog. The incident feed at https://status.knak.io/history.rss is the closest dated
+    feed Knak publishes, but it records outages rather than API changes.
 support:
   docs: https://help.knak.io/en/
   email: support@knak.com

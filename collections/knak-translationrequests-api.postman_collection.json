@@ -1,0 +1,1828 @@
+{
+  "item": [
+    {
+      "id": "07530c19-a074-477e-b7cc-6b4b8935668e",
+      "name": "TranslationRequests",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "a3f4cba5-37c2-49de-9eed-28e61d4ce665",
+          "name": "List all translation requests",
+          "request": {
+            "name": "List all translation requests",
+            "description": {
+              "content": "Retrieve all [translation requests](#tag/translation_request) that the API user has access to based on their brand scopes.\n\n  **NOTE:** Only translation requests created from custom translation integrations will be visible. Steps to set up a custom translation integration can be found [here](https://help.knak.io/en/articles/9687639-knak-custom-translation-integration-setup-guide).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "translation-requests"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<integer>",
+                  "description": "Page number"
+                },
+                {
+                  "disabled": false,
+                  "key": "per_page",
+                  "value": "<integer>",
+                  "description": "Number of items per page"
+                },
+                {
+                  "disabled": false,
+                  "key": "filter[status]",
+                  "value": "<string>",
+                  "description": "Filter by status. Exact match filter."
+                },
+                {
+                  "disabled": false,
+                  "key": "filter[asset_id]",
+                  "value": "<string>",
+                  "description": "Filter by asset ID. Exact match filter. (Corresponds to `base_asset_id` in response)"
+                },
+                {
+                  "disabled": false,
+                  "key": "filter[created_at_before]",
+                  "value": "<string>",
+                  "description": "Filter translation requests created before a specific date, formatted in ISO 8601 format. Can be used in conjunction with `created_at_after` filter"
+                },
+                {
+                  "disabled": false,
+                  "key": "filter[created_at_after]",
+                  "value": "<string>",
+                  "description": "Filter translation requests created after a specific date, formatted in ISO 8601 format. Can be used in conjunction with `created_at_before` filter"
+                },
+                {
+                  "disabled": false,
+                  "key": "sort",
+                  "value": "<string>",
+                  "description": "Sort by field (`created_at`, `updated_at`), use '-' to reverse order of sort (e.g. -created_at)."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "b2939fa6-6b92-4d65-9104-221271ec5091",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "10"
+                    },
+                    {
+                      "key": "filter[status]",
+                      "value": "requested"
+                    },
+                    {
+                      "key": "filter[asset_id]",
+                      "value": "609ca344d1b1b"
+                    },
+                    {
+                      "key": "filter[created_at_before]",
+                      "value": "2023-04-01T00:00:00Z"
+                    },
+                    {
+                      "key": "filter[created_at_after]",
+                      "value": "2023-04-03T00:00:00Z"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "created_at"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"translation-request\",\n      \"id\": \"609d7ce223411\",\n      \"attributes\": {\n        \"id\": \"609d7ce223411\",\n        \"language_code\": \"zh-CN\",\n        \"source_language_code\": \"en-US\",\n        \"status\": \"processing\",\n        \"base_asset_id\": \"609ca344d1b1b\",\n        \"asset_version_id\": \"67d19607cbb1d4.78284760\",\n        \"integration_id\": \"609ca344d1caa\",\n        \"creator_id\": \"609ca344d1b1b\",\n        \"notes\": \"Need a translation for this asset soon\",\n        \"due_date\": \"2023-02-08\",\n        \"created_at\": \"2023-02-08T17:07:12+00:00\",\n        \"updated_at\": \"2023-02-08T17:07:12+00:00\"\n      }\n    },\n    {\n      \"type\": \"translation-request\",\n      \"id\": \"609d7ce223411\",\n      \"attributes\": {\n        \"id\": \"609d7ce223411\",\n        \"language_code\": \"zh-CN\",\n        \"source_language_code\": \"en-US\",\n        \"status\": \"processing\",\n        \"base_asset_id\": \"609ca344d1b1b\",\n        \"asset_version_id\": \"67d19607cbb1d4.78284760\",\n        \"integration_id\": \"609ca344d1caa\",\n        \"creator_id\": \"609ca344d1b1b\",\n        \"notes\": \"Need a translation for this asset soon\",\n        \"due_date\": \"2023-02-08\",\n        \"created_at\": \"2023-02-08T17:07:12+00:00\",\n        \"updated_at\": \"2023-02-08T17:07:12+00:00\"\n      }\n    }\n  ],\n  \"links\": {\n    \"first\": \"https://enterprise.knak.io/api/published/v1/translation-requests?page=1\",\n    \"last\": \"https://enterprise.knak.io/api/published/v1/translation-requests?page=3\",\n    \"prev\": \"https://enterprise.knak.io/api/published/v1/translation-requests?page=1\",\n    \"next\": \"https://enterprise.knak.io/api/published/v1/translation-requests?page=3\"\n  },\n  \"meta\": {\n    \"current_page\": 2,\n    \"from\": 1,\n    \"last_page\": 3,\n    \"links\": [\n      {\n        \"url\": \"https://enterprise.knak.io/api/published/v1/translation-requests?page=2\",\n        \"label\": \"Next\",\n        \"active\": true\n      },\n      {\n        \"url\": \"https://enterprise.knak.io/api/published/v1/translation-requests?page=2\",\n        \"label\": \"Next\",\n        \"active\": true\n      }\n    ],\n    \"path\": \"https://enterprise.knak.io/api/published/v1/translation-requests?page=2\",\n    \"per_page\": 10,\n    \"to\": 3,\n    \"total\": 3\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "aebe97a4-87d5-4593-a2f4-a70720c3237b",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "10"
+                    },
+                    {
+                      "key": "filter[status]",
+                      "value": "requested"
+                    },
+                    {
+                      "key": "filter[asset_id]",
+                      "value": "609ca344d1b1b"
+                    },
+                    {
+                      "key": "filter[created_at_before]",
+                      "value": "2023-04-01T00:00:00Z"
+                    },
+                    {
+                      "key": "filter[created_at_after]",
+                      "value": "2023-04-03T00:00:00Z"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "created_at"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Unauthenticated.\",\n      \"detail\": \"Authenticate before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0249c5b8-f46f-4db6-9f29-b32c4a99fc4b",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "page",
+                      "value": "1"
+                    },
+                    {
+                      "key": "per_page",
+                      "value": "10"
+                    },
+                    {
+                      "key": "filter[status]",
+                      "value": "requested"
+                    },
+                    {
+                      "key": "filter[asset_id]",
+                      "value": "609ca344d1b1b"
+                    },
+                    {
+                      "key": "filter[created_at_before]",
+                      "value": "2023-04-01T00:00:00Z"
+                    },
+                    {
+                      "key": "filter[created_at_after]",
+                      "value": "2023-04-03T00:00:00Z"
+                    },
+                    {
+                      "key": "sort",
+                      "value": "created_at"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Forbidden.\",\n      \"detail\": \"This user is not authorized to perform this action. Please adjust permissions before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "05e22a44-6bec-4e34-9946-5fe8973e86a2",
+          "name": "Create translation requests",
+          "request": {
+            "name": "Create translation requests",
+            "description": {
+              "content": "Create one or more [translation requests](#tag/translation_request) for an asset using a custom translation integration. One translation request is created per code supplied in `language_codes`, and newly created requests start with a `status` of `requested`.\n\nThe `integration_id` must reference a `custom_translation` integration that belongs to your company. Every code in `language_codes` must be one of your company's supported translation languages — call `GET /translation-languages` first to retrieve the valid set.\n\n**NOTE:** Only `custom_translation` integrations are supported by this endpoint. Integrations for marketing platforms or other translation providers (Smartling, TransPerfect, Lazarus) are rejected with `422 Unprocessable Entity`. Steps to set up a custom translation integration can be found [here](https://help.knak.io/en/articles/9687639-knak-custom-translation-integration-setup-guide).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "translation-requests"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"integration_id\": \"<string>\",\n  \"asset_id\": \"<string>\",\n  \"language_codes\": [\n    \"<string>\"\n  ],\n  \"notes\": \"<string>\",\n  \"due_date\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "ac51d76f-d8b8-446a-bc21-0759039be47f",
+              "name": "Created. Returns the translation requests that were created, one per language code.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"integration_id\": \"609ca344d1caa\",\n  \"asset_id\": \"609ca344d1b1b\",\n  \"language_codes\": [\n    \"fr-CA\",\n    \"es-ES\"\n  ],\n  \"notes\": \"Please prioritize this campaign\",\n  \"due_date\": \"2026-07-01\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"translation-request\",\n      \"id\": \"609d7ce223411\",\n      \"attributes\": {\n        \"id\": \"609d7ce223411\",\n        \"language_code\": \"fr-CA\",\n        \"status\": \"requested\",\n        \"base_asset_id\": \"609ca344d1b1b\",\n        \"asset_version_id\": \"67d19607cbb1d4.78284760\",\n        \"integration_id\": \"609ca344d1caa\",\n        \"user\": {\n          \"id\": \"609d7ce223400\",\n          \"name\": \"John Doe\",\n          \"email\": \"john.doe@email.com\",\n          \"roles\": [\n            \"Email Creator\"\n          ]\n        },\n        \"notes\": \"Please prioritize this campaign\",\n        \"due_date\": \"2026-07-01\",\n        \"created_at\": \"2026-06-08T17:07:12+00:00\",\n        \"updated_at\": \"2026-06-08T17:07:12+00:00\"\n      }\n    },\n    {\n      \"type\": \"translation-request\",\n      \"id\": \"609d7ce223412\",\n      \"attributes\": {\n        \"id\": \"609d7ce223412\",\n        \"language_code\": \"es-ES\",\n        \"status\": \"requested\",\n        \"base_asset_id\": \"609ca344d1b1b\",\n        \"asset_version_id\": \"67d19607cbb1d4.78284760\",\n        \"integration_id\": \"609ca344d1caa\",\n        \"user\": {\n          \"id\": \"609d7ce223400\",\n          \"name\": \"John Doe\",\n          \"email\": \"john.doe@email.com\",\n          \"roles\": [\n            \"Email Creator\"\n          ]\n        },\n        \"notes\": \"Please prioritize this campaign\",\n        \"due_date\": \"2026-07-01\",\n        \"created_at\": \"2026-06-08T17:07:12+00:00\",\n        \"updated_at\": \"2026-06-08T17:07:12+00:00\"\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a8965499-5b88-4147-b06b-83bf4c0c6c9b",
+              "name": "Validation error",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"integration_id\": \"609ca344d1caa\",\n  \"asset_id\": \"609ca344d1b1b\",\n  \"language_codes\": [\n    \"fr-CA\",\n    \"es-ES\"\n  ],\n  \"notes\": \"Please prioritize this campaign\",\n  \"due_date\": \"2026-07-01\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Validation Error for language_codes\",\n      \"detail\": \"The language codes field is required.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "3958b6a6-2d9e-4a86-810f-307755547e23",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"integration_id\": \"609ca344d1caa\",\n  \"asset_id\": \"609ca344d1b1b\",\n  \"language_codes\": [\n    \"fr-CA\",\n    \"es-ES\"\n  ],\n  \"notes\": \"Please prioritize this campaign\",\n  \"due_date\": \"2026-07-01\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Unauthenticated.\",\n      \"detail\": \"Authenticate before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "7eba693b-b7bf-4185-b1d5-a0154d1148c3",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"integration_id\": \"609ca344d1caa\",\n  \"asset_id\": \"609ca344d1b1b\",\n  \"language_codes\": [\n    \"fr-CA\",\n    \"es-ES\"\n  ],\n  \"notes\": \"Please prioritize this campaign\",\n  \"due_date\": \"2026-07-01\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Forbidden.\",\n      \"detail\": \"This user is not authorized to perform this action. Please adjust permissions before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f1a3ff1f-c46a-4670-bbfe-952be667c8e8",
+              "name": "Not Found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"integration_id\": \"609ca344d1caa\",\n  \"asset_id\": \"609ca344d1b1b\",\n  \"language_codes\": [\n    \"fr-CA\",\n    \"es-ES\"\n  ],\n  \"notes\": \"Please prioritize this campaign\",\n  \"due_date\": \"2026-07-01\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Resource Not Found.\",\n      \"detail\": \"Could not find the asset you were looking for.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "59c47d72-2056-44c2-abea-30570f78ef07",
+              "name": "Unprocessable Entity. Returned when `integration_id` is not a `custom_translation` integration belonging to your company, or when one or more `language_codes` are not supported for your company.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"integration_id\": \"609ca344d1caa\",\n  \"asset_id\": \"609ca344d1b1b\",\n  \"language_codes\": [\n    \"fr-CA\",\n    \"es-ES\"\n  ],\n  \"notes\": \"Please prioritize this campaign\",\n  \"due_date\": \"2026-07-01\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unprocessable Entity (WebDAV) (RFC 4918)",
+              "code": 422,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"status\": \"422\",\n      \"title\": \"Unprocessable Entity\",\n      \"detail\": \"The integration_id is not a custom_translation integration belonging to your company.\",\n      \"meta\": {\n        \"integration_id\": \"609ca344d1caa\"\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "90bda2af-e943-47b5-8e6a-9bf754da1a31",
+          "name": "Retrieve a translation request",
+          "request": {
+            "name": "Retrieve a translation request",
+            "description": {
+              "content": "Retrieve a [translation request](#tag/translation_request) created from a custom translation integration.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "translation-requests",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) ID of the translation request to retrieve"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "8279a322-0935-4705-abb2-0674b1e25997",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to retrieve"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"type\": \"translation-request\",\n  \"id\": \"609d7ce223411\",\n  \"attributes\": {\n    \"id\": \"609d7ce223411\",\n    \"language_code\": \"zh-CN\",\n    \"source_language_code\": \"en-US\",\n    \"status\": \"processing\",\n    \"base_asset_id\": \"609ca344d1b1b\",\n    \"asset_version_id\": \"67d19607cbb1d4.78284760\",\n    \"integration_id\": \"609ca344d1caa\",\n    \"user\": {\n      \"email\": \"john.doe@email.com\",\n      \"id\": \"609d7ce223411\",\n      \"name\": \"John Doe\",\n      \"roles\": [\n        \"Email Creator\",\n        \"Collaborator\"\n      ]\n    },\n    \"notes\": \"Need a translation for this asset soon\",\n    \"due_date\": \"2023-02-08\",\n    \"created_at\": \"2023-02-08T17:07:12+00:00\",\n    \"updated_at\": \"2023-02-08T17:07:12+00:00\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "cb627fb4-3cd3-4315-a03c-019b43d9d996",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to retrieve"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Unauthenticated.\",\n      \"detail\": \"Authenticate before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "05ad0268-e7e1-408a-85e6-8b006cdfd5da",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to retrieve"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Forbidden.\",\n      \"detail\": \"This user is not authorized to perform this action. Please adjust permissions before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "bb7a3c4f-5c66-4bce-963f-a3f20e94d47b",
+              "name": "Not Found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to retrieve"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Resource Not Found.\",\n      \"detail\": \"Could not find the translation request you were looking for.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "cb7c6c05-e60c-47c6-8ae7-ac33191fcfe0",
+          "name": "Update a translation request",
+          "request": {
+            "name": "Update a translation request",
+            "description": {
+              "content": "Update the status of a [translation request](#tag/translation_request).",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "translation-requests",
+                ":id"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) ID of the translation request to update"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "PATCH",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "9d7d8471-67ae-4a2b-9acb-1de06c2caa1e",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to update"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"type\": \"translation-request\",\n  \"id\": \"609d7ce223411\",\n  \"attributes\": {\n    \"id\": \"609d7ce223411\",\n    \"language_code\": \"zh-CN\",\n    \"source_language_code\": \"en-US\",\n    \"status\": \"processing\",\n    \"base_asset_id\": \"609ca344d1b1b\",\n    \"asset_version_id\": \"67d19607cbb1d4.78284760\",\n    \"integration_id\": \"609ca344d1caa\",\n    \"user\": {\n      \"email\": \"john.doe@email.com\",\n      \"id\": \"609d7ce223411\",\n      \"name\": \"John Doe\",\n      \"roles\": [\n        \"Email Creator\",\n        \"Collaborator\"\n      ]\n    },\n    \"notes\": \"Need a translation for this asset soon\",\n    \"due_date\": \"2023-02-08\",\n    \"created_at\": \"2023-02-08T17:07:12+00:00\",\n    \"updated_at\": \"2023-02-08T17:07:12+00:00\"\n  }\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "c35e9d40-a476-4f38-b2d6-c444ab03c26f",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to update"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Unauthenticated.\",\n      \"detail\": \"Authenticate before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "f07d1f1e-2a80-4ab1-b96d-4ff2bd9831ad",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to update"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Forbidden.\",\n      \"detail\": \"This user is not authorized to perform this action. Please adjust permissions before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "d2b7564c-0074-4a6c-b2fe-dac45d42466a",
+              "name": "Not Found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to update"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PATCH",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Resource Not Found.\",\n      \"detail\": \"Could not find the translation request you were looking for.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "52bb592e-5e67-4091-ae4c-6270e67ff60c",
+          "name": "Download source file for translation request",
+          "request": {
+            "name": "Download source file for translation request",
+            "description": {
+              "content": "Download the source file for a [translation request](#tag/translation_request)  in the specified format. The `content-type` of the response will change depending on the format requested.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "translation-requests",
+                ":id",
+                "download-source"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "format",
+                  "value": "<string>",
+                  "description": "Format of the source file to download"
+                }
+              ],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) ID of the translation request to download the source file for"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/xml"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "560fd719-b52c-40d4-b51c-bbc3152c3372",
+              "name": "Success",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id",
+                    "download-source"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "format",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to download the source file for"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/xml"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/xml"
+                }
+              ],
+              "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<element>(string)</element>",
+              "cookie": [],
+              "_postman_previewlanguage": "xml"
+            },
+            {
+              "id": "a01506ab-7acc-45bd-a0e6-a28d6a30faa6",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id",
+                    "download-source"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "format",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to download the source file for"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Unauthenticated.\",\n      \"detail\": \"Authenticate before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a98d407e-d3fa-4418-a89b-c8d3b9c76fdb",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id",
+                    "download-source"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "format",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to download the source file for"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Forbidden.\",\n      \"detail\": \"This user is not authorized to perform this action. Please adjust permissions before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "34c249f2-0ec6-4b69-b6a9-5c1b8f0be58f",
+              "name": "Not Found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id",
+                    "download-source"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "format",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to download the source file for"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Resource Not Found.\",\n      \"detail\": \"Could not find the translation request you were looking for.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "af5ee2f1-d374-42bf-8a92-21fdb88d4bbd",
+          "name": "Upload translated file",
+          "request": {
+            "name": "Upload translated file",
+            "description": {
+              "content": "Upload a completed translation file for a [translation request](#tag/translation_request). The file is validated synchronously and the result of the validation is given by the response. If the file is valid (indicated by a 200 response), then the translation will be applied in Knak asynchronously. Once applied, the `status` of the translation request will be updated to `completed` automatically.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "translation-requests",
+                ":id",
+                "upload-translation"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "id",
+                  "description": "(Required) ID of the translation request to upload a translation file for"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "multipart/form-data"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "The translated file to apply"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "190cbd5d-2fe8-491b-9bab-ebbd87019681",
+              "name": "The file was uploaded successfully",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id",
+                    "upload-translation"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to upload a translation file for"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "The translated file to apply",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "775fcb4a-5341-4893-8222-18597b131e77",
+              "name": "File validation failed",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id",
+                    "upload-translation"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to upload a translation file for"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "The translated file to apply",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Validation error for file.\",\n      \"detail\": \"The file must be a valid XLIFF file.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "86ab5b8d-837d-413a-8f12-de1662701ef5",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id",
+                    "upload-translation"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to upload a translation file for"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "The translated file to apply",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Unauthenticated.\",\n      \"detail\": \"Authenticate before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "8bf63679-63d5-40db-99b9-dad17c109209",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id",
+                    "upload-translation"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to upload a translation file for"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "The translated file to apply",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Forbidden.\",\n      \"detail\": \"This user is not authorized to perform this action. Please adjust permissions before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "0a3d5c52-98e9-4567-9c56-04b7f6e8c521",
+              "name": "Not Found",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-requests",
+                    ":id",
+                    "upload-translation"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "id",
+                      "description": "(Required) ID of the translation request to upload a translation file for"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "description": {
+                        "content": "The translated file to apply",
+                        "type": "text/plain"
+                      },
+                      "key": "file",
+                      "value": "<binary>",
+                      "type": "text"
+                    }
+                  ]
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Resource Not Found.\",\n      \"detail\": \"Could not find the translation request you were looking for.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "296641d4-29c6-4dfe-958a-f8e9c338b1b0",
+          "name": "List supported translation languages",
+          "request": {
+            "name": "List supported translation languages",
+            "description": {
+              "content": "Retrieve the translation languages supported for your company, ordered by ISO code. Each `iso_code` returned is a valid value for the `language_codes` field when creating a [translation request](#tag/translation_request) via `POST /translation-requests`.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "translation-languages"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "59ea4e7e-2031-4aee-97f8-6b09858f8d52",
+              "name": "OK",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-languages"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"data\": [\n    {\n      \"type\": \"translation_language\",\n      \"id\": \"en-US\",\n      \"attributes\": {\n        \"iso_code\": \"en-US\",\n        \"name\": \"English (United States)\"\n      }\n    },\n    {\n      \"type\": \"translation_language\",\n      \"id\": \"es-ES\",\n      \"attributes\": {\n        \"iso_code\": \"es-ES\",\n        \"name\": \"Spanish (Spain)\"\n      }\n    },\n    {\n      \"type\": \"translation_language\",\n      \"id\": \"fr-CA\",\n      \"attributes\": {\n        \"iso_code\": \"fr-CA\",\n        \"name\": \"French (Canada)\"\n      }\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e9ae7f49-3d4d-4768-84e7-5fa628087969",
+              "name": "Unauthenticated",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-languages"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Unauthenticated.\",\n      \"detail\": \"Authenticate before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "59f3be43-0994-47b0-91ab-ddb09d7b49b9",
+              "name": "Unauthorized",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "translation-languages"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"errors\": [\n    {\n      \"title\": \"Forbidden.\",\n      \"detail\": \"This user is not authorized to perform this action. Please adjust permissions before continuing.\"\n    }\n  ]\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://enterprise.knak.io/api/published/v1",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "b5ac1db6-5c78-4549-8709-2f1e2d8d44cb",
+    "name": "Knak Enterprise API — TranslationRequests",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "# Overview\nWelcome to the developer documentation for the Knak Enterprise API.\nWe provide a RESTful interface to key resources within the Knak platform to enable your own custom integration and automation workflows.\nThis API will allow you to automate processes regarding user management within your Knak environment.\nYou can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.\n\n## Endpoint\n`https://enterprise.knak.io/api/published/v1`\n\n## Additional APIs\n- [SCIM API Reference](https://enterprise.knak.io/docs/scim-api)\n\n## Authentication\nAll requests are authenticated using a Bearer token in the `Authorization` header:\n```\ncurl --location --request GET 'http://enterprise.knak.io/api/published/v1/emails' \\\n--header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...'\n```\nThere are two ways to obtain tokens:\n### 1 - API Key\nA user generates a non-expiring token through the Enterprise UI, via the [API Access menu](https://enterprise.knak.io/account/api-access). This is generally only recommended for testing and development, or if the Oauth2 flow is not applicable to your particular use case.\n\n### 2 - OAuth2 via Authorization Code Grant Flow\nThis is the **recommended** method for users to allow your application access to their data in Knak. You can manage your own OAuth2 applications in Knak [**here**](http://enterprise.knak.io/account/oauth-applications). Please contact support to enable this feature if unauthorized, or if you need a specific developer account set up for Knak.\n- **Authorization URL**\n    - `https://enterprise.knak.io/oauth/authorize`\n- **Token URL**\n    - `https://enterprise.knak.io/oauth/token`\n\nCreating an OAuth2 application will provide you with a *client_id*, *client_secret* and a *redirect_uri* of your choosing. Users can then authorize your application to access their Knak account by being directed to the Authorization URL:\n\n```\nhttp://enterprise.knak.io/oauth/authorize?client_id=<your client ID>&redirect_uri=http://your.redirect.url/callback&response_type=code&state=xyzABC123\n```\n\n| Query Parameter | Description |\n| ----------------| ----------- |\n| client_id       | **(Required)** The client ID for your application|\n| redirect_uri    | **(Required)** The url the client will be redirected to. HTTPS required. Must match the url specified in your OAuth2 application|\n| response_type   | **(Required)** Only a value of `code` is currently supported|\n| state           | (Optional) This value will be included as part of the redirect response. Your OAuth2 client library most likely uses this parameter to prevent CSRF attacks|\n\nThe user will be redirected to your `redirect_uri` with the authorization code included as the `code` query parameter:\n```http\nHTTP/1.1 302 Found\nLocation: https://your.redirect.url/callback?code=AUTHORIZATION_CODE&state=xyzABC123\n```\nYou can then use this code to request a `(access_token, refresh_token)` pair from the Token URL:\n```http\nPOST /oauth/token HTTP/1.1\nHost: enterprise.knak.io\nAccept: application/json\nAuthorization: Bearer ...\nContent-Type: application/x-www-form-urlencoded\ngrant_type=authorization_code&client_id=<client_id>&client_secret=<client_secret>&redirect_uri=<redirect_uri>&code=AUTHORIZATION_CODE\n```\n## Errors\nErrors in requests made to the API can be viewed directly from the response code that is returned.\n\nBelow are a list of the common error responses returned and an explanation of what they mean.\n\n| Code | Reason |Description |\n| ----------------| ----------- | ----------- |\n| **400**      | **Bad Request** | Request is malformed or invalid. |\n| **401**      | **Unauthenticated** | Need to be signed in with a proper account to make this request. |\n| **403**    | **Forbidden** | The request cannot be completed because the account that is being used does not have sufficient permissions to perform the action in question. |\n| **404**  | **Not Found** | The requested resource could not be found. Verify that the resource you are looking for exists and that you are using the proper key to search for it. |\n\n## Pagination\nOur API supports pagination, allowing you to navigate through large sets of data efficiently. This is particularly useful for endpoints that can return a lot of data, such as listings of users, assets, or other entities. To manage the amount of data returned, we use two query parameters: `page` and `per_page`.\n\n### Parameters\npage (Integer, optional): This parameter specifies the page number in the results set. Each page contains a subset of the total data based on the per_page value. The default value is 1 if not specified.\n\nper_page (Integer, optional): This parameter controls the number of items returned per page. It allows you to specify the page size, i.e., how many items you want to be included in each page of results. The default value is 10, and the maximum allowable value is 100.\n\n### Defaults and Limits\nIf neither page nor per_page is specified, the API will return the first page with the default size of 10 items.\nThe per_page parameter defaults to 10 but can be set to any integer up to a maximum of 100. Requests for more than 100 items per page will be capped at 100.\n\n## Filtering\nOur API supports filtering on specific fields of resources for GET requests. This allows clients to retrieve a subset of records based on certain criteria. Supported filters will be listed in each endpoint.\n\n### Parameters\nfilter[field_name]:To apply filters, add a filter query parameter to your GET request, followed by the field name you wish to filter on.\nEach filter can have one of the following types:\n\n#### Exact\nThis filter type is used to match the exact value of a field.\n\n#### Partial\nThis filter type will return all matches that contain the specified value.\n\n#### Scope\nThis filter type is used to filtered on a static list of values. Supported items will be listed in each endpoint.\n\n## Sorting\nOur API provides sorting functionality, allowing clients to order the results of a GET request based on specified fields. Sorting makes it easier to organize and navigate through lists of records.\n\n### Parameters\nsort (string, optional): To apply sorting, use the sort query parameter followed by the field name you wish to sort by:\n\n- updated_at: Sorts records by the last update timestamp.\n\n- created_at: Sorts records by the creation timestamp.\n\n## Webhook Setup\nWebhooks are a way to notify your application when a specific event occurs in your Knak environment. When the event occurs, Knak sends an HTTP POST request to the webhook's configured URL. You can use webhooks to trigger custom workflows, send notifications, or update external systems based on events that occur in Knak.\nFor information on how to create and manage webhooks, please visit the [Knak Custom Integration Setup](https://help.knak.io/en/articles/7950399-knak-custom-integration-setup) page in the Knak Help Center, and the events section below.\n\n## Retry Policy\nWebhooks will be sent out up to a maximum of three times, with a delay of 60 seconds between each request, until a Successful response status is returned.\n\n## Verifying Webhook Signatures\nWebhooks are signed using a SHA-256 HMAC with the secret generated in Knak. The signature is included in the `knak-signature` header of the request. You can use this signature to verify that the request was sent by Knak, and not a third party.\n\nBefore you can verify the signature, you will need to obtain the secret from Knak. You can do this by navigating to the [Webhooks](https://enterprise.knak.io/account/webhooks) page in the Enterprise UI. Select the webhook you want to obtain the secret for, and click the reveal icon next to the secret. In the code sample below we assume that the secret is stored in an environment variable called `WEBHOOK_SECRET`.\n\nYou can perform this verification in any language that supports HMAC-SHA256. You provide the request body and secret as input to the HMAC-SHA256 algorithm, and then compare the output to the signature provided in the request header.\n\nView the sample code below for an example of how to verify the signature using Node and express.js.\n```javascript\nconst crypto = require('crypto');\nconst express = require(\"express\");\nconst app = express();\n\napp.post(\"/sync-requested\", express.raw({type: 'application/json'}), (req, res) => {\n    try {\n        // Get the knak-signature header from the request\n        const signature = req.headers['knak-signature'];\n\n        // Generate the hash value from the request body\n        const payload = req.body.toString();\n        const secret = process.env.WEBHOOK_SECRET;\n        const hmac = crypto.createHmac('sha256', secret).update(payload);\n\n        // Generate hexidecimal hash value\n        const calculatedHash = hmac.digest('hex');\n\n        // Compare the calculated hash to the knak-signature header\n        if (crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(signature))) {\n            // continue processing the request\n            res.send(\"Payload is authentic\");\n        } else {\n            // reject the request\n            res.send(\"Payload has been tampered with\");\n        }\n    } catch (err) {\n        res.status(500).send(\"An error occurred\");\n    }\n});\n```\n",
+      "type": "text/plain"
+    }
+  }
+}

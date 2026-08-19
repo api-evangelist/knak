@@ -1,4 +1,4 @@
-generated: '2026-07-19'
+generated: '2026-08-13'
 method: derived
 source: openapi/, https://developer.knak.com/api/, https://knak.com/security/
 standards:
@@ -16,6 +16,12 @@ standards:
 - id: rfc8414-oauth-authorization-server-metadata
   conforms: true
   evidence: /.well-known/oauth-authorization-server returns 200 on enterprise.knak.io.
+- id: rfc9728-oauth-protected-resource-metadata
+  conforms: true
+  evidence: /.well-known/oauth-protected-resource returns 200 on enterprise.knak.io, and a
+    resource-specific document is served at
+    /.well-known/oauth-protected-resource/mcp/public. Both advertise scopes_supported
+    ["mcp:use"]. Probed 2026-08-13.
 - id: rfc7591-dynamic-client-registration
   conforms: true
   evidence: registration_endpoint advertised at https://enterprise.knak.io/oauth/register.

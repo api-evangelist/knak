@@ -1,0 +1,37 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — MarketingPlatformSyncs",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "MarketingPlatformSyncs",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Retrieve a marketing platform sync",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/marketing-platform-syncs/:sync_history",
+            "params": [
+              {
+                "name": "sync_history",
+                "value": "",
+                "type": "path",
+                "description": "ID of the sync history record to retrieve."
+              }
+            ]
+          },
+          "docs": "Retrieve a specific [marketing platform sync](#tag/marketing_platform_sync) for status polling."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

@@ -1,0 +1,52 @@
+generated: '2026-08-13'
+method: searched
+source: https://developer.knak.com/ai-integrations/mcp/
+summary: >-
+  Knak publishes no embeddable web-component or element library, no hosted iframe widget and
+  no embedded dashboard for its REST APIs. The only client-side rendering surface it
+  documents is a pair of MCP UI resources served by the hosted MCP server, which
+  MCP-UI-capable clients (Knak names ChatGPT) render inline during an agent session. They
+  are recorded here because they are real, provider-published, client-rendered UI — but they
+  are reachable only through an authenticated MCP session, not by dropping a script tag into
+  a page.
+component_count: 2
+families:
+- name: MCP UI resources
+  kind: mcp-ui-resource
+  delivery: Served by the Knak MCP server at https://enterprise.knak.io/mcp/public as MCP UI
+    resources; rendered by MCP clients that support them.
+  auth: OAuth 2.1 authorization code with PKCE S256, scope mcp:use.
+  fallback: Clients that do not support widgets fall back to the structured text tool
+    responses, which contain the same URLs.
+  components:
+  - id: ui://knak/asset-progress
+    name: Progress widget
+    description: Appears automatically after the generate-asset tool is called and polls the
+      signed statusUrl until the asset is ready.
+    triggered_by: generate-asset
+    timeout: Times out after about five minutes; generation typically takes one to two
+      minutes.
+    source: https://developer.knak.com/ai-integrations/mcp/
+  - id: ui://knak/asset-preview
+    name: Preview widget
+    description: Appears when get-asset-preview is called, rendering the PNG screenshot of
+      the asset — or an inline HTML fallback of up to 100 KB when screenshotting fails —
+      inline in the client.
+    triggered_by: get-asset-preview
+    source: https://developer.knak.com/ai-integrations/mcp/
+loaders: []
+not_published:
+- kind: web-components
+  note: No web component or JavaScript element library is published.
+- kind: embedded-dashboard
+  note: No embeddable dashboard or hosted portal surface is documented for customers.
+- kind: hosted-pages
+  note: Knak assets (emails and landing pages) are exported as HTML into the customer's
+    marketing automation platform rather than embedded from Knak, so there is no hosted
+    embed surface.
+related:
+  figma_plugin: >-
+    Knak lists a Figma Plugin among its product features in the knak.com site navigation. It
+    is a design-tool plugin for marketers rather than an embeddable UI component for
+    developers, and no developer documentation for it is published, so it is noted here but
+    not counted as a component.

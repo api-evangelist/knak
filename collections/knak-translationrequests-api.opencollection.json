@@ -1,0 +1,195 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Enterprise API — TranslationRequests",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "TranslationRequests",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "List all translation requests",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/translation-requests",
+            "params": [
+              {
+                "name": "page",
+                "value": "1",
+                "type": "query",
+                "description": "Page number"
+              },
+              {
+                "name": "per_page",
+                "value": "10",
+                "type": "query",
+                "description": "Number of items per page"
+              },
+              {
+                "name": "filter[status]",
+                "value": "",
+                "type": "query",
+                "description": "Filter by status. Exact match filter."
+              },
+              {
+                "name": "filter[asset_id]",
+                "value": "",
+                "type": "query",
+                "description": "Filter by asset ID. Exact match filter. (Corresponds to `base_asset_id` in response)"
+              },
+              {
+                "name": "filter[created_at_before]",
+                "value": "",
+                "type": "query",
+                "description": "Filter translation requests created before a specific date, formatted in ISO 8601 format. Can be used in conjunction with `created_at_after` filter"
+              },
+              {
+                "name": "filter[created_at_after]",
+                "value": "",
+                "type": "query",
+                "description": "Filter translation requests created after a specific date, formatted in ISO 8601 format. Can be used in conjunction with `created_at_before` filter"
+              },
+              {
+                "name": "sort",
+                "value": "",
+                "type": "query",
+                "description": "Sort by field (`created_at`, `updated_at`), use '-' to reverse order of sort (e.g. -created_at)."
+              }
+            ]
+          },
+          "docs": "Retrieve all [translation requests](#tag/translation_request) that the API user has access to based on their brand scopes.\n\n  **NOTE:** Only translation requests created from custom translation integrations will be visible. Steps to set up a custom translation integration can be found [here](https://help.knak.io/en/articles/9687639-knak-custom-translation-integration-setup-guide)."
+        },
+        {
+          "info": {
+            "name": "Create translation requests",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://enterprise.knak.io/api/published/v1/translation-requests",
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Create one or more [translation requests](#tag/translation_request) for an asset using a custom translation integration. One translation request is created per code supplied in `language_codes`, and newly created requests start with a `status` of `requested`.\n\nThe `integration_id` must reference a `custom_translation` integration that belongs to your company. Every code in `language_codes` must be one of your company's supported translation languages — call `GET /translation-languages` first to "
+        },
+        {
+          "info": {
+            "name": "Retrieve a translation request",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/translation-requests/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the translation request to retrieve"
+              }
+            ]
+          },
+          "docs": "Retrieve a [translation request](#tag/translation_request) created from a custom translation integration."
+        },
+        {
+          "info": {
+            "name": "Update a translation request",
+            "type": "http"
+          },
+          "http": {
+            "method": "PATCH",
+            "url": "https://enterprise.knak.io/api/published/v1/translation-requests/:id",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the translation request to update"
+              }
+            ],
+            "body": {
+              "type": "json",
+              "data": "{}"
+            }
+          },
+          "docs": "Update the status of a [translation request](#tag/translation_request)."
+        },
+        {
+          "info": {
+            "name": "Download source file for translation request",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/translation-requests/:id/download-source",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the translation request to download the source file for"
+              },
+              {
+                "name": "format",
+                "value": "",
+                "type": "query",
+                "description": "Format of the source file to download"
+              }
+            ]
+          },
+          "docs": "Download the source file for a [translation request](#tag/translation_request)  in the specified format. The `content-type` of the response will change depending on the format requested."
+        },
+        {
+          "info": {
+            "name": "Upload translated file",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://enterprise.knak.io/api/published/v1/translation-requests/:id/upload-translation",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "path",
+                "description": "ID of the translation request to upload a translation file for"
+              }
+            ],
+            "body": {
+              "type": "multipart-form",
+              "data": [
+                {
+                  "name": "file",
+                  "type": "text",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Upload a completed translation file for a [translation request](#tag/translation_request). The file is validated synchronously and the result of the validation is given by the response. If the file is valid (indicated by a 200 response), then the translation will be applied in Knak asynchronously. Once applied, the `status` of the translation request will be updated to `completed` automatically."
+        },
+        {
+          "info": {
+            "name": "List supported translation languages",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://enterprise.knak.io/api/published/v1/translation-languages"
+          },
+          "docs": "Retrieve the translation languages supported for your company, ordered by ISO code. Each `iso_code` returned is a valid value for the `language_codes` field when creating a [translation request](#tag/translation_request) via `POST /translation-requests`."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

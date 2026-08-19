@@ -1,0 +1,29 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Knak Custom Validator API Reference — Status",
+    "version": "V1"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Status",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Status check",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://yourService.com/yourValidationApi/v1/ping"
+          },
+          "docs": "Check to see that the service is responsive, indicating to the User that the service is available. Any 200 response will be considered a success."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}
