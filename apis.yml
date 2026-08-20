@@ -42,6 +42,17 @@ tags:
 - Campaign Management
 - No-Code
 - SCIM
+- Webhook
+tags_raw:
+- Company
+- Email Marketing
+- Marketing Automation
+- Landing Pages
+- Content Creation
+- Marketing Operations
+- Campaign Management
+- No-Code
+- SCIM
 - Webhooks
 apis:
 - aid: knak:knak-asset-custom-fieldsets-api
@@ -68,6 +79,8 @@ apis:
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
   tags:
+  - Asset Folders
+  tags_raw:
   - AssetFolders
   properties:
   - type: OpenAPI
@@ -203,6 +216,8 @@ apis:
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
   tags:
+  - Integration
+  tags_raw:
   - Integrations
   properties:
   - type: OpenAPI
@@ -276,6 +291,8 @@ apis:
   humanURL: https://developer.knak.com/api/
   baseURL: https://yourService.com/yourDamApi
   tags:
+  - Authentication
+  tags_raw:
   - OAuth2
   properties:
   - type: OpenAPI
@@ -404,6 +421,8 @@ apis:
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
   tags:
+  - User
+  tags_raw:
   - Users
   properties:
   - type: OpenAPI
