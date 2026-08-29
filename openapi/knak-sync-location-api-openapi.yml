@@ -1,26 +1,38 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  description: |
-    ## Overview
+  description: '## Overview
+
     An API specification to provide a Custom Sync Location in Knak.
+
 
     By implementing a service conforming to this API specification, you will be able to send asset data to your own service and have that service specify a sync location based on that data.
 
+
     ## Authentication
+
     Knak provides two options for authentication:
+
     - **Basic Authentication**: Knak will use Basic Authentication to authenticate with your API. You will just need to provide a username and password when configuring the integration.
+
     - **OAuth2**: Knak will use OAuth2 to authenticate with your API. You will need to implement endpoints under a specified authorization path to support this. The default path will be `/oauth/token` but you can provide a separate path when configuring the integration if you so choose. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
+
 
 
     Knak will use the tokens generated to make requests from your service.
 
+
     ## Custom Sync Location
+
     When a user has a custom sync location configured and they have set up a sync restriction that leverages the custom sync location.
+
     Knak will call the `/knak-sync-location` (or your own specified path) endpoint with the asset data when an asset is synced. Your service should return a response with the sync location for the asset.
 
+
     When your service provides a sync location, Knak will use that location to display only the available sync location to the user.
+
+    '
   version: V1
-  title: Custom Sync Location API Reference — Sync Location
+  title: Custom API Reference Sync Location API
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
@@ -34,8 +46,7 @@ paths:
       tags:
       - Sync Location
       summary: Provide Sync Location for Asset
-      description: Knak will call this endpoint to get the sync location for the asset. This is used to
-        determine the sync location for the asset in Knak.
+      description: Knak will call this endpoint to get the sync location for the asset. This is used to determine the sync location for the asset in Knak.
       security:
       - OAuth2: []
       requestBody:

@@ -1,15 +1,20 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  description: |
-    ## Overview
+  description: '## Overview
+
     An API specification to perform custom testing and validation of Knak Asset content.
+
 
     By implementing a service conforming to this API specification, you will be able to initiate a content test from the Knak UI, and results from your service will be displayed to the Knak User. For information on how to configure the connection to your custom validator in Knak, see our guide [here](https://help.knak.io/en/articles/8708391-setting-up-a-custom-validator-integration).
 
+
     ## Authentication
+
     As part of the Integration Configuration stage in Knak, you are able to specify your own HTTP security header name and value. These values are referred to by `<security-header-name>` and `<security-header-value>` in this specification, and will be present in every request.
+
+    '
   version: V1
-  title: Knak Custom Validator API Reference — Validation
+  title: Knak Custom Validator API Reference Validation API
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
@@ -136,10 +141,16 @@ paths:
                     example: pass
                   result_url:
                     type: string
-                    description: The URL to the result of the validation. This is usually a link to a
-                      page in your service with more information.
+                    description: The URL to the result of the validation. This is usually a link to a page in your service with more information.
                     example: https://yourService.com/ValidationResults/1234
         401:
           description: Unauthenticated
         403:
           description: Unauthorized
+components:
+  securitySchemes:
+    customSecurityHeader:
+      type: apiKey
+      in: header
+      name: <security-header-name>
+      description: The security header name and value is specified in the Integration Configuration stage in Knak.

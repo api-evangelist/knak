@@ -1,6 +1,6 @@
 openapi: 3.2.0
 info:
-  title: Knak Enterprise Integrations API
+  title: Knak Enterprise Asset.translation Requested API
   version: V1
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
@@ -11,144 +11,106 @@ servers:
 - url: https://enterprise.knak.io/api/published/v1
   description: production
 tags:
-- name: Integrations
-paths:
-  /integrations:
-    get:
-      description: List all [integrations](#tag/integration) configured for your company. Supports optional filtering by platform and category.
-      summary: List integrations
+- name: asset.translation_requested
+paths: {}
+webhooks:
+  asset.translation_requested:
+    post:
       tags:
-      - Integrations
+      - asset.translation_requested
       parameters:
-      - name: filter[platform]
-        in: query
-        required: false
-        description: Filter by platform identifier. Commonly supported values include `marketing_cloud`, `marketo`, `eloqua`, `pardot`, `hubspot`, `adobe_journey_optimizer`, `iterable`, `sendgrid`, `responsys`, `acoustic`. This list is not exhaustive and new platforms are added over time.
+      - in: header
+        name: knak-signature
         schema:
           type: string
-          example: marketing_cloud
-      - name: filter[category]
-        in: query
-        required: false
-        description: Filter by integration category.
+          example: eXYGdAHaNVcOLHVABaYIQHIdBTAZDFAT
+          description: Hash-based message authentication code (HMAC) with SHA-256 used to verify that the payload contents were sent by Knak.
+      - in: header
+        name: Knak-Version
         schema:
           type: string
-          enum:
-          - map
-          - dam
-          - translation
-          - personalization_platform
-          - project_management
-          - content_testing
-          - sync_location
-          example: map
-      - name: page
-        in: query
-        required: false
-        description: Page number
-        example: 1
+          example: '1.0'
+          description: The version of the webhook payload.
+      - in: header
+        name: Knak-Event-Type
         schema:
-          type: integer
-      - name: per_page
-        in: query
-        required: false
-        description: Number of items per page
-        example: 10
-        schema:
-          type: integer
+          type: string
+          example: asset.translation_requested
+          description: The webhook's event type.
+      requestBody:
+        description: Webhook notification that a user has requested a translation.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/asset.translation_requested'
       responses:
         '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IntegrationList'
-        '401':
-          description: Unauthenticated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                errors:
-                - title: Unauthenticated.
-                  detail: Authenticate before continuing.
-        '403':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-              example:
-                errors:
-                - title: Forbidden.
-                  detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+          description: Return a 200 status to indicate that the notification was received.
 components:
   schemas:
-    IntegrationList:
+    asset.translation_requested:
       type: object
       properties:
+        event_type:
+          type: string
+          example: asset.translation_requested
+        event_id:
+          type: string
+          example: 609d7ce223411
+        event_date:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        version:
+          type: string
+          example: '1.0'
         data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Integration'
-        links:
           type: object
           properties:
-            first:
-              type: string
-              example: https://enterprise.knak.io/api/published/v1/integrations?page=1
-            last:
-              type: string
-              example: https://enterprise.knak.io/api/published/v1/integrations?page=3
-            prev:
-              type: string
-              nullable: true
-              example: https://enterprise.knak.io/api/published/v1/integrations?page=1
-            next:
-              type: string
-              nullable: true
-              example: https://enterprise.knak.io/api/published/v1/integrations?page=3
-        meta:
-          type: object
-          properties:
-            current_page:
-              type: integer
-              example: 1
-            from:
-              type: integer
-              example: 1
-            last_page:
-              type: integer
-              example: 3
-            links:
+            asset:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  example: Spring Newsletter
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+                version:
+                  type: string
+                  example: '1.0'
+                language_code:
+                  type: string
+                  nullable: true
+                  example: es
+            user:
+              $ref: '#/components/schemas/User'
+              required:
+              - email
+            translation_requests:
               type: array
               items:
-                type: object
-                properties:
-                  url:
-                    type: string
-                    nullable: true
-                    example: https://enterprise.knak.io/api/published/v1/integrations?page=2
-                  label:
-                    type: string
-                    example: Next
-                  active:
-                    type: boolean
-                    example: true
-            path:
-              type: string
-              example: https://enterprise.knak.io/api/published/v1/integrations?page=2
-            per_page:
-              type: integer
-              example: 10
-            to:
-              type: integer
-              example: 2
-            total:
-              type: integer
-              example: 2
-    IntegrationAttributes:
+                $ref: '#/components/schemas/TranslationRequestItem'
+    TranslationRequestItem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: translation-request
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/TranslationRequestItemAttributes'
+    User:
       type: object
       properties:
         id:
@@ -156,44 +118,78 @@ components:
           example: 609d7ce223411
         name:
           type: string
-          example: Acme SFMC Integration
-        platform:
+          example: John Doe
+        email:
           type: string
-          example: marketing_cloud
-        category:
-          type: string
-          example: map
-    Integration:
+          example: john.doe@email.com
+        roles:
+          type: array
+          example:
+          - Email Creator
+          - Collaborator
+          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
+          items:
+            type: string
+    TranslationRequestItemAttributes:
       type: object
       properties:
-        type:
-          type: string
-          example: integration
         id:
           type: string
           example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/IntegrationAttributes'
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
+        language_code:
+          description: The language code of the translation target
+          type: string
+          example: zh-CN
+        source_language_code:
+          description: The language code of the translation source. If not set, the value will be null
+          type: string
+          nullable: true
+          example: en-US
+        status:
+          type: string
+          enum:
+          - cancelled
+          - completed
+          - deleted
+          - failed
+          - manually_translating
+          - processing
+          - reopened
+          - requested
+          - re_requested
+          example: processing
+        base_asset_id:
+          description: The ID of the Asset that should be translated
+          type: string
+          example: 609ca344d1b1b
+        asset_version_id:
+          description: The ID of the Asset Version that should be translated
+          type: string
+          example: 67d19607cbb1d4.78284760
+        integration_id:
+          type: string
+          description: The ID of the integration that was used to request the translation
+          example: 609ca344d1caa
+        creator_id:
+          type: string
+          description: The ID of the user who requested the translation
+          example: 609ca344d1b1b
+        notes:
+          type: string
+          description: Any notes or context relating to the translation request. If not set, the value will be null
+          nullable: true
+          example: Need a translation for this asset soon
+        due_date:
+          type: string
+          description: The date the translation is due. If not set, the value will be null
+          nullable: true
+          example: '2023-02-08'
+        created_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        updated_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
 x-tagGroups:
 - name: User Management
   tags:

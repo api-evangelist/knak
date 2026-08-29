@@ -1,162 +1,12 @@
-openapi: 3.1.0
+openapi: 3.2.0
 info:
-  description: |
-    # Overview
-    Welcome to the developer documentation for the Knak Enterprise API.
-    We provide a RESTful interface to key resources within the Knak platform to enable your own custom integration and automation workflows.
-    This API will allow you to automate processes regarding user management within your Knak environment.
-    You can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.
-
-    ## Endpoint
-    `https://enterprise.knak.io/api/published/v1`
-
-    ## Additional APIs
-    - [SCIM API Reference](https://enterprise.knak.io/docs/scim-api)
-
-    ## Authentication
-    All requests are authenticated using a Bearer token in the `Authorization` header:
-    ```
-    curl --location --request GET 'http://enterprise.knak.io/api/published/v1/emails' \
-    --header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...'
-    ```
-    There are two ways to obtain tokens:
-    ### 1 - API Key
-    A user generates a non-expiring token through the Enterprise UI, via the [API Access menu](https://enterprise.knak.io/account/api-access). This is generally only recommended for testing and development, or if the Oauth2 flow is not applicable to your particular use case.
-
-    ### 2 - OAuth2 via Authorization Code Grant Flow
-    This is the **recommended** method for users to allow your application access to their data in Knak. You can manage your own OAuth2 applications in Knak [**here**](http://enterprise.knak.io/account/oauth-applications). Please contact support to enable this feature if unauthorized, or if you need a specific developer account set up for Knak.
-    - **Authorization URL**
-        - `https://enterprise.knak.io/oauth/authorize`
-    - **Token URL**
-        - `https://enterprise.knak.io/oauth/token`
-
-    Creating an OAuth2 application will provide you with a *client_id*, *client_secret* and a *redirect_uri* of your choosing. Users can then authorize your application to access their Knak account by being directed to the Authorization URL:
-
-    ```
-    http://enterprise.knak.io/oauth/authorize?client_id=<your client ID>&redirect_uri=http://your.redirect.url/callback&response_type=code&state=xyzABC123
-    ```
-
-    | Query Parameter | Description |
-    | ----------------| ----------- |
-    | client_id       | **(Required)** The client ID for your application|
-    | redirect_uri    | **(Required)** The url the client will be redirected to. HTTPS required. Must match the url specified in your OAuth2 application|
-    | response_type   | **(Required)** Only a value of `code` is currently supported|
-    | state           | (Optional) This value will be included as part of the redirect response. Your OAuth2 client library most likely uses this parameter to prevent CSRF attacks|
-
-    The user will be redirected to your `redirect_uri` with the authorization code included as the `code` query parameter:
-    ```http
-    HTTP/1.1 302 Found
-    Location: https://your.redirect.url/callback?code=AUTHORIZATION_CODE&state=xyzABC123
-    ```
-    You can then use this code to request a `(access_token, refresh_token)` pair from the Token URL:
-    ```http
-    POST /oauth/token HTTP/1.1
-    Host: enterprise.knak.io
-    Accept: application/json
-    Authorization: Bearer ...
-    Content-Type: application/x-www-form-urlencoded
-    grant_type=authorization_code&client_id=<client_id>&client_secret=<client_secret>&redirect_uri=<redirect_uri>&code=AUTHORIZATION_CODE
-    ```
-    ## Errors
-    Errors in requests made to the API can be viewed directly from the response code that is returned.
-
-    Below are a list of the common error responses returned and an explanation of what they mean.
-
-    | Code | Reason |Description |
-    | ----------------| ----------- | ----------- |
-    | **400**      | **Bad Request** | Request is malformed or invalid. |
-    | **401**      | **Unauthenticated** | Need to be signed in with a proper account to make this request. |
-    | **403**    | **Forbidden** | The request cannot be completed because the account that is being used does not have sufficient permissions to perform the action in question. |
-    | **404**  | **Not Found** | The requested resource could not be found. Verify that the resource you are looking for exists and that you are using the proper key to search for it. |
-
-    ## Pagination
-    Our API supports pagination, allowing you to navigate through large sets of data efficiently. This is particularly useful for endpoints that can return a lot of data, such as listings of users, assets, or other entities. To manage the amount of data returned, we use two query parameters: `page` and `per_page`.
-
-    ### Parameters
-    page (Integer, optional): This parameter specifies the page number in the results set. Each page contains a subset of the total data based on the per_page value. The default value is 1 if not specified.
-
-    per_page (Integer, optional): This parameter controls the number of items returned per page. It allows you to specify the page size, i.e., how many items you want to be included in each page of results. The default value is 10, and the maximum allowable value is 100.
-
-    ### Defaults and Limits
-    If neither page nor per_page is specified, the API will return the first page with the default size of 10 items.
-    The per_page parameter defaults to 10 but can be set to any integer up to a maximum of 100. Requests for more than 100 items per page will be capped at 100.
-
-    ## Filtering
-    Our API supports filtering on specific fields of resources for GET requests. This allows clients to retrieve a subset of records based on certain criteria. Supported filters will be listed in each endpoint.
-
-    ### Parameters
-    filter[field_name]:To apply filters, add a filter query parameter to your GET request, followed by the field name you wish to filter on.
-    Each filter can have one of the following types:
-
-    #### Exact
-    This filter type is used to match the exact value of a field.
-
-    #### Partial
-    This filter type will return all matches that contain the specified value.
-
-    #### Scope
-    This filter type is used to filtered on a static list of values. Supported items will be listed in each endpoint.
-
-    ## Sorting
-    Our API provides sorting functionality, allowing clients to order the results of a GET request based on specified fields. Sorting makes it easier to organize and navigate through lists of records.
-
-    ### Parameters
-    sort (string, optional): To apply sorting, use the sort query parameter followed by the field name you wish to sort by:
-
-    - updated_at: Sorts records by the last update timestamp.
-
-    - created_at: Sorts records by the creation timestamp.
-
-    ## Webhook Setup
-    Webhooks are a way to notify your application when a specific event occurs in your Knak environment. When the event occurs, Knak sends an HTTP POST request to the webhook's configured URL. You can use webhooks to trigger custom workflows, send notifications, or update external systems based on events that occur in Knak.
-    For information on how to create and manage webhooks, please visit the [Knak Custom Integration Setup](https://help.knak.io/en/articles/7950399-knak-custom-integration-setup) page in the Knak Help Center, and the events section below.
-
-    ## Retry Policy
-    Webhooks will be sent out up to a maximum of three times, with a delay of 60 seconds between each request, until a Successful response status is returned.
-
-    ## Verifying Webhook Signatures
-    Webhooks are signed using a SHA-256 HMAC with the secret generated in Knak. The signature is included in the `knak-signature` header of the request. You can use this signature to verify that the request was sent by Knak, and not a third party.
-
-    Before you can verify the signature, you will need to obtain the secret from Knak. You can do this by navigating to the [Webhooks](https://enterprise.knak.io/account/webhooks) page in the Enterprise UI. Select the webhook you want to obtain the secret for, and click the reveal icon next to the secret. In the code sample below we assume that the secret is stored in an environment variable called `WEBHOOK_SECRET`.
-
-    You can perform this verification in any language that supports HMAC-SHA256. You provide the request body and secret as input to the HMAC-SHA256 algorithm, and then compare the output to the signature provided in the request header.
-
-    View the sample code below for an example of how to verify the signature using Node and express.js.
-    ```javascript
-    const crypto = require('crypto');
-    const express = require("express");
-    const app = express();
-
-    app.post("/sync-requested", express.raw({type: 'application/json'}), (req, res) => {
-        try {
-            // Get the knak-signature header from the request
-            const signature = req.headers['knak-signature'];
-
-            // Generate the hash value from the request body
-            const payload = req.body.toString();
-            const secret = process.env.WEBHOOK_SECRET;
-            const hmac = crypto.createHmac('sha256', secret).update(payload);
-
-            // Generate hexidecimal hash value
-            const calculatedHash = hmac.digest('hex');
-
-            // Compare the calculated hash to the knak-signature header
-            if (crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(signature))) {
-                // continue processing the request
-                res.send("Payload is authentic");
-            } else {
-                // reject the request
-                res.send("Payload has been tampered with");
-            }
-        } catch (err) {
-            res.status(500).send("An error occurred");
-        }
-    });
-    ```
+  title: Knak Enterprise Available Platforms API
   version: V1
-  title: Knak Enterprise API — AvailablePlatforms
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
+  contact:
+    email: support@knak.com
+  description: "# Overview\nWelcome to the developer documentation for the Knak Enterprise API.\nWe provide a RESTful interface to key resources within the Knak platform to enable your own custom integration and automation workflows.\nThis API will allow you to automate processes regarding user management within your Knak environment.\nYou can download the formal definition of this public interface in OpenAPI 3 (formerly Swagger) format using the link above.\n\n## Endpoint\n`https://enterprise.knak.io/api/published/v1`\n\n## Additional APIs\n- [SCIM API Reference](https://enterprise.knak.io/docs/scim-api)\n\n## Authentication\nAll requests are authenticated using a Bearer token in the `Authorization` header:\n```\ncurl --location --request GET 'http://enterprise.knak.io/api/published/v1/emails' \\\n--header 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbG...'\n```\nThere are two ways to obtain tokens:\n### 1 - API Key\nA user generates a non-expiring token through the Enterprise UI, via the [API Access menu](https://enterprise.knak.io/account/api-access). This is generally only recommended for testing and development, or if the Oauth2 flow is not applicable to your particular use case.\n\n### 2 - OAuth2 via Authorization Code Grant Flow\nThis is the **recommended** method for users to allow your application access to their data in Knak. You can manage your own OAuth2 applications in Knak [**here**](http://enterprise.knak.io/account/oauth-applications). Please contact support to enable this feature if unauthorized, or if you need a specific developer account set up for Knak.\n- **Authorization URL**\n    - `https://enterprise.knak.io/oauth/authorize`\n- **Token URL**\n    - `https://enterprise.knak.io/oauth/token`\n\nCreating an OAuth2 application will provide you with a *client_id*, *client_secret* and a *redirect_uri* of your choosing. Users can then authorize your application to access their Knak account by being directed to the Authorization URL:\n\n```\nhttp://enterprise.knak.io/oauth/authorize?client_id=<your client ID>&redirect_uri=http://your.redirect.url/callback&response_type=code&state=xyzABC123\n```\n\n| Query Parameter | Description |\n| ----------------| ----------- |\n| client_id       | **(Required)** The client ID for your application|\n| redirect_uri    | **(Required)** The url the client will be redirected to. HTTPS required. Must match the url specified in your OAuth2 application|\n| response_type   | **(Required)** Only a value of `code` is currently supported|\n| state           | (Optional) This value will be included as part of the redirect response. Your OAuth2 client library most likely uses this parameter to prevent CSRF attacks|\n\nThe user will be redirected to your `redirect_uri` with the authorization code included as the `code` query parameter:\n```http\nHTTP/1.1 302 Found\nLocation: https://your.redirect.url/callback?code=AUTHORIZATION_CODE&state=xyzABC123\n```\nYou can then use this code to request a `(access_token, refresh_token)` pair from the Token URL:\n```http\nPOST /oauth/token HTTP/1.1\nHost: enterprise.knak.io\nAccept: application/json\nAuthorization: Bearer ...\nContent-Type: application/x-www-form-urlencoded\ngrant_type=authorization_code&client_id=<client_id>&client_secret=<client_secret>&redirect_uri=<redirect_uri>&code=AUTHORIZATION_CODE\n```\n## Errors\nErrors in requests made to the API can be viewed directly from the response code that is returned.\n\nBelow are a list of the common error responses returned and an explanation of what they mean.\n\n| Code | Reason |Description |\n| ----------------| ----------- | ----------- |\n| **400**      | **Bad Request** | Request is malformed or invalid. |\n| **401**      | **Unauthenticated** | Need to be signed in with a proper account to make this request. |\n| **403**    | **Forbidden** | The request cannot be completed because the account that is being used does not have sufficient permissions to perform the action in question. |\n| **404**  | **Not Found** | The requested resource could not be found. Verify that the resource you are looking for exists and that you are using the proper key to search for it. |\n\n## Pagination\nOur API supports pagination, allowing you to navigate through large sets of data efficiently. This is particularly useful for endpoints that can return a lot of data, such as listings of users, assets, or other entities. To manage the amount of data returned, we use two query parameters: `page` and `per_page`.\n\n### Parameters\npage (Integer, optional): This parameter specifies the page number in the results set. Each page contains a subset of the total data based on the per_page value. The default value is 1 if not specified.\n\nper_page (Integer, optional): This parameter controls the number of items returned per page. It allows you to specify the page size, i.e., how many items you want to be included in each page of results. The default value is 10, and the maximum allowable value is 100.\n\n### Defaults and Limits\nIf neither page nor per_page is specified, the API will return the first page with the default size of 10 items.\nThe per_page parameter defaults to 10 but can be set to any integer up to a maximum of 100. Requests for more than 100 items per page will be capped at 100.\n\n## Filtering\nOur API supports filtering on specific fields of resources for GET requests. This allows clients to retrieve a subset of records based on certain criteria. Supported filters will be listed in each endpoint.\n\n### Parameters\nfilter[field_name]:To apply filters, add a filter query parameter to your GET request, followed by the field name you wish to filter on.\nEach filter can have one of the following types:\n\n#### Exact\nThis filter type is used to match the exact value of a field.\n\n#### Partial\nThis filter type will return all matches that contain the specified value.\n\n#### Scope\nThis filter type is used to filtered on a static list of values. Supported items will be listed in each endpoint.\n\n## Sorting\nOur API provides sorting functionality, allowing clients to order the results of a GET request based on specified fields. Sorting makes it easier to organize and navigate through lists of records.\n\n### Parameters\nsort (string, optional): To apply sorting, use the sort query parameter followed by the field name you wish to sort by:\n\n- updated_at: Sorts records by the last update timestamp.\n\n- created_at: Sorts records by the creation timestamp.\n\n## Webhook Setup\nWebhooks are a way to notify your application when a specific event occurs in your Knak environment. When the event occurs, Knak sends an HTTP POST request to the webhook's configured URL. You can use webhooks to trigger custom workflows, send notifications, or update external systems based on events that occur in Knak.\nFor information on how to create and manage webhooks, please visit the [Knak Custom Integration Setup](https://help.knak.io/en/articles/7950399-knak-custom-integration-setup) page in the Knak Help Center, and the events section below.\n\n## Retry Policy\nWebhooks will be sent out up to a maximum of three times, with a delay of 60 seconds between each request, until a Successful response status is returned.\n\n## Verifying Webhook Signatures\nWebhooks are signed using a SHA-256 HMAC with the secret generated in Knak. The signature is included in the `knak-signature` header of the request. You can use this signature to verify that the request was sent by Knak, and not a third party.\n\nBefore you can verify the signature, you will need to obtain the secret from Knak. You can do this by navigating to the [Webhooks](https://enterprise.knak.io/account/webhooks) page in the Enterprise UI. Select the webhook you want to obtain the secret for, and click the reveal icon next to the secret. In the code sample below we assume that the secret is stored in an environment variable called `WEBHOOK_SECRET`.\n\nYou can perform this verification in any language that supports HMAC-SHA256. You provide the request body and secret as input to the HMAC-SHA256 algorithm, and then compare the output to the signature provided in the request header.\n\nView the sample code below for an example of how to verify the signature using Node and express.js.\n```javascript\nconst crypto = require('crypto');\nconst express = require(\"express\");\nconst app = express();\n\napp.post(\"/sync-requested\", express.raw({type: 'application/json'}), (req, res) => {\n    try {\n        // Get the knak-signature header from the request\n        const signature = req.headers['knak-signature'];\n\n        // Generate the hash value from the request body\n        const payload = req.body.toString();\n        const secret = process.env.WEBHOOK_SECRET;\n        const hmac = crypto.createHmac('sha256', secret).update(payload);\n\n        // Generate hexidecimal hash value\n        const calculatedHash = hmac.digest('hex');\n\n        // Compare the calculated hash to the knak-signature header\n        if (crypto.timingSafeEqual(Buffer.from(calculatedHash), Buffer.from(signature))) {\n            // continue processing the request\n            res.send(\"Payload is authentic\");\n        } else {\n            // reject the request\n            res.send(\"Payload has been tampered with\");\n        }\n    } catch (err) {\n        res.status(500).send(\"An error occurred\");\n    }\n});\n```\n"
 servers:
 - url: https://enterprise.knak.io/api/published/v1
   description: production
@@ -203,6 +53,46 @@ paths:
                   detail: Authenticate before continuing.
 components:
   schemas:
+    AvailablePlatformAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: marketo
+        name:
+          type: string
+          example: Marketo
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
+    AvailablePlatform:
+      type: object
+      properties:
+        type:
+          type: string
+          example: available-platform
+        id:
+          type: string
+          example: marketo
+        attributes:
+          $ref: '#/components/schemas/AvailablePlatformAttributes'
     AvailablePlatformList:
       type: object
       properties:
@@ -266,45 +156,66 @@ components:
             total:
               type: integer
               example: 3
-    AvailablePlatform:
-      type: object
-      properties:
-        type:
-          type: string
-          example: available-platform
-        id:
-          type: string
-          example: marketo
-        attributes:
-          $ref: '#/components/schemas/AvailablePlatformAttributes'
-    AvailablePlatformAttributes:
-      type: object
-      properties:
-        id:
-          type: string
-          example: marketo
-        name:
-          type: string
-          example: Marketo
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API
-                  error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API
-                  error shape.
-                additionalProperties: true
+x-tagGroups:
+- name: User Management
+  tags:
+  - Users
+- name: Assets
+  tags:
+  - Assets
+  - Project Management
+- name: Themes
+  tags:
+  - Themes
+- name: Modules
+  tags:
+  - Modules
+- name: Brands
+  tags:
+  - Brands
+- name: Asset Folders
+  tags:
+  - AssetFolders
+- name: Assets Custom Fieldsets
+  tags:
+  - Asset Custom Fieldsets
+- name: Available Platforms
+  tags:
+  - AvailablePlatforms
+- name: Merge Tags
+  tags:
+  - MergeTags
+- name: Integrations
+  tags:
+  - Integrations
+- name: Sync
+  tags:
+  - SyncStatuses
+  - MarketingPlatformSyncs
+- name: Translation Requests
+  tags:
+  - TranslationRequests
+- name: Events
+  tags:
+  - asset.created
+  - asset.sync_requested
+  - asset.sync_confirmation_responded
+  - asset.approval_status_updated
+  - asset.translation_requested
+  - translation_request.created
+- name: Models
+  tags:
+  - user_model
+  - asset_model
+  - theme_model
+  - module_model
+  - brand_model
+  - asset_folder_model
+  - asset_custom_fieldset
+  - available_platform
+  - merge_tag
+  - sync_status
+  - integration
+  - marketing_platform_sync
+  - translation_request
+  - project_management_link

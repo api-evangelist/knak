@@ -184,7 +184,10 @@ apis:
 - aid: knak:knak-dam-assets-api
   name: Knak DAM Assets API
   description: >-
-    Endpoints to retrieve DAM Assets. This is a contract the CUSTOMER implements so Knak can browse images from their own digital asset management system; the base URL is the placeholder host Knak publishes in its specification (https://yourService.com/yourDamApi) because the real host is the customer's service.
+    Endpoints to retrieve DAM Assets. This is a contract the CUSTOMER implements so Knak can browse images
+    from their own digital asset management system; the base URL is the placeholder host Knak publishes
+    in its specification (https://yourService.com/yourDamApi) because the real host is the customer's
+    service.
   humanURL: https://developer.knak.com/api/
   baseURL: https://yourService.com/yourDamApi
   tags:
@@ -299,7 +302,9 @@ apis:
 - aid: knak:knak-oauth2-api
   name: Knak OAuth2 API
   description: >-
-    Endpoints that need to be implemented to support OAuth2 — the token and authorize endpoints a CUSTOMER exposes so Knak can authenticate against their Custom DAM or Custom Sync Location service. Not a Knak-hosted API; the base URL is the placeholder host Knak publishes in its specifications.
+    Endpoints that need to be implemented to support OAuth2 — the token and authorize endpoints a CUSTOMER
+    exposes so Knak can authenticate against their Custom DAM or Custom Sync Location service. Not a Knak-hosted
+    API; the base URL is the placeholder host Knak publishes in its specifications.
   humanURL: https://developer.knak.com/api/
   baseURL: https://yourService.com/yourDamApi
   tags:
@@ -338,7 +343,9 @@ apis:
 - aid: knak:knak-status-api
   name: Knak Status API
   description: >-
-    The health-check ping every Knak customer-implemented contract must expose — 1 operation (GET /v1/ping). Implemented by the CUSTOMER, not by Knak; the base URL is the placeholder host Knak publishes in its Custom Validator and Custom DAM specifications.
+    The health-check ping every Knak customer-implemented contract must expose — 1 operation (GET /v1/ping).
+    Implemented by the CUSTOMER, not by Knak; the base URL is the placeholder host Knak publishes in its
+    Custom Validator and Custom DAM specifications.
   humanURL: https://developer.knak.com/api/
   baseURL: https://yourService.com/yourValidationApi
   tags:
@@ -357,7 +364,9 @@ apis:
 - aid: knak:knak-sync-location-api
   name: Knak Sync Location API
   description: >-
-    Endpoints to retrieve Sync Location. This is a contract the CUSTOMER implements so their own logic determines and restricts the sync location for Knak assets; the base URL is the placeholder host Knak publishes in its specification (https://yourService.com/your-sync-location-api).
+    Endpoints to retrieve Sync Location. This is a contract the CUSTOMER implements so their own logic
+    determines and restricts the sync location for Knak assets; the base URL is the placeholder host Knak
+    publishes in its specification (https://yourService.com/your-sync-location-api).
   humanURL: https://developer.knak.com/api/
   baseURL: https://yourService.com/your-sync-location-api
   tags:
@@ -450,7 +459,9 @@ apis:
 - aid: knak:knak-validation-api
   name: Knak Validation API
   description: >-
-    The Custom Validator contract — 1 operation. This is a contract the CUSTOMER implements so Knak can run assets through their own validation pipeline; the base URL is the placeholder host Knak publishes in its specification (https://yourService.com/yourValidationApi).
+    The Custom Validator contract — 1 operation. This is a contract the CUSTOMER implements so Knak can
+    run assets through their own validation pipeline; the base URL is the placeholder host Knak publishes
+    in its specification (https://yourService.com/yourValidationApi).
   humanURL: https://developer.knak.com/api/
   baseURL: https://yourService.com/yourValidationApi
   tags:
@@ -466,6 +477,70 @@ apis:
     url: https://developer.knak.com/api/send/
   - type: Documentation
     url: https://developer.knak.com/api/scim/
+- aid: knak:knak-asset-approval-status-updated-api
+  name: Knak Asset.approval Status Updated API
+  description: >-
+    The asset.approval_status_updated API from Knak — 0 operation(s) for asset.approval_status_updated.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - asset.approval_status_updated
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-asset-approval-status-updated-api-openapi.yml
+- aid: knak:knak-asset-created-api
+  name: Knak Asset.created API
+  description: The asset.created API from Knak — 0 operation(s) for asset.created.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - asset.created
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-asset-created-api-openapi.yml
+- aid: knak:knak-asset-sync-confirmation-responded-api
+  name: Knak Asset.sync Confirmation Responded API
+  description: >-
+    The asset.sync_confirmation_responded API from Knak — 0 operation(s) for asset.sync_confirmation_responded.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - asset.sync_confirmation_responded
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-asset-sync-confirmation-responded-api-openapi.yml
+- aid: knak:knak-asset-sync-requested-api
+  name: Knak Asset.sync Requested API
+  description: The asset.sync_requested API from Knak — 0 operation(s) for asset.sync_requested.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - asset.sync_requested
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-asset-sync-requested-api-openapi.yml
+- aid: knak:knak-asset-translation-requested-api
+  name: Knak Asset.translation Requested API
+  description: >-
+    The asset.translation_requested API from Knak — 0 operation(s) for asset.translation_requested.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - asset.translation_requested
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-asset-translation-requested-api-openapi.yml
+- aid: knak:knak-translation-request-created-api
+  name: Knak Translation Request.created API
+  description: >-
+    The translation_request.created API from Knak — 0 operation(s) for translation_request.created.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - translation_request.created
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-translation-request-created-api-openapi.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
