@@ -1,0 +1,36 @@
+slug: knak
+provider: Knak
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Media, Entertainment & Telecom Content
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 2
+edges:
+- tag: Users
+  spec_file: knak-users-api-openapi.yml
+  capability_id: BC-620.20
+  capability_id_l1: BC-620
+  capability_name: Identity & Access Management
+  confidence: 0.75
+  evidence: POST /Users "Create a user"; PATCH /Users/{user_id} "Update a user"; DELETE /users/{user_id}
+    "Delete user"; SCIM API Reference; schemas UserSchema, UserList
+  reason: SCIM-based user provisioning and deprovisioning within the customer's Knak environment is joiner-mover-leaver
+    identity administration. Some chance a grader would treat it as generic tenant administration, hence
+    not maximal confidence.
+- tag: Contacts
+  spec_file: knak-contacts-api-openapi.yml
+  capability_id: BC-420.10
+  capability_id_l1: BC-420
+  capability_name: Customer Data Management
+  confidence: 0.7
+  evidence: POST /contacts/bulk bulkUpsertContacts "Bulk upsert contacts"; PUT /contacts/{id}/field-values
+    "Replace a contact's field values"
+  reason: Full CRUD plus bulk upsert/delete over contact records and their attribute values in Knak Send
+    — maintenance of the marketable contact/customer record base.
