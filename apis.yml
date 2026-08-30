@@ -91,7 +91,7 @@ apis:
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
   tags:
-  - Asset Folders
+  - AssetFolders
   tags_raw:
   - AssetFolders
   properties:
@@ -483,7 +483,8 @@ apis:
     The asset.approval_status_updated API from Knak — 0 operation(s) for asset.approval_status_updated.
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
-  tags:
+  tags: []
+  tags_raw:
   - asset.approval_status_updated
   properties:
   - type: OpenAPI
@@ -493,7 +494,8 @@ apis:
   description: The asset.created API from Knak — 0 operation(s) for asset.created.
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
-  tags:
+  tags: []
+  tags_raw:
   - asset.created
   properties:
   - type: OpenAPI
@@ -504,7 +506,8 @@ apis:
     The asset.sync_confirmation_responded API from Knak — 0 operation(s) for asset.sync_confirmation_responded.
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
-  tags:
+  tags: []
+  tags_raw:
   - asset.sync_confirmation_responded
   properties:
   - type: OpenAPI
@@ -514,7 +517,8 @@ apis:
   description: The asset.sync_requested API from Knak — 0 operation(s) for asset.sync_requested.
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
-  tags:
+  tags: []
+  tags_raw:
   - asset.sync_requested
   properties:
   - type: OpenAPI
@@ -525,7 +529,8 @@ apis:
     The asset.translation_requested API from Knak — 0 operation(s) for asset.translation_requested.
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
-  tags:
+  tags: []
+  tags_raw:
   - asset.translation_requested
   properties:
   - type: OpenAPI
