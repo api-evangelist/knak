@@ -26,15 +26,19 @@ deliveryModel:
   method: derived
 accessModel:
   pricing: unknown
-  onboarding: self-serve
+  onboarding: approval
   trial: false
   try_now: false
   public: false
-  label: Self-serve signup
+  label: Requires approval
   confidence: medium
   source:
+  - plans
   - authentication
-  generated: '2026-07-22'
+  - scopes
+  - rate-limits
+  - security
+  generated: '2026-09-03'
   method: derived
 image: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 x-type: company
