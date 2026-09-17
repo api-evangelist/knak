@@ -89,26 +89,6 @@ apis:
     url: https://developer.knak.com/api/send/
   - type: Documentation
     url: https://developer.knak.com/api/scim/
-- aid: knak:knak-assetfolders-api
-  name: Knak AssetFolders API
-  description: The AssetFolders API from Knak — 2 operation(s) for assetfolders.
-  humanURL: https://developer.knak.com/api/
-  baseURL: https://enterprise.knak.io/api/published/v1
-  tags:
-  - Asset Folders
-  tags_raw:
-  - AssetFolders
-  properties:
-  - type: OpenAPI
-    url: openapi/knak-assetfolders-api-openapi.yml
-  - type: Documentation
-    url: https://developer.knak.com/api/
-  - type: Webhooks
-    url: asyncapi/knak-enterprise-webhooks.yml
-  - type: Documentation
-    url: https://developer.knak.com/api/send/
-  - type: Documentation
-    url: https://developer.knak.com/api/scim/
 - aid: knak:knak-assets-api
   name: Knak Assets API
   description: The Assets API from Knak — 7 operation(s) for assets.
@@ -295,29 +275,6 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/knak-modules-api-openapi.yml
-  - type: Documentation
-    url: https://developer.knak.com/api/
-  - type: Webhooks
-    url: asyncapi/knak-enterprise-webhooks.yml
-  - type: Documentation
-    url: https://developer.knak.com/api/send/
-  - type: Documentation
-    url: https://developer.knak.com/api/scim/
-- aid: knak:knak-oauth2-api
-  name: Knak OAuth2 API
-  description: >-
-    Endpoints that need to be implemented to support OAuth2 — the token and authorize endpoints a CUSTOMER
-    exposes so Knak can authenticate against their Custom DAM or Custom Sync Location service. Not a Knak-hosted
-    API; the base URL is the placeholder host Knak publishes in its specifications.
-  humanURL: https://developer.knak.com/api/
-  baseURL: https://yourService.com/yourDamApi
-  tags:
-  - Authentication
-  tags_raw:
-  - OAuth2
-  properties:
-  - type: OpenAPI
-    url: openapi/knak-oauth2-api-openapi.yml
   - type: Documentation
     url: https://developer.knak.com/api/
   - type: Webhooks
@@ -550,6 +507,42 @@ apis:
   properties:
   - type: OpenAPI
     url: openapi/knak-translation-request-created-api-openapi.yml
+- aid: knak:knak-oauth2-api
+  name: Knak O Auth2 API
+  description: Endpoints that need to be implemented to support OAuth2
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - OAuth2
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-oauth2-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
+- aid: knak:knak-asset-folders-api
+  name: Knak Asset Folders API
+  description: The Asset Folders API from Knak — 2 operation(s) for asset folders.
+  humanURL: https://developer.knak.com/api/
+  baseURL: https://enterprise.knak.io/api/published/v1
+  tags:
+  - Asset Folders
+  properties:
+  - type: OpenAPI
+    url: openapi/knak-asset-folders-api-openapi.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/
+  - type: Webhooks
+    url: asyncapi/knak-enterprise-webhooks.yml
+  - type: Documentation
+    url: https://developer.knak.com/api/send/
+  - type: Documentation
+    url: https://developer.knak.com/api/scim/
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
