@@ -513,6 +513,8 @@ apis:
   humanURL: https://developer.knak.com/api/
   baseURL: https://enterprise.knak.io/api/published/v1
   tags:
+  - Authentication
+  tags_raw:
   - OAuth2
   properties:
   - type: OpenAPI
