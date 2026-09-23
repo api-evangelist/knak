@@ -14,21 +14,15 @@ server:
   environments:
   - name: Production
     url: https://enterprise.knak.io/mcp/public
-  enablement: A Knak company administrator must enable the MCP integration for the
-    organization before any client can connect.
+  enablement: A Knak company administrator must enable the MCP integration for the organization before
+    any client can connect.
 deployment:
   mode: remote
   endpoint: https://enterprise.knak.io/mcp/public
-  install: null
-  package: null
-  auth: oauth
   verified: probed
   probe: gated
-  probe_detail: 'POST tools/list with Accept: application/json, text/event-stream returned
-    HTTP 401 {"error":"Unauthenticated."} — the server is live and reachable but the tool
-    manifest requires an OAuth 2.1 access token, so the tool list below is transcribed from
-    the provider''s published tool reference rather than from live introspection.'
-  checked: '2026-08-13'
+  checked: '2026-08-12'
+  source: catalog MCP census
 authentication:
   type: oauth2.1
   flow: authorization_code
@@ -44,9 +38,9 @@ authentication:
   - refresh_token
   scopes:
   - mcp:use
-  notes: No client secrets are exposed; all authentication uses proof keys (PKCE). Stale
-    dynamic client registrations are cleaned up after 30 days of inactivity. Access is scoped
-    to the authenticated user's Knak account permissions.
+  notes: No client secrets are exposed; all authentication uses proof keys (PKCE). Stale dynamic client
+    registrations are cleaned up after 30 days of inactivity. Access is scoped to the authenticated user's
+    Knak account permissions.
 clients:
 - Claude Desktop
 - ChatGPT
@@ -65,8 +59,8 @@ tools:
     description: Brand name to filter by. Use name from list-brands, not display_name.
   returns: campaigns[] with id, name, brand_id and brand_name.
 - name: list-themes
-  description: Discover available themes for asset generation. Optional — used only when the
-    user explicitly requests a theme.
+  description: Discover available themes for asset generation. Optional — used only when the user explicitly
+    requests a theme.
   parameters:
   - name: name
     type: string
@@ -81,8 +75,8 @@ tools:
     required: false
     description: Filter by published status.
 - name: generate-asset
-  description: Create a new email asset inside a campaign folder with AI. Generation is
-    asynchronous; the caller receives a link to the asset immediately.
+  description: Create a new email asset inside a campaign folder with AI. Generation is asynchronous;
+    the caller receives a link to the asset immediately.
   parameters:
   - name: prompt
     type: string
@@ -95,8 +89,8 @@ tools:
   - name: brand_name
     type: string
     required: false
-    description: Brand to scope the asset to. Required only to disambiguate when multiple
-      campaigns across brands share the same name.
+    description: Brand to scope the asset to. Required only to disambiguate when multiple campaigns across
+      brands share the same name.
   - name: asset_name
     type: string
     required: false
@@ -133,13 +127,12 @@ tools:
     type: array
     required: false
     description: File attachments, maximum 2. Each entry is {url, filename}.
-  returns: '{assetId, status, campaignUrl, assetUrl, statusUrl, message} — statusUrl is a
-    signed polling URL under https://enterprise.knak.io/api/v2/open/assets/{id}/generation-status.'
+  returns: '{assetId, status, campaignUrl, assetUrl, statusUrl, message} — statusUrl is a signed polling
+    URL under https://enterprise.knak.io/api/v2/open/assets/{id}/generation-status.'
 - name: get-asset-preview
-  description: Return a rendered visual preview of a generated asset. Typically called
-    automatically once generation completes. Returns a PNG screenshot URL, or an inline HTML
-    fallback of up to 100 KB if screenshotting fails. Errors if the asset is still generating
-    or generation failed.
+  description: Return a rendered visual preview of a generated asset. Typically called automatically once
+    generation completes. Returns a PNG screenshot URL, or an inline HTML fallback of up to 100 KB if
+    screenshotting fails. Errors if the asset is still generating or generation failed.
   parameters:
   - name: asset_id
     type: string
@@ -182,14 +175,13 @@ tools:
 ui_resources:
 - uri: ui://knak/asset-progress
   name: Progress widget
-  description: Appears automatically after generate-asset and polls the signed statusUrl
-    until the asset is ready. Times out after about five minutes.
+  description: Appears automatically after generate-asset and polls the signed statusUrl until the asset
+    is ready. Times out after about five minutes.
 - uri: ui://knak/asset-preview
   name: Preview widget
-  description: Appears when get-asset-preview is called, rendering the screenshot or HTML
-    fallback inline.
-ui_notes: Clients that do not support MCP UI resources fall back to the structured text tool
-  responses, which contain the same URLs.
+  description: Appears when get-asset-preview is called, rendering the screenshot or HTML fallback inline.
+ui_notes: Clients that do not support MCP UI resources fall back to the structured text tool responses,
+  which contain the same URLs.
 limits:
   detail: rate-limits/knak-rate-limits.yml
   documented:
@@ -204,7 +196,7 @@ workflow:
   - list-themes
   - generate-asset
   - get-asset-preview
-  notes: Content is generated inside the Knak platform using the brand's themes and design
-    system. The AI assistant orchestrates the workflow; it does not write the email content
-    itself. Generation typically takes one to two minutes.
+  notes: Content is generated inside the Knak platform using the brand's themes and design system. The
+    AI assistant orchestrates the workflow; it does not write the email content itself. Generation typically
+    takes one to two minutes.
 crosswalk: mcp/knak-tool-crosswalk.yml

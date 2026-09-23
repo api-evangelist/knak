@@ -23,6 +23,8 @@ paths:
       responses:
         200:
           description: ''
+      operationId: getV1Ping
+      x-operation-id-source: derived
     servers:
     - url: https://yourService.com/yourValidationApi
     - url: https://example.com

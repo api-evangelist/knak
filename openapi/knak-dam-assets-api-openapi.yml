@@ -2,52 +2,9 @@ openapi: 3.2.0
 info:
   description: '## Overview
 
-    An API specification to search and use DAM content in Knak.
-
-
-    By implementing a service conforming to this API specification, you will be able to search for and use
-
-    content in your custom DAM in Knak.
-
-
-    ## Authentication
-
-    Knak can use OAuth 2.0 or HTTP Basic to authenticate with your API.
-
-
-    ### OAuth 2.0
-
-    For OAuth 2.0, you will need to implement the necessary endpoints under the
-
-    `/oauth2` path to support this. The flow used is the standard [Authorization Code Grant](https://tools.ietf.org/html/rfc6749#section-4.1).
-
-
-    Knak will use the tokens generated to make requests to your service on behalf of the current authenticated user.
-
-
-    ### HTTP Basic
-
-    For HTTP Basic, Knak will include a valid username and password that are base64 encoded in the Authorization
-
-    header for the request to your service. The credentials can be set in Knak when creating a new custom DAM integration.
-
-
-    ## DAM Assets
-
-    Knak will call the `/dam-assets` and `/search` endpoints to retrieve assets from your DAM. The two main use cases are:
-
-    - reading all assets and folders in a given folder
-
-    - searching for assets matching a given search term, within a selected path
-
-
-    Note that Knak will use the URL\''s of the fetched assets for both preview and final deployment,
-
-    and will never transfer any asset content from your DAM to Knak directly.
-
-    '
+    An API specification to search and use DAM content in Knak.'
   version: V1
-  title: Custom Digital Asset Management (DAM) API Reference DAM Assets API
+  title: Custom Digital Asset Management (DAM) API Reference DAM…
   x-logo:
     url: https://s3.amazonaws.com/assets.knak.io/img/Knak-Logo-Medium.png
 servers:
@@ -141,6 +98,8 @@ paths:
           description: Unauthenticated
         403:
           description: Unauthorized
+      operationId: getV1DamAssets
+      x-operation-id-source: derived
   /v1/search:
     get:
       tags:
@@ -190,8 +149,29 @@ paths:
           description: Unauthenticated
         403:
           description: Unauthorized
+      operationId: getV1Search
+      x-operation-id-source: derived
 components:
   schemas:
+    AssetMetaData:
+      type: object
+      properties:
+        width:
+          type: number
+          description: The width of the asset in pixels
+          example: 1920
+        height:
+          type: number
+          description: The height of the asset in pixels
+          example: 1080
+        size:
+          type: number
+          description: The size of the asset in bytes
+          example: 1024
+        mime_type:
+          type: string
+          description: The mime type of the asset
+          example: image/jpeg
     DamAssetsSearchResponse:
       type: object
       required:
@@ -227,38 +207,6 @@ components:
               type: number
               description: The total number of search results
               example: 40
-    DamAsset:
-      type: object
-      required:
-      - id
-      - name
-      - type
-      - path
-      properties:
-        id:
-          type: string
-          description: Resource ID
-          example: 99816c53-62b1-484d-89b9-35d4453ef770
-        name:
-          type: string
-          description: Resource filename.
-          example: myImage.jpg
-        type:
-          $ref: '#/components/schemas/AssetType'
-        path:
-          type: string
-          description: Full path to resource file
-          example: path/to/myimage/folder/myImage.jpg
-        url:
-          type: string
-          description: Resource url as used for content delivery
-          example: https://my.cdn.com/images/99816c53-62b1-484d-89b9-35d4453ef770.jpg
-        thumbnail_url:
-          type: string
-          description: Resource thumbnail url for previewing.
-          example: https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg
-        metadata:
-          $ref: '#/components/schemas/AssetMetaData'
     DamAssetsIndexResponse:
       type: object
       required:
@@ -294,6 +242,12 @@ components:
               type: number
               description: The total number of search results
               example: 40
+    MessageLevel:
+      type: string
+      enum:
+      - info
+      - warning
+      - error
     DamMessage:
       type: object
       required:
@@ -309,6 +263,38 @@ components:
           $ref: '#/components/schemas/MessageType'
         level:
           $ref: '#/components/schemas/MessageLevel'
+    DamAsset:
+      type: object
+      required:
+      - id
+      - name
+      - type
+      - path
+      properties:
+        id:
+          type: string
+          description: Resource ID
+          example: 99816c53-62b1-484d-89b9-35d4453ef770
+        name:
+          type: string
+          description: Resource filename.
+          example: myImage.jpg
+        type:
+          $ref: '#/components/schemas/AssetType'
+        path:
+          type: string
+          description: Full path to resource file
+          example: path/to/myimage/folder/myImage.jpg
+        url:
+          type: string
+          description: Resource url as used for content delivery
+          example: https://my.cdn.com/images/99816c53-62b1-484d-89b9-35d4453ef770.jpg
+        thumbnail_url:
+          type: string
+          description: Resource thumbnail url for previewing.
+          example: https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg
+        metadata:
+          $ref: '#/components/schemas/AssetMetaData'
     AssetType:
       type: string
       enum:
@@ -320,28 +306,3 @@ components:
       enum:
       - search
       - empty
-    AssetMetaData:
-      type: object
-      properties:
-        width:
-          type: number
-          description: The width of the asset in pixels
-          example: 1920
-        height:
-          type: number
-          description: The height of the asset in pixels
-          example: 1080
-        size:
-          type: number
-          description: The size of the asset in bytes
-          example: 1024
-        mime_type:
-          type: string
-          description: The mime type of the asset
-          example: image/jpeg
-    MessageLevel:
-      type: string
-      enum:
-      - info
-      - warning
-      - error

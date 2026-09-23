@@ -16,7 +16,7 @@ tags:
 paths:
   /users:
     get:
-      description: Retrieve a page of [users](#tag/user_model) in the organization.
+      description: Retrieve a page of users in the organization.
       summary: List all users
       parameters:
       - name: filter[email]
@@ -76,13 +76,15 @@ paths:
                 errors:
                 - title: Forbidden.
                   detail: This user is not authorized to perform this action. Please adjust permissions before continuing.
+      operationId: getUsers
+      x-operation-id-source: derived
     servers:
     - url: https://enterprise.knak.io/api/published/v1
       description: production
   /users/{user_id}:
     get:
-      description: Retrieve a specific [user](#tag/user_model)'s information.
-      summary: Retrieve a specific user's information.
+      description: Retrieve a specific user's information.
+      summary: Retrieve a specific user's information
       parameters:
       - in: path
         required: true
@@ -130,8 +132,10 @@ paths:
                 errors:
                 - title: Resource Not Found.
                   detail: Could not find the user you were looking for.
+      operationId: getUsersByUserId
+      x-operation-id-source: derived
     delete:
-      description: Delete [user](#tag/user_model) via their ID (if permissions allow).
+      description: Delete user via their ID (if permissions allow).
       summary: Delete user
       parameters:
       - in: path
@@ -199,6 +203,8 @@ paths:
                 errors:
                 - title: Resource Not Found.
                   detail: Could not find the user you were looking for.
+      operationId: deleteUsersByUserId
+      x-operation-id-source: derived
     servers:
     - url: https://enterprise.knak.io/api/published/v1
       description: production
@@ -253,6 +259,8 @@ paths:
                 $ref: '#/components/schemas/Error_2'
               example:
                 error: Forbidden.
+      operationId: getUsers
+      x-operation-id-source: derived
     post:
       description: Creates a user.
       summary: Create a user
@@ -295,6 +303,8 @@ paths:
                 $ref: '#/components/schemas/Error_2'
               example:
                 error: Attempting to create user that already exists.
+      operationId: postUsers
+      x-operation-id-source: derived
     servers:
     - url: https://enterprise.knak.io/scim/v2
   /Users/{user_id}:
@@ -349,6 +359,8 @@ paths:
                 - urn:ietf:params:scim:api:messages:2.0:Error
                 status: 404
                 detail: User not found.
+      operationId: getUsersByUserId
+      x-operation-id-source: derived
     put:
       description: Updates an existing user resource, used specifically for updating user's active status.
       summary: Update a user
@@ -410,6 +422,8 @@ paths:
                 - urn:ietf:params:scim:api:messages:2.0:Error
                 status: 404
                 detail: User does not exist.
+      operationId: putUsersByUserId
+      x-operation-id-source: derived
     patch:
       description: Updates an existing user resource, specifically for updating user's active status.
       summary: Update a user
@@ -463,10 +477,23 @@ paths:
                 - urn:ietf:params:scim:api:messages:2.0:Error
                 status: 404
                 detail: User does not exist.
+      operationId: patchUsersByUserId
+      x-operation-id-source: derived
     servers:
     - url: https://enterprise.knak.io/scim/v2
 components:
   schemas:
+    UserItem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: user
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/User'
     User:
       type: object
       properties:
@@ -487,23 +514,26 @@ components:
           description: The roles for the user. Can be any of the roles defined for the company including custom roles.
           items:
             type: string
-    Response:
+    Error:
       type: object
       properties:
-        message:
-          type: string
-          example: This is the response message to the request made.
-    UserItem:
-      type: object
-      properties:
-        type:
-          type: string
-          example: user
-        id:
-          type: string
-          example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/User'
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
     UserList:
       type: object
       properties:
@@ -567,6 +597,12 @@ components:
             total:
               type: integer
               example: 2
+    Response:
+      type: object
+      properties:
+        message:
+          type: string
+          example: This is the response message to the request made.
     UserResponse:
       type: object
       properties:
@@ -575,44 +611,20 @@ components:
         message:
           type: string
           example: Success
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
-    UserList_2:
+    ErrorSchema:
       type: object
       properties:
         schemas:
           type: array
           items:
             type: string
-            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
-        totalResults:
-          type: integer
-          example: 10
-        startIndex:
-          type: integer
-          example: 0
-        Resources:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserSchema'
+            example: urn:ietf:params:scim:api:messages:2.0:Error
+        status:
+          type: string
+          example: 404
+        detail:
+          type: string
+          example: User not found
     UserSchema:
       type: object
       description: SCIM User schema representation for users in the platform.
@@ -657,20 +669,24 @@ components:
         active:
           type: boolean
           example: true
-    ErrorSchema:
+    UserList_2:
       type: object
       properties:
         schemas:
           type: array
           items:
             type: string
-            example: urn:ietf:params:scim:api:messages:2.0:Error
-        status:
-          type: string
-          example: 404
-        detail:
-          type: string
-          example: User not found
+            example: urn:ietf:params:scim:api:messages:2.0:ListResponse
+        totalResults:
+          type: integer
+          example: 10
+        startIndex:
+          type: integer
+          example: 0
+        Resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSchema'
     Error_2:
       type: object
       properties:
