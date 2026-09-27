@@ -38,7 +38,7 @@
     "knak-fields-api-openapi.yml"
   ],
   "archived": [
-    "deleted 2 superseded output(s) from the previous generation"
+    "deleted 1 superseded output(s) from the previous generation"
   ],
   "errors": [],
   "warnings": [],
@@ -74,8 +74,8 @@
     "tag 'OAuth2' spans 2 source specs (knak-custom-sync-location-openapi-original.yml, knak-dam-openapi-original.yml): per-path servers applied",
     "tag 'Status' spans 2 source specs (knak-custom-validator-openapi-original.yml, knak-dam-openapi-original.yml): per-path servers applied",
     "tag 'Users' spans 2 source specs (knak-enterprise-openapi-original.yml, knak-scim-openapi-original.yml): per-path servers applied",
-    "superseded outputs removed: knak-asset-folders-api-openapi.yml, knak-o-auth2-api-openapi.yml",
-    "apis.yml register: written (+2 apis, 27 total)"
+    "superseded outputs removed: knak-asset-folders-api-openapi.yml",
+    "apis.yml register: written (+1 apis, 27 total)"
   ],
   "skipped": [
     "knak-asset-approval-status-updated-api-openapi.yml: previously refined output, superseded by openapi/_original/",
@@ -95,7 +95,7 @@
     "knak-marketingplatformsyncs-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "knak-mergetags-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "knak-modules-api-openapi.yml: previously refined output, superseded by openapi/_original/",
-    "knak-o-auth2-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "knak-oauth2-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "knak-project-management-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "knak-status-api-openapi.yml: previously refined output, superseded by openapi/_original/",
     "knak-sync-location-api-openapi.yml: previously refined output, superseded by openapi/_original/",

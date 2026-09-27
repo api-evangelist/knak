@@ -149,12 +149,12 @@ components:
                 type: object
                 description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
                 additionalProperties: true
-    AssetCustomField:
+    AssetCustomFieldset:
       type: object
       properties:
         type:
           type: string
-          example: asset-custom-field
+          example: asset-custom-fieldset
         id:
           type: string
           example: 63eff78889f21
@@ -164,24 +164,13 @@ components:
             id:
               type: string
               example: 63eff78889f21
-            label:
+            name:
               type: string
-              example: Field Label
-            field_name:
-              type: string
-              example: Field Name
-            default_value:
-              type: string
-              example: Default
-              nullable: true
-            type_definition:
-              type: string
-              format: JSON object
-              example:
-                type: date
-            required:
-              type: boolean
-              example: false
+              example: Asset Custom Fieldset
+            brands:
+              type: array
+              items:
+                $ref: '#/components/schemas/BrandSummary'
             created_at:
               type: string
               format: date-time
@@ -262,18 +251,12 @@ components:
         name:
           type: string
           example: AMER
-    Response:
-      type: object
-      properties:
-        message:
-          type: string
-          example: This is the response message to the request made.
-    AssetCustomFieldset:
+    AssetCustomField:
       type: object
       properties:
         type:
           type: string
-          example: asset-custom-fieldset
+          example: asset-custom-field
         id:
           type: string
           example: 63eff78889f21
@@ -283,13 +266,24 @@ components:
             id:
               type: string
               example: 63eff78889f21
-            name:
+            label:
               type: string
-              example: Asset Custom Fieldset
-            brands:
-              type: array
-              items:
-                $ref: '#/components/schemas/BrandSummary'
+              example: Field Label
+            field_name:
+              type: string
+              example: Field Name
+            default_value:
+              type: string
+              example: Default
+              nullable: true
+            type_definition:
+              type: string
+              format: JSON object
+              example:
+                type: date
+            required:
+              type: boolean
+              example: false
             created_at:
               type: string
               format: date-time
@@ -298,6 +292,12 @@ components:
               type: string
               format: date-time
               example: '2023-05-18T19:55:21.000000Z'
+    Response:
+      type: object
+      properties:
+        message:
+          type: string
+          example: This is the response message to the request made.
 x-tagGroups:
 - name: User Management
   tags:

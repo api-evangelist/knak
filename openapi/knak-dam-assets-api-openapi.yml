@@ -172,41 +172,12 @@ components:
           type: string
           description: The mime type of the asset
           example: image/jpeg
-    DamAssetsSearchResponse:
-      type: object
-      required:
-      - data
-      - meta
-      properties:
-        data:
-          type: array
-          description: The DAM Asset results
-          items:
-            $ref: '#/components/schemas/DamAsset'
-        messages:
-          type: array
-          description: Custom messages to display on DAM file viewer
-          items:
-            $ref: '#/components/schemas/DamMessage'
-        meta:
-          type: object
-          description: response metadata
-          required:
-          - offset
-          - total
-          properties:
-            offset:
-              type: number
-              description: The current offset of fetched results
-              example: 0
-            per_page:
-              type: number
-              description: The number of items requested per page
-              example: 1
-            total:
-              type: number
-              description: The total number of search results
-              example: 40
+    AssetType:
+      type: string
+      enum:
+      - image
+      - video
+      - folder
     DamAssetsIndexResponse:
       type: object
       required:
@@ -242,12 +213,46 @@ components:
               type: number
               description: The total number of search results
               example: 40
-    MessageLevel:
+    DamAssetsSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          description: The DAM Asset results
+          items:
+            $ref: '#/components/schemas/DamAsset'
+        messages:
+          type: array
+          description: Custom messages to display on DAM file viewer
+          items:
+            $ref: '#/components/schemas/DamMessage'
+        meta:
+          type: object
+          description: response metadata
+          required:
+          - offset
+          - total
+          properties:
+            offset:
+              type: number
+              description: The current offset of fetched results
+              example: 0
+            per_page:
+              type: number
+              description: The number of items requested per page
+              example: 1
+            total:
+              type: number
+              description: The total number of search results
+              example: 40
+    MessageType:
       type: string
       enum:
-      - info
-      - warning
-      - error
+      - search
+      - empty
     DamMessage:
       type: object
       required:
@@ -295,14 +300,9 @@ components:
           example: https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg
         metadata:
           $ref: '#/components/schemas/AssetMetaData'
-    AssetType:
+    MessageLevel:
       type: string
       enum:
-      - image
-      - video
-      - folder
-    MessageType:
-      type: string
-      enum:
-      - search
-      - empty
+      - info
+      - warning
+      - error

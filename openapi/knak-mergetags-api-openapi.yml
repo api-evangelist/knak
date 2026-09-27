@@ -306,6 +306,26 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
     MergeTagList:
       type: object
       properties:
@@ -369,6 +389,17 @@ components:
             total:
               type: integer
               example: 3
+    MergeTag:
+      type: object
+      properties:
+        type:
+          type: string
+          example: merge-tag
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/MergeTagAttributes'
     MergeTagAttributes:
       type: object
       properties:
@@ -399,37 +430,6 @@ components:
           type: string
           description: A paste-ready merge-tag token you can embed directly in asset content. Knak resolves it to the correct platform merge tag when the asset is synced. See the [Merge Tag Model](#tag/merge_tag) for the content syntax.
           example: '{{!City.knakTagId:609d7ce223411!}}'
-    MergeTag:
-      type: object
-      properties:
-        type:
-          type: string
-          example: merge-tag
-        id:
-          type: string
-          example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/MergeTagAttributes'
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
     Response:
       type: object
       properties:

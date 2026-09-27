@@ -162,6 +162,102 @@ paths:
         '429':
           $ref: '#/components/responses/TooManyRequests'
 components:
+  parameters:
+    FieldId:
+      name: id
+      in: path
+      required: true
+      description: The unique identifier of the field.
+      schema:
+        type: string
+      example: f1e2d3c4-b5a6-7890-abcd-ef1234567890
+    PageSize:
+      name: page[size]
+      in: query
+      required: false
+      description: The number of records per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    PageNumber:
+      name: page[number]
+      in: query
+      required: false
+      description: The page of results to return (1-based).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+  responses:
+    ValidationError:
+      description: One or more request fields failed backend validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorList'
+          example:
+            error_at: '2026-06-02T13:56:31+00:00'
+            errors:
+            - identifier: ValidationError
+              details: One or more of the given request fields failed backend validation.
+              meta:
+                email:
+                - The email field is required.
+    Forbidden:
+      description: Knak Send access is not enabled for the account, or the token lacks the required scope.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: ACCESS_DENIED
+              message: Knak Send access is not enabled for this account.
+    FieldNotFound:
+      description: No field exists with the given ID.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: FIELD_NOT_FOUND
+              message: Field with id f1e2d3c4-b5a6-7890-abcd-ef1234567890 not found.
+    FieldConflict:
+      description: A field with the same generated key already exists.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: FIELD_ALREADY_EXISTS
+              message: A field with the name Department already exists in API directory.
+    Unauthenticated:
+      description: The access token is missing, invalid or expired.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: UNAUTHENTICATED
+              message: Invalid or expired access token.
+    TooManyRequests:
+      description: 'The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
+
+        to wait before retrying.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpError'
+          example:
+            message: Too Many Attempts.
+            type: HttpException
   schemas:
     FieldInput:
       type: object
@@ -176,6 +272,51 @@ components:
           description: The human-readable name of the field. The field key is generated from this value.
         type:
           $ref: '#/components/schemas/FieldType'
+    PaginationMeta:
+      type: object
+      description: Pagination metadata describing the current result window.
+      properties:
+        total:
+          type: integer
+          description: The total number of matching records.
+        current_page:
+          type: integer
+        last_page:
+          type: integer
+        per_page:
+          type: integer
+        from:
+          type:
+          - integer
+          - 'null'
+          description: The index of the first record on the current page.
+        to:
+          type:
+          - integer
+          - 'null'
+          description: The index of the last record on the current page.
+    ErrorList:
+      type: object
+      description: The error shape returned for validation and not-found errors.
+      properties:
+        error_at:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp of when the error occurred.
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              identifier:
+                type: string
+                description: A machine-readable identifier for the error type.
+              details:
+                type: string
+                description: A human-readable description of the error.
+              meta:
+                type: object
+                description: Additional context. For validation errors, a map of field name to validation messages.
     HttpError:
       type: object
       description: The error shape returned for rate-limit (429) errors.
@@ -217,28 +358,6 @@ components:
         directory_id:
           type: string
           description: The ID of the directory the field belongs to.
-    ErrorList:
-      type: object
-      description: The error shape returned for validation and not-found errors.
-      properties:
-        error_at:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp of when the error occurred.
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              identifier:
-                type: string
-                description: A machine-readable identifier for the error type.
-              details:
-                type: string
-                description: A human-readable description of the error.
-              meta:
-                type: object
-                description: Additional context. For validation errors, a map of field name to validation messages.
     FieldType:
       type: string
       description: The data type of a field.
@@ -248,125 +367,6 @@ components:
       - date
       - datetime
       - boolean
-    PaginationMeta:
-      type: object
-      description: Pagination metadata describing the current result window.
-      properties:
-        total:
-          type: integer
-          description: The total number of matching records.
-        current_page:
-          type: integer
-        last_page:
-          type: integer
-        per_page:
-          type: integer
-        from:
-          type:
-          - integer
-          - 'null'
-          description: The index of the first record on the current page.
-        to:
-          type:
-          - integer
-          - 'null'
-          description: The index of the last record on the current page.
-  parameters:
-    PageSize:
-      name: page[size]
-      in: query
-      required: false
-      description: The number of records per page.
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 25
-    FieldId:
-      name: id
-      in: path
-      required: true
-      description: The unique identifier of the field.
-      schema:
-        type: string
-      example: f1e2d3c4-b5a6-7890-abcd-ef1234567890
-    PageNumber:
-      name: page[number]
-      in: query
-      required: false
-      description: The page of results to return (1-based).
-      schema:
-        type: integer
-        minimum: 1
-        default: 1
-  responses:
-    ValidationError:
-      description: One or more request fields failed backend validation.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorList'
-          example:
-            error_at: '2026-06-02T13:56:31+00:00'
-            errors:
-            - identifier: ValidationError
-              details: One or more of the given request fields failed backend validation.
-              meta:
-                email:
-                - The email field is required.
-    TooManyRequests:
-      description: 'The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
-
-        to wait before retrying.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/HttpError'
-          example:
-            message: Too Many Attempts.
-            type: HttpException
-    Forbidden:
-      description: Knak Send access is not enabled for the account, or the token lacks the required scope.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: ACCESS_DENIED
-              message: Knak Send access is not enabled for this account.
-    Unauthenticated:
-      description: The access token is missing, invalid or expired.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: UNAUTHENTICATED
-              message: Invalid or expired access token.
-    FieldConflict:
-      description: A field with the same generated key already exists.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: FIELD_ALREADY_EXISTS
-              message: A field with the name Department already exists in API directory.
-    FieldNotFound:
-      description: No field exists with the given ID.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: FIELD_NOT_FOUND
-              message: Field with id f1e2d3c4-b5a6-7890-abcd-ef1234567890 not found.
   securitySchemes:
     bearerAuth:
       type: http

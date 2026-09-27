@@ -483,6 +483,26 @@ paths:
     - url: https://enterprise.knak.io/scim/v2
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
     UserItem:
       type: object
       properties:
@@ -514,26 +534,14 @@ components:
           description: The roles for the user. Can be any of the roles defined for the company including custom roles.
           items:
             type: string
-    Error:
+    UserResponse:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
+        user:
+          $ref: '#/components/schemas/UserItem'
+        message:
+          type: string
+          example: Success
     UserList:
       type: object
       properties:
@@ -603,14 +611,6 @@ components:
         message:
           type: string
           example: This is the response message to the request made.
-    UserResponse:
-      type: object
-      properties:
-        user:
-          $ref: '#/components/schemas/UserItem'
-        message:
-          type: string
-          example: Success
     ErrorSchema:
       type: object
       properties:
@@ -669,6 +669,12 @@ components:
         active:
           type: boolean
           example: true
+    Error_2:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthenticated.
     UserList_2:
       type: object
       properties:
@@ -687,12 +693,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UserSchema'
-    Error_2:
-      type: object
-      properties:
-        error:
-          type: string
-          example: Unauthenticated.
 x-refined-from:
 - knak-enterprise-openapi-original.yml
 - knak-scim-openapi-original.yml

@@ -922,41 +922,29 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    AssetPreview:
+    AssetCustomFields:
       type: object
       properties:
         data:
           type: object
           properties:
+            type:
+              type: string
+              example: asset-custom-fields
             id:
               type: string
               example: 609d7ce223411
-            format:
-              type: string
-              enum:
-              - png
-              - pdf
-              example: png
-            client:
-              type: string
-              enum:
-              - desktop
-              - mobile
-              example: desktop
-            details:
-              type: boolean
-              description: Whether the email details header is included in the returned preview. Only `false` when the preview was rendered for `format=pdf` with `client=desktop` and `details=false` was requested; `true` in all other cases.
-              example: true
-            url:
-              type: string
-              nullable: true
-              description: Publicly accessible preview URL (no authentication required). Null while the preview is still being generated (HTTP 202).
-              example: https://cdn.example.com/preview-desktop.png
-    MarketingPlatformSyncItem:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/MarketingPlatformSync'
+              definition: ID of the asset the custom fields belong to
+            attributes:
+              type: object
+              properties:
+                asset_id:
+                  type: string
+                  example: 609d7ce223411
+                custom_fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CustomField'
     Asset:
       type: object
       required:
@@ -1048,66 +1036,6 @@ components:
               description: Status of AI content generation. Only present on assets created via the /assets/generate endpoint. Null for non-AI assets.
               example: null
       additionalProperties: false
-    MarketingPlatformSync:
-      type: object
-      properties:
-        type:
-          type: string
-          example: marketing-platform-sync
-        id:
-          type: string
-          example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/MarketingPlatformSyncAttributes'
-    MarketingPlatformSyncAttributes:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 609d7ce223411
-        asset_id:
-          type: string
-          example: 609d7ce223abc
-        integration_id:
-          type: string
-          example: 609d7ce223def
-        platform:
-          type: string
-          example: marketing_cloud
-        sync_type:
-          type: string
-          enum:
-          - sync
-          - resync
-          example: sync
-        status:
-          type: string
-          description: Wire value; the database stores `error` for failed syncs but the API response maps that to `failed` for consistency.
-          enum:
-          - pending
-          - in_progress
-          - complete
-          - failed
-          - confirmation_requested
-          example: pending
-        platform_asset_id:
-          type: string
-          nullable: true
-          example: '123456'
-        platform_asset_url:
-          type: string
-          nullable: true
-          example: https://mc.s7.exacttarget.com/emails/123456
-        error_message:
-          type: string
-          nullable: true
-          example: null
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
     Error:
       type: object
       properties:
@@ -1128,11 +1056,110 @@ components:
                 type: object
                 description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
                 additionalProperties: true
-    AssetItem:
+    AssetList:
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/Asset'
+          type: array
+          items:
+            $ref: '#/components/schemas/Asset'
+        links:
+          type: object
+          properties:
+            first:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/assets?page=1
+            last:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/assets?page=3
+            prev:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/assets?page=1
+            next:
+              type: string
+              nullable: true
+              example: https://enterprise.knak.io/api/published/v1/assets?page=3
+        meta:
+          type: object
+          properties:
+            current_page:
+              type: integer
+              example: 1
+            from:
+              type: integer
+              example: 1
+            last_page:
+              type: integer
+              example: 3
+            links:
+              type: array
+              items:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    nullable: true
+                    example: https://enterprise.knak.io/api/published/v1/assets?page=2
+                  label:
+                    type: string
+                    example: Next
+                  active:
+                    type: boolean
+                    example: true
+            path:
+              type: string
+              example: https://enterprise.knak.io/api/published/v1/assets?page=2
+            per_page:
+              type: integer
+              example: 10
+            to:
+              type: integer
+              example: 2
+            total:
+              type: integer
+              example: 2
+    MarketingPlatformSync:
+      type: object
+      properties:
+        type:
+          type: string
+          example: marketing-platform-sync
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/MarketingPlatformSyncAttributes'
+    AssetPreview:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 609d7ce223411
+            format:
+              type: string
+              enum:
+              - png
+              - pdf
+              example: png
+            client:
+              type: string
+              enum:
+              - desktop
+              - mobile
+              example: desktop
+            details:
+              type: boolean
+              description: Whether the email details header is included in the returned preview. Only `false` when the preview was rendered for `format=pdf` with `client=desktop` and `details=false` was requested; `true` in all other cases.
+              example: true
+            url:
+              type: string
+              nullable: true
+              description: Publicly accessible preview URL (no authentication required). Null while the preview is still being generated (HTTP 202).
+              example: https://cdn.example.com/preview-desktop.png
     CustomField:
       type: object
       properties:
@@ -1149,29 +1176,6 @@ components:
           type: boolean
           example: false
           description: Indicates if the custom field is locked by the brand.
-    AssetCustomFields:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: asset-custom-fields
-            id:
-              type: string
-              example: 609d7ce223411
-              definition: ID of the asset the custom fields belong to
-            attributes:
-              type: object
-              properties:
-                asset_id:
-                  type: string
-                  example: 609d7ce223411
-                custom_fields:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/CustomField'
     AssetContent:
       type: object
       properties:
@@ -1237,75 +1241,71 @@ components:
                   type: string
                   nullable: true
                   example: 609d7ce22341c
+    AssetItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Asset'
+    MarketingPlatformSyncAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        asset_id:
+          type: string
+          example: 609d7ce223abc
+        integration_id:
+          type: string
+          example: 609d7ce223def
+        platform:
+          type: string
+          example: marketing_cloud
+        sync_type:
+          type: string
+          enum:
+          - sync
+          - resync
+          example: sync
+        status:
+          type: string
+          description: Wire value; the database stores `error` for failed syncs but the API response maps that to `failed` for consistency.
+          enum:
+          - pending
+          - in_progress
+          - complete
+          - failed
+          - confirmation_requested
+          example: pending
+        platform_asset_id:
+          type: string
+          nullable: true
+          example: '123456'
+        platform_asset_url:
+          type: string
+          nullable: true
+          example: https://mc.s7.exacttarget.com/emails/123456
+        error_message:
+          type: string
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    MarketingPlatformSyncItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/MarketingPlatformSync'
     Response:
       type: object
       properties:
         message:
           type: string
           example: This is the response message to the request made.
-    AssetList:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Asset'
-        links:
-          type: object
-          properties:
-            first:
-              type: string
-              example: https://enterprise.knak.io/api/published/v1/assets?page=1
-            last:
-              type: string
-              example: https://enterprise.knak.io/api/published/v1/assets?page=3
-            prev:
-              type: string
-              nullable: true
-              example: https://enterprise.knak.io/api/published/v1/assets?page=1
-            next:
-              type: string
-              nullable: true
-              example: https://enterprise.knak.io/api/published/v1/assets?page=3
-        meta:
-          type: object
-          properties:
-            current_page:
-              type: integer
-              example: 1
-            from:
-              type: integer
-              example: 1
-            last_page:
-              type: integer
-              example: 3
-            links:
-              type: array
-              items:
-                type: object
-                properties:
-                  url:
-                    type: string
-                    nullable: true
-                    example: https://enterprise.knak.io/api/published/v1/assets?page=2
-                  label:
-                    type: string
-                    example: Next
-                  active:
-                    type: boolean
-                    example: true
-            path:
-              type: string
-              example: https://enterprise.knak.io/api/published/v1/assets?page=2
-            per_page:
-              type: integer
-              example: 10
-            to:
-              type: integer
-              example: 2
-            total:
-              type: integer
-              example: 2
 x-tagGroups:
 - name: User Management
   tags:

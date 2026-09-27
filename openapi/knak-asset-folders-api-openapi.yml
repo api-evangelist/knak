@@ -276,6 +276,60 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    AssetFolder:
+      type: object
+      properties:
+        type:
+          type: string
+          example: asset-folder
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 609d7ce223411
+            name:
+              type: string
+              example: Spring Newsletter
+            parent_folder_id:
+              type: string
+              example: 609d7ce223411
+              nullable: true
+            brand_id:
+              type: string
+              example: 609d7ce223411
+            type:
+              type: string
+              example: folder
+            created_at:
+              type: string
+              example: '2018-04-14T18:35:58+00:00'
+            updated_at:
+              type: string
+              example: '2018-04-14T18:35:58+00:00'
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
     AssetFolderList:
       type: object
       properties:
@@ -344,60 +398,6 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/AssetFolder'
-    AssetFolder:
-      type: object
-      properties:
-        type:
-          type: string
-          example: asset-folder
-        id:
-          type: string
-          example: 609d7ce223411
-        attributes:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 609d7ce223411
-            name:
-              type: string
-              example: Spring Newsletter
-            parent_folder_id:
-              type: string
-              example: 609d7ce223411
-              nullable: true
-            brand_id:
-              type: string
-              example: 609d7ce223411
-            type:
-              type: string
-              example: folder
-            created_at:
-              type: string
-              example: '2018-04-14T18:35:58+00:00'
-            updated_at:
-              type: string
-              example: '2018-04-14T18:35:58+00:00'
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
 x-tagGroups:
 - name: User Management
   tags:

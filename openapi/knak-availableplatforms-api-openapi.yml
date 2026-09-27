@@ -57,6 +57,26 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
     AvailablePlatformAttributes:
       type: object
       properties:
@@ -66,17 +86,6 @@ components:
         name:
           type: string
           example: Marketo
-    AvailablePlatform:
-      type: object
-      properties:
-        type:
-          type: string
-          example: available-platform
-        id:
-          type: string
-          example: marketo
-        attributes:
-          $ref: '#/components/schemas/AvailablePlatformAttributes'
     AvailablePlatformList:
       type: object
       properties:
@@ -140,26 +149,17 @@ components:
             total:
               type: integer
               example: 3
-    Error:
+    AvailablePlatform:
       type: object
       properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
+        type:
+          type: string
+          example: available-platform
+        id:
+          type: string
+          example: marketo
+        attributes:
+          $ref: '#/components/schemas/AvailablePlatformAttributes'
 x-tagGroups:
 - name: User Management
   tags:

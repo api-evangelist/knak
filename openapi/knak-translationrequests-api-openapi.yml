@@ -571,6 +571,67 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    TranslationLanguage:
+      type: object
+      properties:
+        type:
+          type: string
+          example: translation_language
+        id:
+          type: string
+          description: The ISO language code. Used as the resource id and as a value for `language_codes` when creating a translation request.
+          example: fr-CA
+        attributes:
+          type: object
+          properties:
+            iso_code:
+              type: string
+              description: The ISO language code supported for translation requests.
+              example: fr-CA
+            name:
+              type: string
+              description: Human-readable language name.
+              example: French (Canada)
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john.doe@email.com
+        roles:
+          type: array
+          example:
+          - Email Creator
+          - Collaborator
+          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
+          items:
+            type: string
     TranslationRequestItem:
       type: object
       properties:
@@ -582,25 +643,6 @@ components:
           example: 609d7ce223411
         attributes:
           $ref: '#/components/schemas/TranslationRequestItemAttributes'
-    TranslationRequest:
-      type: object
-      properties:
-        type:
-          type: string
-          example: translation-request
-        id:
-          type: string
-          example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/TranslationRequestAttributes'
-    TranslationRequestCreatedList:
-      type: object
-      properties:
-        data:
-          type: array
-          description: The translation requests that were created, one per requested language code.
-          items:
-            $ref: '#/components/schemas/TranslationRequest'
     TranslationRequestList:
       type: object
       properties:
@@ -671,26 +713,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TranslationLanguage'
-    Error:
+    TranslationRequestCreatedList:
       type: object
       properties:
-        errors:
+        data:
           type: array
+          description: The translation requests that were created, one per requested language code.
           items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
+            $ref: '#/components/schemas/TranslationRequest'
+    TranslationRequest:
+      type: object
+      properties:
+        type:
+          type: string
+          example: translation-request
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/TranslationRequestAttributes'
     TranslationRequestItemAttributes:
       type: object
       properties:
@@ -751,47 +792,6 @@ components:
         updated_at:
           type: string
           example: '2023-02-08T17:07:12+00:00'
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 609d7ce223411
-        name:
-          type: string
-          example: John Doe
-        email:
-          type: string
-          example: john.doe@email.com
-        roles:
-          type: array
-          example:
-          - Email Creator
-          - Collaborator
-          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
-          items:
-            type: string
-    TranslationLanguage:
-      type: object
-      properties:
-        type:
-          type: string
-          example: translation_language
-        id:
-          type: string
-          description: The ISO language code. Used as the resource id and as a value for `language_codes` when creating a translation request.
-          example: fr-CA
-        attributes:
-          type: object
-          properties:
-            iso_code:
-              type: string
-              description: The ISO language code supported for translation requests.
-              example: fr-CA
-            name:
-              type: string
-              description: Human-readable language name.
-              example: French (Canada)
     TranslationRequestAttributes:
       type: object
       properties:
