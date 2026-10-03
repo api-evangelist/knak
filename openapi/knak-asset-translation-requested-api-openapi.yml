@@ -112,26 +112,6 @@ components:
         updated_at:
           type: string
           example: '2023-02-08T17:07:12+00:00'
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 609d7ce223411
-        name:
-          type: string
-          example: John Doe
-        email:
-          type: string
-          example: john.doe@email.com
-        roles:
-          type: array
-          example:
-          - Email Creator
-          - Collaborator
-          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
-          items:
-            type: string
     TranslationRequestItem:
       type: object
       properties:
@@ -194,6 +174,26 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/TranslationRequestItem'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john.doe@email.com
+        roles:
+          type: array
+          example:
+          - Email Creator
+          - Collaborator
+          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
+          items:
+            type: string
 x-tagGroups:
 - name: User Management
   tags:

@@ -922,29 +922,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    AssetCustomFields:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: asset-custom-fields
-            id:
-              type: string
-              example: 609d7ce223411
-              definition: ID of the asset the custom fields belong to
-            attributes:
-              type: object
-              properties:
-                asset_id:
-                  type: string
-                  example: 609d7ce223411
-                custom_fields:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/CustomField'
     Asset:
       type: object
       required:
@@ -1036,26 +1013,6 @@ components:
               description: Status of AI content generation. Only present on assets created via the /assets/generate endpoint. Null for non-AI assets.
               example: null
       additionalProperties: false
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
     AssetList:
       type: object
       properties:
@@ -1130,6 +1087,26 @@ components:
           example: 609d7ce223411
         attributes:
           $ref: '#/components/schemas/MarketingPlatformSyncAttributes'
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
     AssetPreview:
       type: object
       properties:
@@ -1160,22 +1137,61 @@ components:
               nullable: true
               description: Publicly accessible preview URL (no authentication required). Null while the preview is still being generated (HTTP 202).
               example: https://cdn.example.com/preview-desktop.png
-    CustomField:
+    Response:
       type: object
       properties:
-        label:
+        message:
           type: string
-          example: Custom Field 1
-        key:
+          example: This is the response message to the request made.
+    MarketingPlatformSyncAttributes:
+      type: object
+      properties:
+        id:
           type: string
-          example: custom_field_1
-        value:
+          example: 609d7ce223411
+        asset_id:
           type: string
-          example: My Value
-        locked:
-          type: boolean
-          example: false
-          description: Indicates if the custom field is locked by the brand.
+          example: 609d7ce223abc
+        integration_id:
+          type: string
+          example: 609d7ce223def
+        platform:
+          type: string
+          example: marketing_cloud
+        sync_type:
+          type: string
+          enum:
+          - sync
+          - resync
+          example: sync
+        status:
+          type: string
+          description: Wire value; the database stores `error` for failed syncs but the API response maps that to `failed` for consistency.
+          enum:
+          - pending
+          - in_progress
+          - complete
+          - failed
+          - confirmation_requested
+          example: pending
+        platform_asset_id:
+          type: string
+          nullable: true
+          example: '123456'
+        platform_asset_url:
+          type: string
+          nullable: true
+          example: https://mc.s7.exacttarget.com/emails/123456
+        error_message:
+          type: string
+          nullable: true
+          example: null
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
     AssetContent:
       type: object
       properties:
@@ -1241,71 +1257,55 @@ components:
                   type: string
                   nullable: true
                   example: 609d7ce22341c
-    AssetItem:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/Asset'
-    MarketingPlatformSyncAttributes:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 609d7ce223411
-        asset_id:
-          type: string
-          example: 609d7ce223abc
-        integration_id:
-          type: string
-          example: 609d7ce223def
-        platform:
-          type: string
-          example: marketing_cloud
-        sync_type:
-          type: string
-          enum:
-          - sync
-          - resync
-          example: sync
-        status:
-          type: string
-          description: Wire value; the database stores `error` for failed syncs but the API response maps that to `failed` for consistency.
-          enum:
-          - pending
-          - in_progress
-          - complete
-          - failed
-          - confirmation_requested
-          example: pending
-        platform_asset_id:
-          type: string
-          nullable: true
-          example: '123456'
-        platform_asset_url:
-          type: string
-          nullable: true
-          example: https://mc.s7.exacttarget.com/emails/123456
-        error_message:
-          type: string
-          nullable: true
-          example: null
-        created_at:
-          type: string
-          format: date-time
-        updated_at:
-          type: string
-          format: date-time
     MarketingPlatformSyncItem:
       type: object
       properties:
         data:
           $ref: '#/components/schemas/MarketingPlatformSync'
-    Response:
+    AssetItem:
       type: object
       properties:
-        message:
+        data:
+          $ref: '#/components/schemas/Asset'
+    AssetCustomFields:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: asset-custom-fields
+            id:
+              type: string
+              example: 609d7ce223411
+              definition: ID of the asset the custom fields belong to
+            attributes:
+              type: object
+              properties:
+                asset_id:
+                  type: string
+                  example: 609d7ce223411
+                custom_fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CustomField'
+    CustomField:
+      type: object
+      properties:
+        label:
           type: string
-          example: This is the response message to the request made.
+          example: Custom Field 1
+        key:
+          type: string
+          example: custom_field_1
+        value:
+          type: string
+          example: My Value
+        locked:
+          type: boolean
+          example: false
+          description: Indicates if the custom field is locked by the brand.
 x-tagGroups:
 - name: User Management
   tags:

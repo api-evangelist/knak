@@ -153,6 +153,99 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    MessageType:
+      type: string
+      enum:
+      - search
+      - empty
+    DamAssetsSearchResponse:
+      type: object
+      required:
+      - data
+      - meta
+      properties:
+        data:
+          type: array
+          description: The DAM Asset results
+          items:
+            $ref: '#/components/schemas/DamAsset'
+        messages:
+          type: array
+          description: Custom messages to display on DAM file viewer
+          items:
+            $ref: '#/components/schemas/DamMessage'
+        meta:
+          type: object
+          description: response metadata
+          required:
+          - offset
+          - total
+          properties:
+            offset:
+              type: number
+              description: The current offset of fetched results
+              example: 0
+            per_page:
+              type: number
+              description: The number of items requested per page
+              example: 1
+            total:
+              type: number
+              description: The total number of search results
+              example: 40
+    DamMessage:
+      type: object
+      required:
+      - message
+      - type
+      - level
+      properties:
+        message:
+          type: string
+          description: Message text to display
+          example: Search for asset by their name or ID
+        type:
+          $ref: '#/components/schemas/MessageType'
+        level:
+          $ref: '#/components/schemas/MessageLevel'
+    DamAsset:
+      type: object
+      required:
+      - id
+      - name
+      - type
+      - path
+      properties:
+        id:
+          type: string
+          description: Resource ID
+          example: 99816c53-62b1-484d-89b9-35d4453ef770
+        name:
+          type: string
+          description: Resource filename.
+          example: myImage.jpg
+        type:
+          $ref: '#/components/schemas/AssetType'
+        path:
+          type: string
+          description: Full path to resource file
+          example: path/to/myimage/folder/myImage.jpg
+        url:
+          type: string
+          description: Resource url as used for content delivery
+          example: https://my.cdn.com/images/99816c53-62b1-484d-89b9-35d4453ef770.jpg
+        thumbnail_url:
+          type: string
+          description: Resource thumbnail url for previewing.
+          example: https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg
+        metadata:
+          $ref: '#/components/schemas/AssetMetaData'
+    MessageLevel:
+      type: string
+      enum:
+      - info
+      - warning
+      - error
     AssetMetaData:
       type: object
       properties:
@@ -213,96 +306,3 @@ components:
               type: number
               description: The total number of search results
               example: 40
-    DamAssetsSearchResponse:
-      type: object
-      required:
-      - data
-      - meta
-      properties:
-        data:
-          type: array
-          description: The DAM Asset results
-          items:
-            $ref: '#/components/schemas/DamAsset'
-        messages:
-          type: array
-          description: Custom messages to display on DAM file viewer
-          items:
-            $ref: '#/components/schemas/DamMessage'
-        meta:
-          type: object
-          description: response metadata
-          required:
-          - offset
-          - total
-          properties:
-            offset:
-              type: number
-              description: The current offset of fetched results
-              example: 0
-            per_page:
-              type: number
-              description: The number of items requested per page
-              example: 1
-            total:
-              type: number
-              description: The total number of search results
-              example: 40
-    MessageType:
-      type: string
-      enum:
-      - search
-      - empty
-    DamMessage:
-      type: object
-      required:
-      - message
-      - type
-      - level
-      properties:
-        message:
-          type: string
-          description: Message text to display
-          example: Search for asset by their name or ID
-        type:
-          $ref: '#/components/schemas/MessageType'
-        level:
-          $ref: '#/components/schemas/MessageLevel'
-    DamAsset:
-      type: object
-      required:
-      - id
-      - name
-      - type
-      - path
-      properties:
-        id:
-          type: string
-          description: Resource ID
-          example: 99816c53-62b1-484d-89b9-35d4453ef770
-        name:
-          type: string
-          description: Resource filename.
-          example: myImage.jpg
-        type:
-          $ref: '#/components/schemas/AssetType'
-        path:
-          type: string
-          description: Full path to resource file
-          example: path/to/myimage/folder/myImage.jpg
-        url:
-          type: string
-          description: Resource url as used for content delivery
-          example: https://my.cdn.com/images/99816c53-62b1-484d-89b9-35d4453ef770.jpg
-        thumbnail_url:
-          type: string
-          description: Resource thumbnail url for previewing.
-          example: https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg
-        metadata:
-          $ref: '#/components/schemas/AssetMetaData'
-    MessageLevel:
-      type: string
-      enum:
-      - info
-      - warning
-      - error

@@ -454,6 +454,25 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
 components:
   schemas:
+    FieldType:
+      type: string
+      description: The data type of a field.
+      enum:
+      - string
+      - number
+      - date
+      - datetime
+      - boolean
+    HttpError:
+      type: object
+      description: The error shape returned for rate-limit (429) errors.
+      properties:
+        message:
+          type: string
+          description: A human-readable description of the error.
+        type:
+          type: string
+          description: The error type. Always `HttpException` for this shape.
     ContactDetail:
       type: object
       description: A contact with its associated field values, returned when retrieving a single contact.
@@ -465,6 +484,140 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/FieldValue'
+    ErrorObject:
+      type: object
+      description: The compact error shape returned for authentication, authorization and conflict errors.
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: A machine-readable error code.
+            message:
+              type: string
+              description: A human-readable description of the error.
+    FieldValuesInput:
+      type: object
+      description: The payload used to replace a contact's field values.
+      required:
+      - field_values
+      properties:
+        field_values:
+          type: object
+          minProperties: 1
+          maxProperties: 20
+          description: 'A map of field key to scalar value. Each key must match the `key` of an existing field
+
+            (see `GET /fields`). Between 1 and 20 entries may be provided. Replaces the contact''s existing
+
+            field values.
+
+            '
+          additionalProperties:
+            type:
+            - string
+            - number
+            - boolean
+          example:
+            department: Engineering
+            startDate: '2026-01-15'
+    FieldValue:
+      type: object
+      description: A single field value belonging to a contact.
+      properties:
+        field_id:
+          type: string
+          description: The ID of the field this value belongs to.
+        key:
+          type:
+          - string
+          - 'null'
+          description: The generated key of the field.
+        name:
+          type:
+          - string
+          - 'null'
+          description: The human-readable name of the field.
+        type:
+          description: The data type of the field. May be `null` if the field's metadata is unavailable.
+          oneOf:
+          - $ref: '#/components/schemas/FieldType'
+          - type: 'null'
+        value:
+          type: string
+          description: The field value, represented as a string.
+    Contact:
+      type: object
+      description: A contact as returned in list and create responses.
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the contact.
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        avatar_url:
+          type:
+          - string
+          - 'null'
+          format: uri
+          description: URL of the contact's avatar image, if set.
+        supervisor_id:
+          type:
+          - string
+          - 'null'
+          description: The ID of this contact's supervisor, if one is assigned.
+        created_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: ISO 8601 creation timestamp.
+        updated_at:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: ISO 8601 last-updated timestamp.
+    BulkUpsertResult:
+      type: object
+      description: The outcome of a bulk upsert operation.
+      properties:
+        created:
+          type: integer
+          description: The number of contacts created.
+        updated:
+          type: integer
+          description: The number of existing contacts updated.
+        failed:
+          type: integer
+          description: The number of contacts that failed validation or processing.
+        errors:
+          type: array
+          description: One entry per failed contact.
+          items:
+            type: object
+            properties:
+              index:
+                type: integer
+                description: The 0-based position of the contact in the submitted `contacts` array.
+              email:
+                type:
+                - string
+                - 'null'
+                description: The email of the failed contact, if available.
+              details:
+                type: object
+                description: A map of field name to an array of validation messages.
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
     ErrorList:
       type: object
       description: The error shape returned for validation and not-found errors.
@@ -487,15 +640,6 @@ components:
               meta:
                 type: object
                 description: Additional context. For validation errors, a map of field name to validation messages.
-    FieldType:
-      type: string
-      description: The data type of a field.
-      enum:
-      - string
-      - number
-      - date
-      - datetime
-      - boolean
     ContactInput:
       type: object
       description: The payload used to create or upsert a contact.
@@ -542,125 +686,6 @@ components:
           example:
             department: Engineering
             startDate: '2026-01-15'
-    Contact:
-      type: object
-      description: A contact as returned in list and create responses.
-      properties:
-        id:
-          type: string
-          description: The unique identifier of the contact.
-        first_name:
-          type: string
-        last_name:
-          type: string
-        email:
-          type: string
-          format: email
-        avatar_url:
-          type:
-          - string
-          - 'null'
-          format: uri
-          description: URL of the contact's avatar image, if set.
-        supervisor_id:
-          type:
-          - string
-          - 'null'
-          description: The ID of this contact's supervisor, if one is assigned.
-        created_at:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          description: ISO 8601 creation timestamp.
-        updated_at:
-          type:
-          - string
-          - 'null'
-          format: date-time
-          description: ISO 8601 last-updated timestamp.
-    HttpError:
-      type: object
-      description: The error shape returned for rate-limit (429) errors.
-      properties:
-        message:
-          type: string
-          description: A human-readable description of the error.
-        type:
-          type: string
-          description: The error type. Always `HttpException` for this shape.
-    ErrorObject:
-      type: object
-      description: The compact error shape returned for authentication, authorization and conflict errors.
-      properties:
-        error:
-          type: object
-          properties:
-            code:
-              type: string
-              description: A machine-readable error code.
-            message:
-              type: string
-              description: A human-readable description of the error.
-    FieldValuesInput:
-      type: object
-      description: The payload used to replace a contact's field values.
-      required:
-      - field_values
-      properties:
-        field_values:
-          type: object
-          minProperties: 1
-          maxProperties: 20
-          description: 'A map of field key to scalar value. Each key must match the `key` of an existing field
-
-            (see `GET /fields`). Between 1 and 20 entries may be provided. Replaces the contact''s existing
-
-            field values.
-
-            '
-          additionalProperties:
-            type:
-            - string
-            - number
-            - boolean
-          example:
-            department: Engineering
-            startDate: '2026-01-15'
-    BulkUpsertResult:
-      type: object
-      description: The outcome of a bulk upsert operation.
-      properties:
-        created:
-          type: integer
-          description: The number of contacts created.
-        updated:
-          type: integer
-          description: The number of existing contacts updated.
-        failed:
-          type: integer
-          description: The number of contacts that failed validation or processing.
-        errors:
-          type: array
-          description: One entry per failed contact.
-          items:
-            type: object
-            properties:
-              index:
-                type: integer
-                description: The 0-based position of the contact in the submitted `contacts` array.
-              email:
-                type:
-                - string
-                - 'null'
-                description: The email of the failed contact, if available.
-              details:
-                type: object
-                description: A map of field name to an array of validation messages.
-                additionalProperties:
-                  type: array
-                  items:
-                    type: string
     PaginationMeta:
       type: object
       description: Pagination metadata describing the current result window.
@@ -684,31 +709,84 @@ components:
           - integer
           - 'null'
           description: The index of the last record on the current page.
-    FieldValue:
-      type: object
-      description: A single field value belonging to a contact.
-      properties:
-        field_id:
-          type: string
-          description: The ID of the field this value belongs to.
-        key:
-          type:
-          - string
-          - 'null'
-          description: The generated key of the field.
-        name:
-          type:
-          - string
-          - 'null'
-          description: The human-readable name of the field.
-        type:
-          description: The data type of the field. May be `null` if the field's metadata is unavailable.
-          oneOf:
-          - $ref: '#/components/schemas/FieldType'
-          - type: 'null'
-        value:
-          type: string
-          description: The field value, represented as a string.
+  responses:
+    TooManyRequests:
+      description: 'The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
+
+        to wait before retrying.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpError'
+          example:
+            message: Too Many Attempts.
+            type: HttpException
+    Forbidden:
+      description: Knak Send access is not enabled for the account, or the token lacks the required scope.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: ACCESS_DENIED
+              message: Knak Send access is not enabled for this account.
+    ValidationError:
+      description: One or more request fields failed backend validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorList'
+          example:
+            error_at: '2026-06-02T13:56:31+00:00'
+            errors:
+            - identifier: ValidationError
+              details: One or more of the given request fields failed backend validation.
+              meta:
+                email:
+                - The email field is required.
+    NotFound:
+      description: The requested resource could not be found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: CONTACT_NOT_FOUND
+              message: Contact not found.
+    EmailDomainNotAllowed:
+      description: The contact's email domain is not in the account's allow list.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: EMAIL_DOMAIN_NOT_ALLOWED
+              message: The address john@notallowed.com has a domain that is not in your allow list.
+    ContactConflict:
+      description: A contact with the given email already exists.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: CONTACT_ALREADY_EXISTS
+              message: A contact with this email already exists.
+    Unauthenticated:
+      description: The access token is missing, invalid or expired.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: UNAUTHENTICATED
+              message: Invalid or expired access token.
   parameters:
     PageNumber:
       name: page[number]
@@ -737,84 +815,6 @@ components:
       schema:
         type: string
       example: 9b1c2d3e-4f56-7890-abcd-ef1234567890
-  responses:
-    ContactConflict:
-      description: A contact with the given email already exists.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: CONTACT_ALREADY_EXISTS
-              message: A contact with this email already exists.
-    Unauthenticated:
-      description: The access token is missing, invalid or expired.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: UNAUTHENTICATED
-              message: Invalid or expired access token.
-    ValidationError:
-      description: One or more request fields failed backend validation.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorList'
-          example:
-            error_at: '2026-06-02T13:56:31+00:00'
-            errors:
-            - identifier: ValidationError
-              details: One or more of the given request fields failed backend validation.
-              meta:
-                email:
-                - The email field is required.
-    NotFound:
-      description: The requested resource could not be found.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: CONTACT_NOT_FOUND
-              message: Contact not found.
-    TooManyRequests:
-      description: 'The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
-
-        to wait before retrying.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/HttpError'
-          example:
-            message: Too Many Attempts.
-            type: HttpException
-    Forbidden:
-      description: Knak Send access is not enabled for the account, or the token lacks the required scope.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: ACCESS_DENIED
-              message: Knak Send access is not enabled for this account.
-    EmailDomainNotAllowed:
-      description: The contact's email domain is not in the account's allow list.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: EMAIL_DOMAIN_NOT_ALLOWED
-              message: The address john@notallowed.com has a domain that is not in your allow list.
   securitySchemes:
     bearerAuth:
       type: http

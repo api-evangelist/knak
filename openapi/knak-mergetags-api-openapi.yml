@@ -306,6 +306,12 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    Response:
+      type: object
+      properties:
+        message:
+          type: string
+          example: This is the response message to the request made.
     Error:
       type: object
       properties:
@@ -326,6 +332,36 @@ components:
                 type: object
                 description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
                 additionalProperties: true
+    MergeTagAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: City
+        description:
+          type: string
+          example: The target city of the marketing campaign
+        is_special_link:
+          type: boolean
+          example: false
+        platform_id:
+          type: string
+          example: marketo
+        merge_tag_value:
+          type: string
+          example: '{{lead.City}}'
+        velocity_script_token:
+          type:
+          - 'null'
+          - string
+          example: ${lead.City}
+        knak_tag:
+          type: string
+          description: A paste-ready merge-tag token you can embed directly in asset content. Knak resolves it to the correct platform merge tag when the asset is synced. See the [Merge Tag Model](#tag/merge_tag) for the content syntax.
+          example: '{{!City.knakTagId:609d7ce223411!}}'
     MergeTagList:
       type: object
       properties:
@@ -400,42 +436,6 @@ components:
           example: 609d7ce223411
         attributes:
           $ref: '#/components/schemas/MergeTagAttributes'
-    MergeTagAttributes:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 609d7ce223411
-        name:
-          type: string
-          example: City
-        description:
-          type: string
-          example: The target city of the marketing campaign
-        is_special_link:
-          type: boolean
-          example: false
-        platform_id:
-          type: string
-          example: marketo
-        merge_tag_value:
-          type: string
-          example: '{{lead.City}}'
-        velocity_script_token:
-          type:
-          - 'null'
-          - string
-          example: ${lead.City}
-        knak_tag:
-          type: string
-          description: A paste-ready merge-tag token you can embed directly in asset content. Knak resolves it to the correct platform merge tag when the asset is synced. See the [Merge Tag Model](#tag/merge_tag) for the content syntax.
-          example: '{{!City.knakTagId:609d7ce223411!}}'
-    Response:
-      type: object
-      properties:
-        message:
-          type: string
-          example: This is the response message to the request made.
 x-tagGroups:
 - name: User Management
   tags:

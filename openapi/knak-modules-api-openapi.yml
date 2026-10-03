@@ -209,87 +209,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
-    Response:
-      type: object
-      properties:
-        message:
-          type: string
-          example: This is the response message to the request made.
-    ModuleContent:
-      type: object
-      properties:
-        data:
-          type: object
-          properties:
-            type:
-              type: string
-              example: module-content
-            id:
-              type: string
-              example: 63eff78889f21
-            attributes:
-              type: object
-              properties:
-                id:
-                  type: string
-                  example: 63eff78889f21
-                name:
-                  type: string
-                  example: Hero Banner
-                type:
-                  type: string
-                  enum:
-                  - email
-                  - landing
-                  example: email
-                status:
-                  type: string
-                  enum:
-                  - draft
-                  - final
-                  example: final
-                category:
-                  type: object
-                  nullable: true
-                  properties:
-                    id:
-                      type: string
-                      example: 63eff7760568b
-                    name:
-                      type: string
-                      example: Headers
-                brand_ids:
-                  type: array
-                  items:
-                    type: string
-                  example:
-                  - 63eff7760568a
-                version:
-                  type: string
-                  example: '2'
-                html:
-                  type: string
-                  example: <div>Hero banner content</div>
     ModuleItem:
       type: object
       properties:
@@ -358,6 +277,87 @@ components:
             total:
               type: integer
               example: 2
+    Response:
+      type: object
+      properties:
+        message:
+          type: string
+          example: This is the response message to the request made.
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
+    ModuleContent:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            type:
+              type: string
+              example: module-content
+            id:
+              type: string
+              example: 63eff78889f21
+            attributes:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 63eff78889f21
+                name:
+                  type: string
+                  example: Hero Banner
+                type:
+                  type: string
+                  enum:
+                  - email
+                  - landing
+                  example: email
+                status:
+                  type: string
+                  enum:
+                  - draft
+                  - final
+                  example: final
+                category:
+                  type: object
+                  nullable: true
+                  properties:
+                    id:
+                      type: string
+                      example: 63eff7760568b
+                    name:
+                      type: string
+                      example: Headers
+                brand_ids:
+                  type: array
+                  items:
+                    type: string
+                  example:
+                  - 63eff7760568a
+                version:
+                  type: string
+                  example: '2'
+                html:
+                  type: string
+                  example: <div>Hero banner content</div>
     Module:
       type: object
       properties:

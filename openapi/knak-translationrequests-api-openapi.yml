@@ -571,78 +571,134 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    TranslationLanguage:
-      type: object
-      properties:
-        type:
-          type: string
-          example: translation_language
-        id:
-          type: string
-          description: The ISO language code. Used as the resource id and as a value for `language_codes` when creating a translation request.
-          example: fr-CA
-        attributes:
-          type: object
-          properties:
-            iso_code:
-              type: string
-              description: The ISO language code supported for translation requests.
-              example: fr-CA
-            name:
-              type: string
-              description: Human-readable language name.
-              example: French (Canada)
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
-    User:
+    TranslationRequestAttributes:
       type: object
       properties:
         id:
           type: string
           example: 609d7ce223411
-        name:
+        language_code:
+          description: The language code of the translation target
           type: string
-          example: John Doe
-        email:
+          example: zh-CN
+        source_language_code:
+          description: The language code of the translation source. If not set, the value will be null
           type: string
-          example: john.doe@email.com
-        roles:
-          type: array
-          example:
-          - Email Creator
-          - Collaborator
-          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
-          items:
-            type: string
-    TranslationRequestItem:
+          nullable: true
+          example: en-US
+        status:
+          type: string
+          enum:
+          - cancelled
+          - completed
+          - deleted
+          - failed
+          - manually_translating
+          - processing
+          - reopened
+          - requested
+          - re_requested
+          example: processing
+        base_asset_id:
+          description: The ID of the Asset that should be translated
+          type: string
+          example: 609ca344d1b1b
+        asset_version_id:
+          description: The ID of the Asset Version that should be translated
+          type: string
+          example: 67d19607cbb1d4.78284760
+        integration_id:
+          type: string
+          description: The ID of the integration that was used to request the translation
+          example: 609ca344d1caa
+        user:
+          $ref: '#/components/schemas/User'
+          required:
+          - email
+        notes:
+          type: string
+          description: Any notes or context relating to the translation request. If not set, the value will be null
+          nullable: true
+          example: Need a translation for this asset soon
+        due_date:
+          type: string
+          description: The date the translation is due. If not set, the value will be null
+          nullable: true
+          example: '2023-02-08'
+        created_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        updated_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+    TranslationRequestCreatedList:
       type: object
       properties:
-        type:
-          type: string
-          example: translation-request
+        data:
+          type: array
+          description: The translation requests that were created, one per requested language code.
+          items:
+            $ref: '#/components/schemas/TranslationRequest'
+    TranslationRequestItemAttributes:
+      type: object
+      properties:
         id:
           type: string
           example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/TranslationRequestItemAttributes'
+        language_code:
+          description: The language code of the translation target
+          type: string
+          example: zh-CN
+        source_language_code:
+          description: The language code of the translation source. If not set, the value will be null
+          type: string
+          nullable: true
+          example: en-US
+        status:
+          type: string
+          enum:
+          - cancelled
+          - completed
+          - deleted
+          - failed
+          - manually_translating
+          - processing
+          - reopened
+          - requested
+          - re_requested
+          example: processing
+        base_asset_id:
+          description: The ID of the Asset that should be translated
+          type: string
+          example: 609ca344d1b1b
+        asset_version_id:
+          description: The ID of the Asset Version that should be translated
+          type: string
+          example: 67d19607cbb1d4.78284760
+        integration_id:
+          type: string
+          description: The ID of the integration that was used to request the translation
+          example: 609ca344d1caa
+        creator_id:
+          type: string
+          description: The ID of the user who requested the translation
+          example: 609ca344d1b1b
+        notes:
+          type: string
+          description: Any notes or context relating to the translation request. If not set, the value will be null
+          nullable: true
+          example: Need a translation for this asset soon
+        due_date:
+          type: string
+          description: The date the translation is due. If not set, the value will be null
+          nullable: true
+          example: '2023-02-08'
+        created_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        updated_at:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
     TranslationRequestList:
       type: object
       properties:
@@ -706,6 +762,26 @@ components:
             total:
               type: integer
               example: 3
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
     TranslationLanguageList:
       type: object
       properties:
@@ -713,14 +789,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TranslationLanguage'
-    TranslationRequestCreatedList:
-      type: object
-      properties:
-        data:
-          type: array
-          description: The translation requests that were created, one per requested language code.
-          items:
-            $ref: '#/components/schemas/TranslationRequest'
     TranslationRequest:
       type: object
       properties:
@@ -732,126 +800,58 @@ components:
           example: 609d7ce223411
         attributes:
           $ref: '#/components/schemas/TranslationRequestAttributes'
-    TranslationRequestItemAttributes:
+    User:
       type: object
       properties:
         id:
           type: string
           example: 609d7ce223411
-        language_code:
-          description: The language code of the translation target
+        name:
           type: string
-          example: zh-CN
-        source_language_code:
-          description: The language code of the translation source. If not set, the value will be null
+          example: John Doe
+        email:
           type: string
-          nullable: true
-          example: en-US
-        status:
-          type: string
-          enum:
-          - cancelled
-          - completed
-          - deleted
-          - failed
-          - manually_translating
-          - processing
-          - reopened
-          - requested
-          - re_requested
-          example: processing
-        base_asset_id:
-          description: The ID of the Asset that should be translated
-          type: string
-          example: 609ca344d1b1b
-        asset_version_id:
-          description: The ID of the Asset Version that should be translated
-          type: string
-          example: 67d19607cbb1d4.78284760
-        integration_id:
-          type: string
-          description: The ID of the integration that was used to request the translation
-          example: 609ca344d1caa
-        creator_id:
-          type: string
-          description: The ID of the user who requested the translation
-          example: 609ca344d1b1b
-        notes:
-          type: string
-          description: Any notes or context relating to the translation request. If not set, the value will be null
-          nullable: true
-          example: Need a translation for this asset soon
-        due_date:
-          type: string
-          description: The date the translation is due. If not set, the value will be null
-          nullable: true
-          example: '2023-02-08'
-        created_at:
-          type: string
-          example: '2023-02-08T17:07:12+00:00'
-        updated_at:
-          type: string
-          example: '2023-02-08T17:07:12+00:00'
-    TranslationRequestAttributes:
+          example: john.doe@email.com
+        roles:
+          type: array
+          example:
+          - Email Creator
+          - Collaborator
+          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
+          items:
+            type: string
+    TranslationLanguage:
       type: object
       properties:
+        type:
+          type: string
+          example: translation_language
+        id:
+          type: string
+          description: The ISO language code. Used as the resource id and as a value for `language_codes` when creating a translation request.
+          example: fr-CA
+        attributes:
+          type: object
+          properties:
+            iso_code:
+              type: string
+              description: The ISO language code supported for translation requests.
+              example: fr-CA
+            name:
+              type: string
+              description: Human-readable language name.
+              example: French (Canada)
+    TranslationRequestItem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: translation-request
         id:
           type: string
           example: 609d7ce223411
-        language_code:
-          description: The language code of the translation target
-          type: string
-          example: zh-CN
-        source_language_code:
-          description: The language code of the translation source. If not set, the value will be null
-          type: string
-          nullable: true
-          example: en-US
-        status:
-          type: string
-          enum:
-          - cancelled
-          - completed
-          - deleted
-          - failed
-          - manually_translating
-          - processing
-          - reopened
-          - requested
-          - re_requested
-          example: processing
-        base_asset_id:
-          description: The ID of the Asset that should be translated
-          type: string
-          example: 609ca344d1b1b
-        asset_version_id:
-          description: The ID of the Asset Version that should be translated
-          type: string
-          example: 67d19607cbb1d4.78284760
-        integration_id:
-          type: string
-          description: The ID of the integration that was used to request the translation
-          example: 609ca344d1caa
-        user:
-          $ref: '#/components/schemas/User'
-          required:
-          - email
-        notes:
-          type: string
-          description: Any notes or context relating to the translation request. If not set, the value will be null
-          nullable: true
-          example: Need a translation for this asset soon
-        due_date:
-          type: string
-          description: The date the translation is due. If not set, the value will be null
-          nullable: true
-          example: '2023-02-08'
-        created_at:
-          type: string
-          example: '2023-02-08T17:07:12+00:00'
-        updated_at:
-          type: string
-          example: '2023-02-08T17:07:12+00:00'
+        attributes:
+          $ref: '#/components/schemas/TranslationRequestItemAttributes'
 x-tagGroups:
 - name: User Management
   tags:

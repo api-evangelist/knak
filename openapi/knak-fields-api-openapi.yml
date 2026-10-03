@@ -163,6 +163,15 @@ paths:
           $ref: '#/components/responses/TooManyRequests'
 components:
   parameters:
+    PageNumber:
+      name: page[number]
+      in: query
+      required: false
+      description: The page of results to return (1-based).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
     FieldId:
       name: id
       in: path
@@ -181,84 +190,39 @@ components:
         minimum: 1
         maximum: 100
         default: 25
-    PageNumber:
-      name: page[number]
-      in: query
-      required: false
-      description: The page of results to return (1-based).
-      schema:
-        type: integer
-        minimum: 1
-        default: 1
-  responses:
-    ValidationError:
-      description: One or more request fields failed backend validation.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorList'
-          example:
-            error_at: '2026-06-02T13:56:31+00:00'
-            errors:
-            - identifier: ValidationError
-              details: One or more of the given request fields failed backend validation.
-              meta:
-                email:
-                - The email field is required.
-    Forbidden:
-      description: Knak Send access is not enabled for the account, or the token lacks the required scope.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: ACCESS_DENIED
-              message: Knak Send access is not enabled for this account.
-    FieldNotFound:
-      description: No field exists with the given ID.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: FIELD_NOT_FOUND
-              message: Field with id f1e2d3c4-b5a6-7890-abcd-ef1234567890 not found.
-    FieldConflict:
-      description: A field with the same generated key already exists.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: FIELD_ALREADY_EXISTS
-              message: A field with the name Department already exists in API directory.
-    Unauthenticated:
-      description: The access token is missing, invalid or expired.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: UNAUTHENTICATED
-              message: Invalid or expired access token.
-    TooManyRequests:
-      description: 'The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
-
-        to wait before retrying.
-
-        '
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/HttpError'
-          example:
-            message: Too Many Attempts.
-            type: HttpException
   schemas:
+    FieldType:
+      type: string
+      description: The data type of a field.
+      enum:
+      - string
+      - number
+      - date
+      - datetime
+      - boolean
+    HttpError:
+      type: object
+      description: The error shape returned for rate-limit (429) errors.
+      properties:
+        message:
+          type: string
+          description: A human-readable description of the error.
+        type:
+          type: string
+          description: The error type. Always `HttpException` for this shape.
+    ErrorObject:
+      type: object
+      description: The compact error shape returned for authentication, authorization and conflict errors.
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              description: A machine-readable error code.
+            message:
+              type: string
+              description: A human-readable description of the error.
     FieldInput:
       type: object
       description: The payload used to create a field.
@@ -317,29 +281,6 @@ components:
               meta:
                 type: object
                 description: Additional context. For validation errors, a map of field name to validation messages.
-    HttpError:
-      type: object
-      description: The error shape returned for rate-limit (429) errors.
-      properties:
-        message:
-          type: string
-          description: A human-readable description of the error.
-        type:
-          type: string
-          description: The error type. Always `HttpException` for this shape.
-    ErrorObject:
-      type: object
-      description: The compact error shape returned for authentication, authorization and conflict errors.
-      properties:
-        error:
-          type: object
-          properties:
-            code:
-              type: string
-              description: A machine-readable error code.
-            message:
-              type: string
-              description: A human-readable description of the error.
     Field:
       type: object
       description: A custom contact field (schema metadata).
@@ -358,15 +299,74 @@ components:
         directory_id:
           type: string
           description: The ID of the directory the field belongs to.
-    FieldType:
-      type: string
-      description: The data type of a field.
-      enum:
-      - string
-      - number
-      - date
-      - datetime
-      - boolean
+  responses:
+    FieldConflict:
+      description: A field with the same generated key already exists.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: FIELD_ALREADY_EXISTS
+              message: A field with the name Department already exists in API directory.
+    TooManyRequests:
+      description: 'The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
+
+        to wait before retrying.
+
+        '
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpError'
+          example:
+            message: Too Many Attempts.
+            type: HttpException
+    Forbidden:
+      description: Knak Send access is not enabled for the account, or the token lacks the required scope.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: ACCESS_DENIED
+              message: Knak Send access is not enabled for this account.
+    FieldNotFound:
+      description: No field exists with the given ID.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: FIELD_NOT_FOUND
+              message: Field with id f1e2d3c4-b5a6-7890-abcd-ef1234567890 not found.
+    ValidationError:
+      description: One or more request fields failed backend validation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorList'
+          example:
+            error_at: '2026-06-02T13:56:31+00:00'
+            errors:
+            - identifier: ValidationError
+              details: One or more of the given request fields failed backend validation.
+              meta:
+                email:
+                - The email field is required.
+    Unauthenticated:
+      description: The access token is missing, invalid or expired.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: UNAUTHENTICATED
+              message: Invalid or expired access token.
   securitySchemes:
     bearerAuth:
       type: http

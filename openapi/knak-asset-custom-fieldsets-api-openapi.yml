@@ -129,56 +129,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
-    AssetCustomFieldset:
-      type: object
-      properties:
-        type:
-          type: string
-          example: asset-custom-fieldset
-        id:
-          type: string
-          example: 63eff78889f21
-        attributes:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 63eff78889f21
-            name:
-              type: string
-              example: Asset Custom Fieldset
-            brands:
-              type: array
-              items:
-                $ref: '#/components/schemas/BrandSummary'
-            created_at:
-              type: string
-              format: date-time
-              example: '2023-05-17T21:54:19.000000Z'
-            updated_at:
-              type: string
-              format: date-time
-              example: '2023-05-18T19:55:21.000000Z'
     AssetCustomFieldsetsList:
       type: object
       properties:
@@ -242,6 +192,62 @@ components:
             total:
               type: integer
               example: 2
+    AssetCustomFieldset:
+      type: object
+      properties:
+        type:
+          type: string
+          example: asset-custom-fieldset
+        id:
+          type: string
+          example: 63eff78889f21
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 63eff78889f21
+            name:
+              type: string
+              example: Asset Custom Fieldset
+            brands:
+              type: array
+              items:
+                $ref: '#/components/schemas/BrandSummary'
+            created_at:
+              type: string
+              format: date-time
+              example: '2023-05-17T21:54:19.000000Z'
+            updated_at:
+              type: string
+              format: date-time
+              example: '2023-05-18T19:55:21.000000Z'
+    Response:
+      type: object
+      properties:
+        message:
+          type: string
+          example: This is the response message to the request made.
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
     BrandSummary:
       type: object
       properties:
@@ -292,12 +298,6 @@ components:
               type: string
               format: date-time
               example: '2023-05-18T19:55:21.000000Z'
-    Response:
-      type: object
-      properties:
-        message:
-          type: string
-          example: This is the response message to the request made.
 x-tagGroups:
 - name: User Management
   tags:

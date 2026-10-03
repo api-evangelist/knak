@@ -120,6 +120,21 @@ components:
           example: 609d7ce223411
         attributes:
           $ref: '#/components/schemas/IntegrationAttributes'
+    IntegrationAttributes:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: Acme SFMC Integration
+        platform:
+          type: string
+          example: marketing_cloud
+        category:
+          type: string
+          example: map
     IntegrationList:
       type: object
       properties:
@@ -183,21 +198,6 @@ components:
             total:
               type: integer
               example: 2
-    IntegrationAttributes:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 609d7ce223411
-        name:
-          type: string
-          example: Acme SFMC Integration
-        platform:
-          type: string
-          example: marketing_cloud
-        category:
-          type: string
-          example: map
 x-tagGroups:
 - name: User Management
   tags:
