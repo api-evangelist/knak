@@ -209,11 +209,60 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    ModuleItem:
+    Module:
       type: object
       properties:
-        data:
-          $ref: '#/components/schemas/Module'
+        type:
+          type: string
+          example: module
+        id:
+          type: string
+          example: 63eff78889f21
+        attributes:
+          type: object
+          properties:
+            id:
+              type: string
+              example: 63eff78889f21
+            name:
+              type: string
+              example: Hero Banner
+            type:
+              type: string
+              enum:
+              - email
+              - landing
+              example: email
+            status:
+              type: string
+              enum:
+              - draft
+              - final
+              example: final
+            category:
+              type: object
+              nullable: true
+              properties:
+                id:
+                  type: string
+                  example: 63eff7760568b
+                name:
+                  type: string
+                  example: Headers
+            brand_ids:
+              type: array
+              items:
+                type: string
+              example:
+              - 63eff7760568a
+            created_at:
+              type: string
+              format: date-time
+              example: '2023-05-17T21:54:19Z'
+            updated_at:
+              type: string
+              format: date-time
+              example: '2023-05-18T19:55:21Z'
     ModuleList:
       type: object
       properties:
@@ -277,12 +326,6 @@ components:
             total:
               type: integer
               example: 2
-    Response:
-      type: object
-      properties:
-        message:
-          type: string
-          example: This is the response message to the request made.
     Error:
       type: object
       properties:
@@ -303,6 +346,11 @@ components:
                 type: object
                 description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
                 additionalProperties: true
+    ModuleItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Module'
     ModuleContent:
       type: object
       properties:
@@ -358,60 +406,12 @@ components:
                 html:
                   type: string
                   example: <div>Hero banner content</div>
-    Module:
+    Response:
       type: object
       properties:
-        type:
+        message:
           type: string
-          example: module
-        id:
-          type: string
-          example: 63eff78889f21
-        attributes:
-          type: object
-          properties:
-            id:
-              type: string
-              example: 63eff78889f21
-            name:
-              type: string
-              example: Hero Banner
-            type:
-              type: string
-              enum:
-              - email
-              - landing
-              example: email
-            status:
-              type: string
-              enum:
-              - draft
-              - final
-              example: final
-            category:
-              type: object
-              nullable: true
-              properties:
-                id:
-                  type: string
-                  example: 63eff7760568b
-                name:
-                  type: string
-                  example: Headers
-            brand_ids:
-              type: array
-              items:
-                type: string
-              example:
-              - 63eff7760568a
-            created_at:
-              type: string
-              format: date-time
-              example: '2023-05-17T21:54:19Z'
-            updated_at:
-              type: string
-              format: date-time
-              example: '2023-05-18T19:55:21Z'
+          example: This is the response message to the request made.
 x-tagGroups:
 - name: User Management
   tags:

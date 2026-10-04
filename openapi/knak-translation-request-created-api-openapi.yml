@@ -52,6 +52,26 @@ webhooks:
       x-summary-source: derived
 components:
   schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john.doe@email.com
+        roles:
+          type: array
+          example:
+          - Email Creator
+          - Collaborator
+          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
+          items:
+            type: string
     TranslationRequestAttributes:
       type: object
       properties:
@@ -161,26 +181,6 @@ components:
               - email
             translation_request:
               $ref: '#/components/schemas/TranslationRequestAttributes'
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 609d7ce223411
-        name:
-          type: string
-          example: John Doe
-        email:
-          type: string
-          example: john.doe@email.com
-        roles:
-          type: array
-          example:
-          - Email Creator
-          - Collaborator
-          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
-          items:
-            type: string
 x-tagGroups:
 - name: User Management
   tags:

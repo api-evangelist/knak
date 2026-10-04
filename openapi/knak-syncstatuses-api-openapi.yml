@@ -145,6 +145,17 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    SyncStatus:
+      type: object
+      properties:
+        type:
+          type: string
+          example: sync-status
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/SyncStatusAttributes'
     SyncStatusAttributes:
       type: object
       properties:
@@ -188,22 +199,6 @@ components:
           - cancelled
           - 'null'
           example: ok
-    SyncStatus:
-      type: object
-      properties:
-        type:
-          type: string
-          example: sync-status
-        id:
-          type: string
-          example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/SyncStatusAttributes'
-    SyncStatusItem:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/SyncStatus'
     Error:
       type: object
       properties:
@@ -224,6 +219,11 @@ components:
                 type: object
                 description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
                 additionalProperties: true
+    SyncStatusItem:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/SyncStatus'
 x-tagGroups:
 - name: User Management
   tags:

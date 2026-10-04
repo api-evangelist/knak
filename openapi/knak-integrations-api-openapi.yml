@@ -109,17 +109,6 @@ components:
                 type: object
                 description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
                 additionalProperties: true
-    Integration:
-      type: object
-      properties:
-        type:
-          type: string
-          example: integration
-        id:
-          type: string
-          example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/IntegrationAttributes'
     IntegrationAttributes:
       type: object
       properties:
@@ -135,6 +124,17 @@ components:
         category:
           type: string
           example: map
+    Integration:
+      type: object
+      properties:
+        type:
+          type: string
+          example: integration
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/IntegrationAttributes'
     IntegrationList:
       type: object
       properties:

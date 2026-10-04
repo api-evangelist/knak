@@ -162,54 +162,7 @@ paths:
         '429':
           $ref: '#/components/responses/TooManyRequests'
 components:
-  parameters:
-    PageNumber:
-      name: page[number]
-      in: query
-      required: false
-      description: The page of results to return (1-based).
-      schema:
-        type: integer
-        minimum: 1
-        default: 1
-    FieldId:
-      name: id
-      in: path
-      required: true
-      description: The unique identifier of the field.
-      schema:
-        type: string
-      example: f1e2d3c4-b5a6-7890-abcd-ef1234567890
-    PageSize:
-      name: page[size]
-      in: query
-      required: false
-      description: The number of records per page.
-      schema:
-        type: integer
-        minimum: 1
-        maximum: 100
-        default: 25
   schemas:
-    FieldType:
-      type: string
-      description: The data type of a field.
-      enum:
-      - string
-      - number
-      - date
-      - datetime
-      - boolean
-    HttpError:
-      type: object
-      description: The error shape returned for rate-limit (429) errors.
-      properties:
-        message:
-          type: string
-          description: A human-readable description of the error.
-        type:
-          type: string
-          description: The error type. Always `HttpException` for this shape.
     ErrorObject:
       type: object
       description: The compact error shape returned for authentication, authorization and conflict errors.
@@ -299,17 +252,46 @@ components:
         directory_id:
           type: string
           description: The ID of the directory the field belongs to.
+    HttpError:
+      type: object
+      description: The error shape returned for rate-limit (429) errors.
+      properties:
+        message:
+          type: string
+          description: A human-readable description of the error.
+        type:
+          type: string
+          description: The error type. Always `HttpException` for this shape.
+    FieldType:
+      type: string
+      description: The data type of a field.
+      enum:
+      - string
+      - number
+      - date
+      - datetime
+      - boolean
   responses:
-    FieldConflict:
-      description: A field with the same generated key already exists.
+    Unauthenticated:
+      description: The access token is missing, invalid or expired.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorObject'
           example:
             error:
-              code: FIELD_ALREADY_EXISTS
-              message: A field with the name Department already exists in API directory.
+              code: UNAUTHENTICATED
+              message: Invalid or expired access token.
+    Forbidden:
+      description: Knak Send access is not enabled for the account, or the token lacks the required scope.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorObject'
+          example:
+            error:
+              code: ACCESS_DENIED
+              message: Knak Send access is not enabled for this account.
     TooManyRequests:
       description: 'The rate limit for the endpoint has been exceeded. A `Retry-After` header indicates how many seconds
 
@@ -323,26 +305,16 @@ components:
           example:
             message: Too Many Attempts.
             type: HttpException
-    Forbidden:
-      description: Knak Send access is not enabled for the account, or the token lacks the required scope.
+    FieldConflict:
+      description: A field with the same generated key already exists.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorObject'
           example:
             error:
-              code: ACCESS_DENIED
-              message: Knak Send access is not enabled for this account.
-    FieldNotFound:
-      description: No field exists with the given ID.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorObject'
-          example:
-            error:
-              code: FIELD_NOT_FOUND
-              message: Field with id f1e2d3c4-b5a6-7890-abcd-ef1234567890 not found.
+              code: FIELD_ALREADY_EXISTS
+              message: A field with the name Department already exists in API directory.
     ValidationError:
       description: One or more request fields failed backend validation.
       content:
@@ -357,16 +329,44 @@ components:
               meta:
                 email:
                 - The email field is required.
-    Unauthenticated:
-      description: The access token is missing, invalid or expired.
+    FieldNotFound:
+      description: No field exists with the given ID.
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorObject'
           example:
             error:
-              code: UNAUTHENTICATED
-              message: Invalid or expired access token.
+              code: FIELD_NOT_FOUND
+              message: Field with id f1e2d3c4-b5a6-7890-abcd-ef1234567890 not found.
+  parameters:
+    PageNumber:
+      name: page[number]
+      in: query
+      required: false
+      description: The page of results to return (1-based).
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: page[size]
+      in: query
+      required: false
+      description: The number of records per page.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 25
+    FieldId:
+      name: id
+      in: path
+      required: true
+      description: The unique identifier of the field.
+      schema:
+        type: string
+      example: f1e2d3c4-b5a6-7890-abcd-ef1234567890
   securitySchemes:
     bearerAuth:
       type: http

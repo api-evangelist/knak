@@ -52,6 +52,88 @@ webhooks:
       x-summary-source: derived
 components:
   schemas:
+    asset.translation_requested:
+      type: object
+      properties:
+        event_type:
+          type: string
+          example: asset.translation_requested
+        event_id:
+          type: string
+          example: 609d7ce223411
+        event_date:
+          type: string
+          example: '2023-02-08T17:07:12+00:00'
+        version:
+          type: string
+          example: '1.0'
+        data:
+          type: object
+          properties:
+            asset:
+              type: object
+              properties:
+                id:
+                  type: string
+                  example: 609d7ce223411
+                name:
+                  type: string
+                  example: Spring Newsletter
+                folder_path:
+                  type: string
+                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
+                campaign:
+                  type: string
+                  example: Sample Campaign
+                brand:
+                  type: string
+                  example: Sample Brand
+                version:
+                  type: string
+                  example: '1.0'
+                language_code:
+                  type: string
+                  nullable: true
+                  example: es
+            user:
+              $ref: '#/components/schemas/User'
+              required:
+              - email
+            translation_requests:
+              type: array
+              items:
+                $ref: '#/components/schemas/TranslationRequestItem'
+    TranslationRequestItem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: translation-request
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/TranslationRequestItemAttributes'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 609d7ce223411
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john.doe@email.com
+        roles:
+          type: array
+          example:
+          - Email Creator
+          - Collaborator
+          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
+          items:
+            type: string
     TranslationRequestItemAttributes:
       type: object
       properties:
@@ -112,88 +194,6 @@ components:
         updated_at:
           type: string
           example: '2023-02-08T17:07:12+00:00'
-    TranslationRequestItem:
-      type: object
-      properties:
-        type:
-          type: string
-          example: translation-request
-        id:
-          type: string
-          example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/TranslationRequestItemAttributes'
-    asset.translation_requested:
-      type: object
-      properties:
-        event_type:
-          type: string
-          example: asset.translation_requested
-        event_id:
-          type: string
-          example: 609d7ce223411
-        event_date:
-          type: string
-          example: '2023-02-08T17:07:12+00:00'
-        version:
-          type: string
-          example: '1.0'
-        data:
-          type: object
-          properties:
-            asset:
-              type: object
-              properties:
-                id:
-                  type: string
-                  example: 609d7ce223411
-                name:
-                  type: string
-                  example: Spring Newsletter
-                folder_path:
-                  type: string
-                  example: Sample Brand/Folder 1/Folder 2/Sample Campaign
-                campaign:
-                  type: string
-                  example: Sample Campaign
-                brand:
-                  type: string
-                  example: Sample Brand
-                version:
-                  type: string
-                  example: '1.0'
-                language_code:
-                  type: string
-                  nullable: true
-                  example: es
-            user:
-              $ref: '#/components/schemas/User'
-              required:
-              - email
-            translation_requests:
-              type: array
-              items:
-                $ref: '#/components/schemas/TranslationRequestItem'
-    User:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 609d7ce223411
-        name:
-          type: string
-          example: John Doe
-        email:
-          type: string
-          example: john.doe@email.com
-        roles:
-          type: array
-          example:
-          - Email Creator
-          - Collaborator
-          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
-          items:
-            type: string
 x-tagGroups:
 - name: User Management
   tags:

@@ -189,26 +189,6 @@ components:
               type: string
               format: date-time
               example: '2023-05-18T19:55:21.000000Z'
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
     ThemeList:
       type: object
       properties:
@@ -272,6 +252,26 @@ components:
             total:
               type: integer
               example: 2
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
     Response:
       type: object
       properties:
