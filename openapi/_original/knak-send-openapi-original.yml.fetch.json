@@ -1,0 +1,12 @@
+{
+ "url": "https://developer.knak.com/openapi/send/send-api.yml",
+ "requested_url": "https://developer.knak.com/openapi/send/send-api.yml",
+ "status": 200,
+ "content_type": "text/yaml; charset=utf-8",
+ "bytes": 38168,
+ "sha256": "371eba5f9f3a0e1cd312cba242706861a3c3e579f86cee9c9495ba2516dc85e9",
+ "fetched_at": "2026-10-04",
+ "fetched_by": "APIEvangelist-Harvest/1.0 (+https://apievangelist.com)",
+ "match": "byte-identical",
+ "note": "Re-fetched from the provider by verify-openapi-sources.py; the archived file is byte-identical to what the provider serves."
+}
