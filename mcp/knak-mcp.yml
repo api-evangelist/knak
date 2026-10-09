@@ -200,3 +200,16 @@ workflow:
     AI assistant orchestrates the workflow; it does not write the email content itself. Generation typically
     takes one to two minutes.
 crosswalk: mcp/knak-tool-crosswalk.yml
+rfc9728:
+  endpoint: https://enterprise.knak.io/mcp/public
+  metadata_url: https://enterprise.knak.io/.well-known/oauth-protected-resource/mcp/public
+  discovered_via: WWW-Authenticate resource_metadata on an anonymous POST initialize
+  fetched: '2026-09-25'
+  http_status: 200
+  content_type: application/json
+  document:
+    resource: https://enterprise.knak.io/mcp/public
+    authorization_servers:
+    - https://enterprise.knak.io/mcp/public
+    scopes_supported:
+    - mcp:use
