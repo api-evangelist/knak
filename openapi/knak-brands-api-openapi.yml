@@ -74,23 +74,6 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
-    Brand:
-      type: object
-      properties:
-        id:
-          type: string
-          example: 63eff7760568a
-        name:
-          type: string
-          example: AMER
-        updated_at:
-          type: string
-          format: date-time
-          example: '2023-05-18T19:55:21.000000Z'
-        created_at:
-          type: string
-          format: date-time
-          example: '2023-05-17T21:54:19.000000Z'
     Error:
       type: object
       properties:
@@ -111,6 +94,23 @@ components:
                 type: object
                 description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
                 additionalProperties: true
+    Brand:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 63eff7760568a
+        name:
+          type: string
+          example: AMER
+        updated_at:
+          type: string
+          format: date-time
+          example: '2023-05-18T19:55:21.000000Z'
+        created_at:
+          type: string
+          format: date-time
+          example: '2023-05-17T21:54:19.000000Z'
 x-tagGroups:
 - name: User Management
   tags:

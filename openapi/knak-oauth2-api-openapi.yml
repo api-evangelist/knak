@@ -196,6 +196,25 @@ paths:
     - url: https://yourService.com/yourDamApi
 components:
   schemas:
+    OAuth2TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: The member's assigned access token
+          example: wj1ds92jdowk132
+        refresh_token:
+          type: string
+          description: 'The member''s assigned refresh token '
+          example: ai298dj2od01kde
+        expires_in:
+          type: string
+          description: The number of seconds in which the access token is valid
+          example: '7200'
+        token_type:
+          type: string
+          description: The type of access token
+          example: ai298dj2od01kde
     OAuth2TokenRequest:
       type: object
       required:
@@ -225,25 +244,6 @@ components:
           type: string
           description: 'The refresh token for the member that needs its token to be refreshed. Used with grant type: refresh_token'
           example: 'null'
-    OAuth2TokenResponse:
-      type: object
-      properties:
-        access_token:
-          type: string
-          description: The member's assigned access token
-          example: wj1ds92jdowk132
-        refresh_token:
-          type: string
-          description: 'The member''s assigned refresh token '
-          example: ai298dj2od01kde
-        expires_in:
-          type: string
-          description: The number of seconds in which the access token is valid
-          example: '7200'
-        token_type:
-          type: string
-          description: The type of access token
-          example: ai298dj2od01kde
 x-refined-from:
 - knak-custom-sync-location-openapi-original.yml
 - knak-dam-openapi-original.yml

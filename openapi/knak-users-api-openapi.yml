@@ -483,65 +483,12 @@ paths:
     - url: https://enterprise.knak.io/scim/v2
 components:
   schemas:
-    User:
+    Response:
       type: object
       properties:
-        id:
-          type: string
-          example: 609d7ce223411
-        name:
-          type: string
-          example: John Doe
-        email:
-          type: string
-          example: john.doe@email.com
-        roles:
-          type: array
-          example:
-          - Email Creator
-          - Collaborator
-          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
-          items:
-            type: string
-    UserResponse:
-      type: object
-      properties:
-        user:
-          $ref: '#/components/schemas/UserItem'
         message:
           type: string
-          example: Success
-    UserItem:
-      type: object
-      properties:
-        type:
-          type: string
-          example: user
-        id:
-          type: string
-          example: 609d7ce223411
-        attributes:
-          $ref: '#/components/schemas/User'
-    Error:
-      type: object
-      properties:
-        errors:
-          type: array
-          items:
-            type: object
-            properties:
-              status:
-                type: string
-                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
-                example: '409'
-              title:
-                type: string
-              detail:
-                type: string
-              meta:
-                type: object
-                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
-                additionalProperties: true
+          example: This is the response message to the request made.
     UserList:
       type: object
       properties:
@@ -605,26 +552,71 @@ components:
             total:
               type: integer
               example: 2
-    Response:
+    User:
       type: object
       properties:
-        message:
+        id:
           type: string
-          example: This is the response message to the request made.
-    ErrorSchema:
-      type: object
-      properties:
-        schemas:
+          example: 609d7ce223411
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          example: john.doe@email.com
+        roles:
           type: array
+          example:
+          - Email Creator
+          - Collaborator
+          description: The roles for the user. Can be any of the roles defined for the company including custom roles.
           items:
             type: string
-            example: urn:ietf:params:scim:api:messages:2.0:Error
-        status:
+    Error:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              status:
+                type: string
+                description: HTTP status code as a string. Returned by endpoints that use the JSON:API error shape.
+                example: '409'
+              title:
+                type: string
+              detail:
+                type: string
+              meta:
+                type: object
+                description: Additional context for the error. Returned by endpoints that use the JSON:API error shape.
+                additionalProperties: true
+    UserResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/UserItem'
+        message:
           type: string
-          example: 404
-        detail:
+          example: Success
+    UserItem:
+      type: object
+      properties:
+        type:
           type: string
-          example: User not found
+          example: user
+        id:
+          type: string
+          example: 609d7ce223411
+        attributes:
+          $ref: '#/components/schemas/User'
+    Error_2:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Unauthenticated.
     UserList_2:
       type: object
       properties:
@@ -687,12 +679,20 @@ components:
         active:
           type: boolean
           example: true
-    Error_2:
+    ErrorSchema:
       type: object
       properties:
-        error:
+        schemas:
+          type: array
+          items:
+            type: string
+            example: urn:ietf:params:scim:api:messages:2.0:Error
+        status:
           type: string
-          example: Unauthenticated.
+          example: 404
+        detail:
+          type: string
+          example: User not found
 x-refined-from:
 - knak-enterprise-openapi-original.yml
 - knak-scim-openapi-original.yml

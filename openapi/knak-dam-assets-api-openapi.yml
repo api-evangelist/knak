@@ -153,11 +153,67 @@ paths:
       x-operation-id-source: derived
 components:
   schemas:
+    DamMessage:
+      type: object
+      required:
+      - message
+      - type
+      - level
+      properties:
+        message:
+          type: string
+          description: Message text to display
+          example: Search for asset by their name or ID
+        type:
+          $ref: '#/components/schemas/MessageType'
+        level:
+          $ref: '#/components/schemas/MessageLevel'
     DamAssetsSearchResponse:
       type: object
       required:
       - data
       - meta
+      properties:
+        data:
+          type: array
+          description: The DAM Asset results
+          items:
+            $ref: '#/components/schemas/DamAsset'
+        messages:
+          type: array
+          description: Custom messages to display on DAM file viewer
+          items:
+            $ref: '#/components/schemas/DamMessage'
+        meta:
+          type: object
+          description: response metadata
+          required:
+          - offset
+          - total
+          properties:
+            offset:
+              type: number
+              description: The current offset of fetched results
+              example: 0
+            per_page:
+              type: number
+              description: The number of items requested per page
+              example: 1
+            total:
+              type: number
+              description: The total number of search results
+              example: 40
+    MessageLevel:
+      type: string
+      enum:
+      - info
+      - warning
+      - error
+    DamAssetsIndexResponse:
+      type: object
+      required:
+      - data
+      - metadata
       properties:
         data:
           type: array
@@ -194,86 +250,11 @@ components:
       - image
       - video
       - folder
-    MessageLevel:
-      type: string
-      enum:
-      - info
-      - warning
-      - error
-    AssetMetaData:
-      type: object
-      properties:
-        width:
-          type: number
-          description: The width of the asset in pixels
-          example: 1920
-        height:
-          type: number
-          description: The height of the asset in pixels
-          example: 1080
-        size:
-          type: number
-          description: The size of the asset in bytes
-          example: 1024
-        mime_type:
-          type: string
-          description: The mime type of the asset
-          example: image/jpeg
     MessageType:
       type: string
       enum:
       - search
       - empty
-    DamMessage:
-      type: object
-      required:
-      - message
-      - type
-      - level
-      properties:
-        message:
-          type: string
-          description: Message text to display
-          example: Search for asset by their name or ID
-        type:
-          $ref: '#/components/schemas/MessageType'
-        level:
-          $ref: '#/components/schemas/MessageLevel'
-    DamAssetsIndexResponse:
-      type: object
-      required:
-      - data
-      - metadata
-      properties:
-        data:
-          type: array
-          description: The DAM Asset results
-          items:
-            $ref: '#/components/schemas/DamAsset'
-        messages:
-          type: array
-          description: Custom messages to display on DAM file viewer
-          items:
-            $ref: '#/components/schemas/DamMessage'
-        meta:
-          type: object
-          description: response metadata
-          required:
-          - offset
-          - total
-          properties:
-            offset:
-              type: number
-              description: The current offset of fetched results
-              example: 0
-            per_page:
-              type: number
-              description: The number of items requested per page
-              example: 1
-            total:
-              type: number
-              description: The total number of search results
-              example: 40
     DamAsset:
       type: object
       required:
@@ -306,3 +287,22 @@ components:
           example: https://my.cdn.com/previews/99816c53-62b1-484d-89b9-35d4453ef770.jpg
         metadata:
           $ref: '#/components/schemas/AssetMetaData'
+    AssetMetaData:
+      type: object
+      properties:
+        width:
+          type: number
+          description: The width of the asset in pixels
+          example: 1920
+        height:
+          type: number
+          description: The height of the asset in pixels
+          example: 1080
+        size:
+          type: number
+          description: The size of the asset in bytes
+          example: 1024
+        mime_type:
+          type: string
+          description: The mime type of the asset
+          example: image/jpeg
