@@ -17,6 +17,7 @@ checked:
 - https://developer.salesforce.com/docs/atlas.en-us.packagingGuide.meta/packagingGuide/security_review_overview.htm
 - https://slack.com/marketplace
 - salesforce-marketing-cloud/integrations/salesforce-marketing-cloud-integration-edges.yml
+- hubspot/integrations/hubspot-integration-edges.yml
 summary: null
 marketplace_apps: []
 edges:
@@ -74,4 +75,21 @@ edges:
   detected: '2026-10-21'
   detected_by: mirror-platform-listings.py
   category: marketing
+- partner_name: HubSpot (own)
+  partner: hubspot
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://ecosystem.hubspot.com/marketplace/listing/knak
+  mirror_of: hubspot/integrations/hubspot-integration-edges.yml
+  apps:
+  - Knak
+  listing_count: 1
+  detected: '2026-10-21'
+  detected_by: mirror-platform-listings.py
+  category: EMAIL
 templates: []
