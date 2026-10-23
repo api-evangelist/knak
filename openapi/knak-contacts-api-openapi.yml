@@ -821,3 +821,9 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: A bearer token generated through the Enterprise API Access menu.
+x-provenance:
+  method: harvested
+  publisher: Knak
+  source: https://developer.knak.com/openapi/send/send-api.yml
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
